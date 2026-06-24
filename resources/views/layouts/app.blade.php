@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Beltway Office Park – Premium office space in South Jakarta. World-class facilities, strategic location, modern architecture for your business excellence.">
+    <meta name="keywords" content="office park, Jakarta Selatan, sewa kantor premium, office tower, commercial real estate Jakarta">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Beltway Office Park – Premium Office Space South Jakarta">
+    <meta property="og:description" content="World-class office environments designed for productivity, growth, and professional excellence in South Jakarta.">
+    <meta property="og:type" content="website">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'Beltway Office Park – Premium Commercial Real Estate')</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="{{ session('admin_logged_in') ? 'admin-mode' : '' }}">
+
+    @if(session('admin_logged_in'))
+    <!-- Admin Bar -->
+    <div class="fixed top-0 left-0 right-0 h-9 bg-slate-900 border-b border-white/10 text-white px-6 lg:px-12 flex justify-between items-center text-xs z-[60]">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span class="font-semibold text-white/90">Logged in as Administrator</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="{{ route('admin') }}" class="hover:text-gold transition-colors font-bold uppercase tracking-wider no-underline text-white/90">Go to Dashboard</a>
+            <span class="text-white/20">|</span>
+            <form action="{{ route('logout') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="hover:text-red-400 transition-colors font-bold uppercase tracking-wider bg-transparent border-none p-0 cursor-pointer">Logout</button>
+            </form>
+        </div>
+    </div>
+    @endif
+
+    <!-- ========================
+         STICKY NAVBAR
+         ======================== -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 py-4 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+            <!-- Logo -->
+            <a href="#hero" class="flex items-center gap-3 no-underline">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #1E3A8A, #D4AF37);">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="nav-logo-text text-white font-extrabold text-lg leading-none tracking-tight">BELTWAY</div>
+                    <div class="text-xs font-semibold tracking-widest" style="color: #D4AF37;">OFFICE PARK</div>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <div class="hidden lg:flex items-center gap-7">
+                <a href="#hero"       class="nav-link text-white" id="nav-home">Home</a>
+                <a href="#about"      class="nav-link text-white" id="nav-about">About</a>
+                <a href="#towers"     class="nav-link text-white" id="nav-towers">Towers</a>
+                <a href="#facilities" class="nav-link text-white" id="nav-facilities">Facilities</a>
+                <a href="#location"   class="nav-link text-white" id="nav-location">Location</a>
+                <a href="#gallery"    class="nav-link text-white" id="nav-gallery">Gallery</a>
+                <a href="#tenants"    class="nav-link text-white" id="nav-tenants">Tenants</a>
+                <a href="#news"       class="nav-link text-white" id="nav-news">News</a>
+                <a href="#contact"    class="nav-link text-white" id="nav-contact">Contact</a>
+            </div>
+
+            <!-- Hamburger -->
+            <div class="flex items-center gap-4">
+                <button id="hamburger" class="lg:hidden flex flex-col gap-1.5 p-2" aria-label="Open menu">
+                    <span class="block w-6 h-0.5 bg-white transition-all duration-300" id="hb-1"></span>
+                    <span class="block w-6 h-0.5 bg-white transition-all duration-300" id="hb-2"></span>
+                    <span class="block w-4 h-0.5 bg-white transition-all duration-300" id="hb-3"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" role="dialog" aria-modal="true">
+        <button id="mobile-close" class="absolute top-6 right-6 text-white" aria-label="Close menu">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        <div style="color: #D4AF37; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.15em; margin-bottom: 1rem;">BELTWAY OFFICE PARK</div>
+        <a href="#hero"       class="mobile-nav-link" onclick="closeMobileMenu()">Home</a>
+        <a href="#about"      class="mobile-nav-link" onclick="closeMobileMenu()">About</a>
+        <a href="#towers"     class="mobile-nav-link" onclick="closeMobileMenu()">Towers</a>
+        <a href="#facilities" class="mobile-nav-link" onclick="closeMobileMenu()">Facilities</a>
+        <a href="#location"   class="mobile-nav-link" onclick="closeMobileMenu()">Location</a>
+        <a href="#gallery"    class="mobile-nav-link" onclick="closeMobileMenu()">Gallery</a>
+        <a href="#tenants"    class="mobile-nav-link" onclick="closeMobileMenu()">Tenants</a>
+        <a href="#news"       class="mobile-nav-link" onclick="closeMobileMenu()">News</a>
+        <a href="#contact"    class="mobile-nav-link" onclick="closeMobileMenu()">Contact</a>
+
+    </div>
+
+    <!-- Main Content -->
+    @yield('content')
+
+    <!-- Lightbox -->
+    <div id="lightbox" role="dialog" aria-modal="true">
+        <button id="lightbox-close" aria-label="Close lightbox">&#x2715;</button>
+        <img id="lightbox-img" src="" alt="Gallery Image">
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer" class="py-16 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+
+                <!-- Brand Column -->
+                <div class="lg:col-span-1">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #1E3A8A, #D4AF37);">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-extrabold text-lg leading-none tracking-tight">BELTWAY</div>
+                            <div class="text-xs font-semibold tracking-widest" style="color: #D4AF37;">OFFICE PARK</div>
+                        </div>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-5" style="color: rgba(255,255,255,0.6);">
+                        Premium office park delivering world-class environments for modern businesses in the heart of South Jakarta.
+                    </p>
+                    <!-- Social Media -->
+                    <div class="flex items-center gap-2.5">
+                        <a href="#" class="social-btn" id="footer-instagram" aria-label="Instagram">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                        <a href="#" class="social-btn" id="footer-linkedin" aria-label="LinkedIn">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        <a href="#" class="social-btn" id="footer-twitter" aria-label="Twitter/X">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </a>
+                        <a href="#" class="social-btn" id="footer-youtube" aria-label="YouTube">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-widest mb-5">Quick Links</h4>
+                    <nav aria-label="Footer navigation">
+                        <a href="#hero"       class="footer-link">Home</a>
+                        <a href="#about"      class="footer-link">About Us</a>
+                        <a href="#towers"     class="footer-link">Office Towers</a>
+                        <a href="#facilities" class="footer-link">Facilities</a>
+                        <a href="#gallery"    class="footer-link">Gallery</a>
+                        <a href="#news"       class="footer-link">News & Articles</a>
+                        <a href="#contact"    class="footer-link">Contact Us</a>
+                    </nav>
+                </div>
+
+                <!-- Our Towers -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-widest mb-5">Our Towers</h4>
+                    <a href="#towers" class="footer-link">Tower A – Premium Office</a>
+                    <a href="#towers" class="footer-link">Tower B – Flexible Workspace</a>
+                    <a href="#towers" class="footer-link">Tower C – Executive Office</a>
+                    <a href="#spaces" class="footer-link">Small Office (50–100 sqm)</a>
+                    <a href="#spaces" class="footer-link">Medium Office (100–300 sqm)</a>
+                    <a href="#spaces" class="footer-link">Enterprise (300+ sqm)</a>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-widest mb-5">Contact Us</h4>
+                    <div class="space-y-3 text-sm" style="color: rgba(255,255,255,0.65);">
+                        <div class="flex gap-2.5">
+                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>Jl. TB Simatupang Kav. 1, Jakarta Selatan 12560</span>
+                        </div>
+                        <div class="flex gap-2.5">
+                            <svg class="w-4 h-4 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            <span>+62 21 – 7891 2345</span>
+                        </div>
+                        <div class="flex gap-2.5">
+                            <svg class="w-4 h-4 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <span>info@beltwayofficepark.co.id</span>
+                        </div>
+                        <div class="flex gap-2.5">
+                            <svg class="w-4 h-4 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <div>Mon – Fri: 08:00 – 17:00</div>
+                                <div>Sat: 08:00 – 13:00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
+                <p class="text-sm" style="color: rgba(255,255,255,0.5);">
+                    © 2026 <span style="color: #D4AF37;">Beltway Office Park</span>. All Rights Reserved.<a href="{{ route('login') }}" class="opacity-0 cursor-default select-none pointer-events-auto" style="font-size: 1px;" aria-hidden="true" tabindex="-1">.</a>
+                </p>
+                <div class="flex items-center gap-5 text-xs" style="color: rgba(255,255,255,0.4);">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-white transition-colors">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // ===== NAVBAR SCROLL =====
+    const navbar = document.getElementById('navbar');
+    const navLinks = document.querySelectorAll('.nav-link');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 60) {
+            navbar.classList.add('scrolled');
+            navLinks.forEach(l => l.style.color = '#0F172A');
+        } else {
+            navbar.classList.remove('scrolled');
+            navLinks.forEach(l => l.style.color = 'white');
+        }
+    });
+
+    // ===== MOBILE MENU =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileClose = document.getElementById('mobile-close');
+    const hb1 = document.getElementById('hb-1');
+    const hb2 = document.getElementById('hb-2');
+    const hb3 = document.getElementById('hb-3');
+
+    hamburger.addEventListener('click', () => {
+        mobileMenu.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    });
+    mobileClose.addEventListener('click', closeMobileMenu);
+
+    function closeMobileMenu() {
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // ===== PARALLAX HERO =====
+    const heroBg = document.getElementById('hero-bg');
+    window.addEventListener('scroll', () => {
+        if (heroBg) {
+            const scrolled = window.scrollY;
+            heroBg.style.transform = `translateY(${scrolled * 0.4}px) scale(1.1)`;
+        }
+    });
+
+    // ===== SCROLL ANIMATIONS =====
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animated');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-up, .fade-left, .fade-right, .fade-in').forEach(el => {
+        observer.observe(el);
+    });
+
+    // ===== COUNTER ANIMATION =====
+    function animateCounter(el, target, duration = 2000, suffix = '') {
+        let start = 0;
+        const step = target / (duration / 16);
+        const timer = setInterval(() => {
+            start += step;
+            if (start >= target) {
+                start = target;
+                clearInterval(timer);
+            }
+            el.textContent = Math.floor(start).toLocaleString() + suffix;
+        }, 16);
+    }
+
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.dataset.counted) {
+                entry.target.dataset.counted = 'true';
+                const target = parseInt(entry.target.dataset.target);
+                const suffix = entry.target.dataset.suffix || '';
+                animateCounter(entry.target, target, 2000, suffix);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-counter]').forEach(el => counterObserver.observe(el));
+
+    // ===== LIGHTBOX =====
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxClose = document.getElementById('lightbox-close');
+
+    document.querySelectorAll('.gallery-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const img = item.querySelector('img');
+            if (img) {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+
+    lightboxClose.addEventListener('click', () => {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            lightbox.classList.remove('active');
+            mobileMenu.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // ===== SPACE FILTER =====
+    const filterBtns = document.querySelectorAll('.space-filter-btn');
+    const spaceCards = document.querySelectorAll('.space-listing-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active button
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+
+            spaceCards.forEach(card => {
+                if (filter === 'all' || card.dataset.filter === filter) {
+                    card.classList.remove('hidden');
+                    card.style.animation = 'fadeInUp 0.4s ease forwards';
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+    // ===== SECRET LOGIN PORTAL =====
+    // Double click the logo to go to login
+    const logoLink = document.querySelector('nav a[href="#hero"]');
+    if (logoLink) {
+        logoLink.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            window.location.href = "{{ route('login') }}";
+        });
+    }
+
+    // Ctrl + Shift + L to go to login
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'l') {
+            e.preventDefault();
+            window.location.href = "{{ route('login') }}";
+        }
+    });
+    </script>
+
+    @yield('scripts')
+</body>
+</html>

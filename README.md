@@ -1,59 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Beltway Office Park - Website Portal
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A premium and highly responsive web application built with **Laravel** and **Vite (TailwindCSS / CSS)**, representing the commercial real estate development in TB Simatupang Business District, South Jakarta.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Features & Modules
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 1. Hero Landing Section
+- **Premium Dark Gradient Overlay**: Features a smooth horizontal gradient (`to right`) of Navy Blue (`#0F172A`) with high opacity on the left (`98%`) fading to a lighter opacity (`58%`) on the right. This optimizes reading contrast for the white headlines while showing the building texture on the right.
+- **Clean Interface**: Removed the cluttering top real estate badge for a modern, sleek presentation.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 2. Neat Available Spaces Grid
+- **Uniform Height Cards**: Integrated a clean flexbox layout in `app.css` to stretch all cards to identical heights regardless of text lengths.
+- **Pinned Bottom Buttons**: Utilized `mt-auto` on the buttons container inside each card body so that the "View Floor Plan" and "Request Info" buttons are perfectly aligned horizontally.
+- **Responsive Layout**: Designed a responsive grid system (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8`) for seamless display on mobile, tablet, and desktop screens.
+- **Filters Wrap**: Made the filtering buttons wrapper responsive (`flex-wrap`) to prevent overflow on narrow screens.
 
-## Learning Laravel
+### 3. News & Articles Toggle Action
+- **Interactive Staggered Show/Hide**: Implemented a smooth JavaScript toggle that allows users to click the **"View All Articles"** button to reveal 3 additional articles (staggered delay animation). Clicking it again as **"Show Less"** collapses the list and smoothly scrolls the user back to the top of the news section.
+- **Minimalist Presentation**: Removed the duplicate "Read More" button cards to keep the article snippets neat.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 4. Hidden Admin Entry Points
+To maintain a clean and direct client-facing portal, the admin login page is accessible through **three secret triggers**:
+1. **Logo Double-Click**: Double-click the **BELTWAY** logo in the top sticky navbar.
+2. **Keyboard Shortcut**: Press `Ctrl + Shift + L` simultaneously anywhere on the home page.
+3. **Secret Footer Link**: Click the invisible 1px dot (`.`) located directly after the *"All Rights Reserved."* copyright text in the footer.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 5. Protected Admin Page
+- **Redirection**: Successful logins automatically redirect the admin to the `/admin` dashboard.
+- **Session Bar**: An elegant Administrator utility bar is displayed at the top of the homepage when logged in, featuring:
+  - An active session green pulsing indicator.
+  - A **"Go to Dashboard"** link pointing to the admin page.
+  - A secure **"Logout"** post action.
+- **Layout Shifting**: The page body shifts down by `36px` to cleanly accommodate the top bar without overlapping the main navbar.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🎨 Color Style Guidelines
 
-### Premium Partners
+The brand uses a strict, premium two-color theme:
+- **Navy Blue (`#0F172A`)** - Used for dark backgrounds, overlay backings, main headings, footers, and interactive hover backdrops.
+- **Royal Blue (`#1E3A8A`)** - Used for interactive elements, CTA buttons, active state borders, icons, and focus outlines.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🔐 Credentials & DB Seeding
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The application implements database-backed authentication using Laravel's native session guard (`Auth::attempt`).
 
-## Code of Conduct
+### Admin Login Credentials
+- **Username / Email**: `admin@beltwayofficepark`
+- **Password**: `bopadmin`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Database Setup (MySQL)
+The project is configured to run on MySQL with the database `beltway_db`.
 
-## Security Vulnerabilities
+1. Ensure MySQL is running on your machine.
+2. Create the database in MySQL:
+   ```sql
+   CREATE DATABASE beltway_db;
+   ```
+3. Run the migrations and database seeder to seed the admin account:
+   ```bash
+   php artisan migrate --seed
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 💻 Local Development
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 1. Clone & Set Up environment
+Copy the environment variables:
+```bash
+cp .env.example .env
+```
+Ensure your database credentials are correct in `.env`.
+
+### 2. Install Dependencies
+```bash
+composer install
+npm install
+```
+
+### 3. Generate Key
+```bash
+php artisan key:generate
+```
+
+### 4. Build Assets
+Compile client styles and scripts with Vite:
+```bash
+npm run build
+```
+
+### 5. Serve Project
+Run the PHP CLI server:
+```bash
+php artisan serve
+```
+Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+---
+
+## 📂 Project Architecture Highlights
+
+- **Views**:
+  - Main Homepage: [home.blade.php](file:///c:/Users/Lenovo/beltway-office-park/resources/views/home.blade.php)
+  - Layout Base: [layouts/app.blade.php](file:///c:/Users/Lenovo/beltway-office-park/resources/views/layouts/app.blade.php)
+  - Login Card: [auth/login.blade.php](file:///c:/Users/Lenovo/beltway-office-park/resources/views/auth/login.blade.php)
+  - Simple Admin view: [admin/dashboard.blade.php](file:///c:/Users/Lenovo/beltway-office-park/resources/views/admin/dashboard.blade.php)
+- **Styles**:
+  - Theme Stylesheet: [app.css](file:///c:/Users/Lenovo/beltway-office-park/resources/css/app.css)
+- **Routes**:
+  - Web Routes: [web.php](file:///c:/Users/Lenovo/beltway-office-park/routes/web.php)
+- **Database**:
+  - Database Seeder: [DatabaseSeeder.php](file:///c:/Users/Lenovo/beltway-office-park/database/seeders/DatabaseSeeder.php)

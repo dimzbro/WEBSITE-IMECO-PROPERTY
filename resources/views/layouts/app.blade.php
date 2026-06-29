@@ -19,6 +19,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        .feature-icon svg,
+        .facility-icon-wrap svg {
+            transition: color 0.3s ease;
+        }
+        .feature-card:hover .feature-icon svg,
+        .facility-card:hover .facility-icon-wrap svg {
+            color: white !important;
+        }
+    </style>
 </head>
 <body class="{{ session('admin_logged_in') ? 'admin-mode' : '' }}">
 
@@ -162,9 +172,6 @@
                     <a href="#towers" class="footer-link">Tower A – Premium Office</a>
                     <a href="#towers" class="footer-link">Tower B – Flexible Workspace</a>
                     <a href="#towers" class="footer-link">Tower C – Executive Office</a>
-                    <a href="#spaces" class="footer-link">Small Office (50–100 sqm)</a>
-                    <a href="#spaces" class="footer-link">Medium Office (100–300 sqm)</a>
-                    <a href="#spaces" class="footer-link">Enterprise (300+ sqm)</a>
                 </div>
 
                 <!-- Contact Info -->
@@ -175,19 +182,22 @@
                             <svg class="w-4 h-4 mt-0.5 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
-                            <span>Jl. TB Simatupang Kav. 1, Jakarta Selatan 12560</span>
+                            <span>Jl. Ampera Raya 9-10 & Jl. TB Simatupang No. 41 Jakarta selatan.</span>
                         </div>
                         <div class="flex gap-2.5">
                             <svg class="w-4 h-4 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                             </svg>
-                            <span>+62 21 – 7891 2345</span>
+                            <span>+62 812 9559 059</span>
                         </div>
                         <div class="flex gap-2.5">
                             <svg class="w-4 h-4 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
-                            <span>info@beltwayofficepark.co.id</span>
+                            <div>
+                                <div>Fauzan.abadi@imeco.co.id</div>
+                                <div>Heru.wiistono@imeco.co.id</div>
+                            </div>
                         </div>
                         <div class="flex gap-2.5">
                             <svg class="w-4 h-4 flex-shrink-0" style="color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,11 +218,11 @@
                     © 2026 <span style="color: #D4AF37;">Beltway Office Park</span>. All Rights Reserved.<a href="{{ route('login') }}" class="opacity-0 cursor-default select-none pointer-events-auto" style="font-size: 1px;" aria-hidden="true" tabindex="-1">.</a>
                 </p>
                 <div class="flex items-center gap-5 text-xs" style="color: rgba(255,255,255,0.4);">
-                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <span>Privacy Policy</span>
                     <span>•</span>
-                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <span>Terms of Service</span>
                     <span>•</span>
-                    <a href="#" class="hover:text-white transition-colors">Sitemap</a>
+                    <span>Sitemap</span>
                 </div>
             </div>
         </div>

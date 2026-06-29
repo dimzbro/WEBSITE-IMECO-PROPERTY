@@ -145,14 +145,11 @@ class HomeController extends Controller
         ];
 
         $tenants = [
-            ['name' => 'BNI',             'logo' => 'BNI'],
-            ['name' => 'Telkom Indonesia','logo' => 'Telkom'],
-            ['name' => 'Bank Mandiri',    'logo' => 'Mandiri'],
-            ['name' => 'Circle K',        'logo' => 'Circle K'],
-            ['name' => 'Kopi Kenangan',   'logo' => 'Kopi Kenangan'],
-            ['name' => 'Indomaret',       'logo' => 'Indomaret'],
-            ['name' => 'XL Axiata',       'logo' => 'XL Axiata'],
-            ['name' => 'Gojek',           'logo' => 'Gojek'],
+            ['name' => 'Circle K',                'logo' => 'ck.png'],
+            ['name' => 'BNI',                     'logo' => 'bni.png'],
+            ['name' => 'Bank Mandiri',            'logo' => 'mandiri.png'],
+            ['name' => 'Kopi Kenangan',           'logo' => 'kopken.png'],
+            ['name' => 'Kapal Api Coffee Corner', 'logo' => 'kapal api.jpg'],
         ];
 
         $news = News::orderBy('published_at', 'desc')->get();

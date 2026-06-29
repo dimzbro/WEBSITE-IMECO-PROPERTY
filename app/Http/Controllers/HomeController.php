@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\News;
 
 class HomeController extends Controller
 {
@@ -154,50 +155,7 @@ class HomeController extends Controller
             ['name' => 'Gojek',           'logo' => 'Gojek'],
         ];
 
-        $news = [
-            [
-                'title'     => 'Beltway Office Park Raih Sertifikasi Green Building Internasional',
-                'date'      => 'June 15, 2026',
-                'excerpt'   => 'Beltway Office Park berhasil meraih sertifikasi LEED Gold, menegaskan komitmen kami terhadap keberlanjutan lingkungan dan efisiensi energi.',
-                'image'     => $images['exterior2'],
-                'category'  => 'Achievement',
-            ],
-            [
-                'title'     => 'Grand Opening Tower C: Era Baru Executive Office di Jakarta Selatan',
-                'date'      => 'May 28, 2026',
-                'excerpt'   => 'Tower C resmi dibuka dengan fasilitas executive office terlengkap, memberikan standar baru dalam dunia perkantoran premium Indonesia.',
-                'image'     => $images['towerC'],
-                'category'  => 'News',
-            ],
-            [
-                'title'     => 'Smart Building Technology: Wujud Masa Depan Perkantoran Modern',
-                'date'      => 'April 10, 2026',
-                'excerpt'   => 'Beltway Office Park mengintegrasikan sistem IoT terbaru untuk menciptakan lingkungan kerja yang lebih cerdas, efisien, dan nyaman.',
-                'image'     => $images['officeInterior'],
-                'category'  => 'Technology',
-            ],
-            [
-                'title'     => 'Peningkatan Fasilitas Parkir dan Keamanan Pintar di Beltway',
-                'date'      => 'March 22, 2026',
-                'excerpt'   => 'Kami memperkenalkan sistem pengenalan pelat nomor otomatis (ANPR) dan penambahan 200 lot parkir baru untuk kenyamanan tenant.',
-                'image'     => $images['lobby'],
-                'category'  => 'Facility',
-            ],
-            [
-                'title'     => 'Kolaborasi Komunitas Bisnis Beltway: Networking Night 2026',
-                'date'      => 'February 15, 2026',
-                'excerpt'   => 'Lebih dari 50 CEO dan eksekutif dari tenant Beltway berkumpul dalam acara Networking Night tahunan untuk menjalin kolaborasi strategis.',
-                'image'     => $images['businessLounge'],
-                'category'  => 'Community',
-            ],
-            [
-                'title'     => 'Tips Memilih Ruang Kantor yang Tepat untuk Startup Berkembang',
-                'date'      => 'January 05, 2026',
-                'excerpt'   => 'Panduan lengkap bagi pendiri startup dalam menentukan ukuran, fasilitas, dan lokasi kantor yang mendukung produktivitas tim.',
-                'image'     => $images['meetingRoom'],
-                'category'  => 'Tips',
-            ],
-        ];
+        $news = News::orderBy('published_at', 'desc')->get();
 
         return view('home', compact('images', 'towers', 'features', 'facilities', 'officeSpaces', 'gallery', 'tenants', 'news'));
     }

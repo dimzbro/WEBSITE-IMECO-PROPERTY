@@ -13,6 +13,7 @@ Route::get('/login', function () {
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\BuildingController;
+use App\Http\Controllers\NewsController;
 use Illuminate\Support\Facades\Auth;
 
 Route::post('/login', function (Illuminate\Http\Request $request) {
@@ -33,6 +34,7 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::get('buildings', [BuildingController::class, 'index'])->name('admin.buildings.index');
     Route::post('buildings/allocate', [BuildingController::class, 'allocate'])->name('admin.buildings.allocate');
     Route::post('buildings/release/{allocation}', [BuildingController::class, 'release'])->name('admin.buildings.release');
+    Route::resource('news', NewsController::class)->names('admin.news');
 });
 
 Route::post('/logout', function (Illuminate\Http\Request $request) {

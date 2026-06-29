@@ -622,17 +622,31 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             @foreach($news as $i => $article)
-            <article class="news-card fade-up delay-{{ (($i % 3) + 1) * 100 }} {{ $i >= 3 ? 'hidden' : '' }}" id="news-card-{{ $i }}">
+            <article class="news-card fade-up delay-{{ (($i % 3) + 1) * 100 }} {{ $i >= 3 ? 'hidden' : '' }} cursor-pointer" 
+                     id="news-card-{{ $i }}"
+                     data-title="{{ $article->title }}"
+                     data-category="{{ $article->category }}"
+                     data-date="{{ $article->published_at->format('F d, Y') }}"
+                     data-image="{{ $article->image ? (filter_var($article->image, FILTER_VALIDATE_URL) ? $article->image : asset('storage/' . $article->image)) : '' }}"
+                     data-content="{{ $article->content ?: $article->excerpt }}">
                 <div class="overflow-hidden" style="height: 220px;">
-                    <img src="{{ $article['image'] }}" alt="{{ $article['title'] }}" loading="lazy">
+                    @if($article->image)
+                        @if(filter_var($article->image, FILTER_VALIDATE_URL))
+                            <img src="{{ $article->image }}" alt="{{ $article->title }}" loading="lazy">
+                        @else
+                            <img src="{{ asset('storage/' . $article->image) }}" alt="{{ $article->title }}" loading="lazy">
+                        @endif
+                    @else
+                        <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">No Image</div>
+                    @endif
                 </div>
                 <div class="p-6">
                     <div class="flex items-center gap-3 mb-3">
-                        <span class="news-category">{{ $article['category'] }}</span>
-                        <span class="text-xs text-gray-400">{{ $article['date'] }}</span>
+                        <span class="news-category">{{ $article->category }}</span>
+                        <span class="text-xs text-gray-400">{{ $article->published_at->format('F d, Y') }}</span>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-base leading-snug mb-3 line-clamp-2">{{ $article['title'] }}</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed line-clamp-3">{{ $article['excerpt'] }}</p>
+                    <h3 class="font-bold text-gray-900 text-base leading-snug mb-3 line-clamp-2">{{ $article->title }}</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed line-clamp-3">{{ $article->excerpt }}</p>
                 </div>
             </article>
             @endforeach
@@ -835,6 +849,46 @@
     </div>
 </section>
 
+{{-- News Detail Modal --}}
+<div id="news-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0" aria-modal="true" role="dialog">
+    <div id="news-modal-content" class="bg-white rounded-3xl overflow-hidden max-w-2xl w-full border border-slate-200/80 shadow-2xl flex flex-col max-h-[85vh] scale-95 transition-transform duration-300">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+            <span id="modal-category" class="news-category"></span>
+            <button id="close-news-modal" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-all cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Body (Scrollable) -->
+        <div class="p-6 overflow-y-auto space-y-6">
+            <!-- Image -->
+            <div id="modal-image-container" class="rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/60 flex-shrink-0 flex items-center justify-center" style="max-height: 380px; display: none;">
+                <img id="modal-image" src="" alt="" class="max-w-full max-h-[380px] object-contain">
+            </div>
+            
+            <!-- Title & Date -->
+            <div class="space-y-2">
+                <div id="modal-date" class="text-xs text-slate-400 font-bold"></div>
+                <h3 id="modal-title" class="text-xl md:text-2xl font-black text-slate-900 leading-tight"></h3>
+            </div>
+            
+            <!-- Content -->
+            <div id="modal-content" class="text-slate-600 text-sm leading-relaxed space-y-4 whitespace-pre-line">
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="p-5 border-t border-slate-100 flex justify-end bg-slate-50 flex-shrink-0">
+            <button id="close-news-modal-btn" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all cursor-pointer">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -961,5 +1015,84 @@ Saya ingin mengirimkan pesan:
 @if(session('success'))
 document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
 @endif
+
+// News Detail Modal Logic
+const newsModal = document.getElementById('news-modal');
+const modalContent = document.getElementById('news-modal-content');
+
+function showNewsModal(title, category, date, image, content) {
+    if (!newsModal) return;
+    
+    // Set values
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-category').textContent = category;
+    document.getElementById('modal-date').textContent = date;
+    
+    const imgEl = document.getElementById('modal-image');
+    if (image) {
+        imgEl.src = image;
+        imgEl.alt = title;
+        document.getElementById('modal-image-container').style.display = 'block';
+    } else {
+        document.getElementById('modal-image-container').style.display = 'none';
+    }
+    
+    document.getElementById('modal-content').textContent = content;
+    
+    // Open modal animation
+    newsModal.classList.remove('hidden');
+    // Force a reflow
+    newsModal.offsetWidth;
+    newsModal.classList.remove('opacity-0');
+    modalContent.classList.remove('scale-95');
+    modalContent.classList.add('scale-100');
+    
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+function hideNewsModal() {
+    if (!newsModal) return;
+    
+    newsModal.classList.add('opacity-0');
+    modalContent.classList.remove('scale-100');
+    modalContent.classList.add('scale-95');
+    
+    setTimeout(() => {
+        newsModal.classList.add('hidden');
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// Attach event listeners for each news card
+document.querySelectorAll('.news-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const title = card.getAttribute('data-title');
+        const category = card.getAttribute('data-category');
+        const date = card.getAttribute('data-date');
+        const image = card.getAttribute('data-image');
+        const content = card.getAttribute('data-content');
+        
+        showNewsModal(title, category, date, image, content);
+    });
+});
+
+document.getElementById('close-news-modal')?.addEventListener('click', hideNewsModal);
+document.getElementById('close-news-modal-btn')?.addEventListener('click', hideNewsModal);
+
+// Close on clicking backdrop
+newsModal?.addEventListener('click', (e) => {
+    if (e.target === newsModal) {
+        hideNewsModal();
+    }
+});
+
+// Close on ESC key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !newsModal.classList.contains('hidden')) {
+        hideNewsModal();
+    }
+});
 </script>
 @endsection

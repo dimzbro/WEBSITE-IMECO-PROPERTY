@@ -682,7 +682,6 @@
                         <div>
                             <div class="font-bold text-gray-900 text-sm">Phone Number</div>
                             <div class="text-gray-500 text-sm mt-0.5">+62 21 – 7891 2345</div>
-                            <div class="text-gray-500 text-sm">+62 812 – 3456 7890 (WhatsApp)</div>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -812,7 +811,9 @@
                                       rows="5"
                                       placeholder="Tell us about your office space requirements, preferred location, size, and any special needs..."
                                       class="form-input resize-none {{ $errors->has('message') ? 'border-red-400' : '' }}"
-                                      required>{{ old('message') }}</textarea>
+                                      required
+                                      minlength="10"
+                                      maxlength="2000">{{ old('message') }}</textarea>
                             @error('message')
                             <div class="error-msg" id="error-message">
                                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
@@ -895,20 +896,64 @@ document.querySelectorAll('.gallery-item').forEach(item => {
     });
 });
 
-// Contact form loading state
+// Contact form WhatsApp redirection (Method A)
 const contactForm = document.getElementById('contact-form');
 const submitBtn = document.getElementById('contact-submit');
 if (contactForm && submitBtn) {
-    contactForm.addEventListener('submit', () => {
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Perform native browser validation check
+        if (!contactForm.checkValidity()) {
+            contactForm.reportValidity();
+            return;
+        }
+
+        const name = document.getElementById('contact-name').value.trim();
+        const email = document.getElementById('contact-email').value.trim();
+        const company = document.getElementById('contact-company').value.trim() || '-';
+        const phone = document.getElementById('contact-phone').value.trim() || '-';
+        const message = document.getElementById('contact-message').value.trim();
+
+        // Update button status to indicate redirecting
         submitBtn.innerHTML = `
             <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Sending...
+            Redirecting to WhatsApp...
         `;
         submitBtn.disabled = true;
         submitBtn.style.opacity = '0.8';
+
+        // Prepare the formatted message
+        const waMessage = `Halo Beltway Office Park,
+
+Saya ingin mengirimkan pesan:
+* Nama: ${name}
+* Email: ${email}
+* Perusahaan: ${company}
+* No. HP: ${phone}
+* Pesan: ${message}`;
+
+        // URL encode the message and point to the requested WhatsApp number
+        const waUrl = `https://wa.me/6281213115450?text=${encodeURIComponent(waMessage)}`;
+
+        // Open WhatsApp in a new tab
+        window.open(waUrl, '_blank');
+
+        // Reset the form and button after redirecting
+        setTimeout(() => {
+            submitBtn.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+                Send Message
+            `;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            contactForm.reset();
+        }, 1000);
     });
 }
 

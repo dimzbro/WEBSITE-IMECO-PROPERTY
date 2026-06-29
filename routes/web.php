@@ -10,6 +10,9 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\TenantController;
+use App\Http\Controllers\BuildingController;
 use Illuminate\Support\Facades\Auth;
 
 Route::post('/login', function (Illuminate\Http\Request $request) {
@@ -24,12 +27,13 @@ Route::post('/login', function (Illuminate\Http\Request $request) {
     return back()->withInput()->withErrors(['login_error' => 'Username atau password salah.']);
 });
 
-Route::get('/admin', function () {
-    if (!session('admin_logged_in')) {
-        return redirect()->route('login');
-    }
-    return view('admin.dashboard');
-})->name('admin');
+Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin');
+    Route::resource('tenants', TenantController::class)->names('admin.tenants');
+    Route::get('buildings', [BuildingController::class, 'index'])->name('admin.buildings.index');
+    Route::post('buildings/allocate', [BuildingController::class, 'allocate'])->name('admin.buildings.allocate');
+    Route::post('buildings/release/{allocation}', [BuildingController::class, 'release'])->name('admin.buildings.release');
+});
 
 Route::post('/logout', function (Illuminate\Http\Request $request) {
     Auth::logout();

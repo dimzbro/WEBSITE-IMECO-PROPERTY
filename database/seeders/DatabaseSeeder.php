@@ -15,13 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ensure no duplicate email
-        User::where('email', 'admin@beltwayofficepark')->delete();
-
-        User::create([
-            'name' => 'Admin Beltway',
-            'email' => 'admin@beltwayofficepark',
-            'password' => \Illuminate\Support\Facades\Hash::make('bopadmin'),
+        $this->call([
+            AdminSeeder::class,
+            PropertyManagementSeeder::class,
         ]);
     }
 }

@@ -215,7 +215,13 @@
             <!-- Footer Bottom -->
             <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-3">
                 <p class="text-sm" style="color: rgba(255,255,255,0.5);">
-                    © 2026 <span style="color: #D4AF37;">Beltway Office Park</span>. All Rights Reserved.<a href="{{ route('login') }}" class="opacity-0 cursor-default select-none pointer-events-auto" style="font-size: 1px;" aria-hidden="true" tabindex="-1">.</a>
+                    © 2026 <span style="color: #D4AF37;">Beltway Office Park</span>. All Rights Reserved. 
+                    <span class="block md:inline mt-1 md:mt-0 text-xs opacity-75">
+                        | Created by 
+                        <a href="https://www.instagram.com/ramadwiprstya/" target="_blank" class="hover:text-white transition-colors" style="color: #D4AF37; text-decoration: underline;">Rama Dwi Prasetya</a> & 
+                        <a href="https://www.instagram.com/dimasberlian/" target="_blank" class="hover:text-white transition-colors" style="color: #D4AF37; text-decoration: underline;">Dimas Berlian Moeslim</a>
+                    </span>
+                    <a href="{{ route('login') }}" class="opacity-0 cursor-default select-none pointer-events-auto" style="font-size: 1px;" aria-hidden="true" tabindex="-1">.</a>
                 </p>
                 <div class="flex items-center gap-5 text-xs" style="color: rgba(255,255,255,0.4);">
                     <span>Privacy Policy</span>

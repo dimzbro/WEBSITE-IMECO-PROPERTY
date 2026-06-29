@@ -59,7 +59,7 @@
                     </div>
 
                     <!-- Horizontal Grid of units -->
-                    <div class="flex-grow grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    <div class="flex-grow grid grid-cols-2 sm:grid-cols-4 gap-3">
                         @foreach($floorAllocations as $alloc)
                             @php
                                 $statusClass = 'bg-slate-200 border-slate-300 text-slate-600';
@@ -160,73 +160,25 @@
             </div>
 
             <!-- Form Section (Vacant / Allocate) -->
-            <form action="{{ route('admin.buildings.allocate') }}" method="POST" id="allocate-form" class="space-y-4 hidden">
-                @csrf
-                <input type="hidden" name="space_allocation_id" id="allocate-space-id">
+            <div id="vacant-details" class="space-y-4 hidden">
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2 text-center text-xs text-slate-600 font-semibold">
+                    <p class="text-slate-500 leading-relaxed font-bold">
+                        Unit ini kosong / tersedia untuk disewakan.
+                    </p>
+                    <p class="text-slate-400 leading-relaxed font-medium">
+                        Untuk menempatkan tenant di unit ini, silakan daftarkan tenant baru atau edit alokasi tenant dari halaman Manajemen Tenant.
+                    </p>
+                </div>
                 
-                <div>
-                    <label for="tenant_id" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pilih Tenant Terdaftar *</label>
-                    <select name="tenant_id" id="tenant_id" required
-                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white outline-none">
-                        <option value="">— Pilih Tenant —</option>
-                        @foreach($tenants as $t)
-                            <option value="{{ $t->id }}">{{ $t->company_name }} (PIC: {{ $t->pic_name }})</option>
-                        @endforeach
-                    </select>
-                    <p class="text-[10px] text-slate-400 mt-1">Tenant belum terdaftar? <a href="{{ route('admin.tenants.create') }}" class="text-[#1E3A8A] font-bold hover:underline">Registrasi Baru</a></p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="" id="add-tenant-link" class="flex-grow py-2.5 text-center bg-[#1E3A8A] text-white hover:bg-slate-900 rounded-xl font-bold text-xs transition-colors">
+                        Tambah Tenant Baru
+                    </a>
+                    <a href="{{ route('admin.tenants.index') }}" class="flex-grow py-2.5 text-center bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-bold text-xs transition-colors">
+                        Buka Daftar Tenant
+                    </a>
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="alloc-size" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Luas Area (m²) *</label>
-                        <input type="number" id="alloc-size" name="area_size" required min="1"
-                               class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 outline-none">
-                    </div>
-                    <div>
-                        <label for="alloc-rent" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Harga Sewa / Bulan (Rp) *</label>
-                        <input type="number" id="alloc-rent" name="rent_price" required min="0"
-                               class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="alloc-start" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mulai Kontrak *</label>
-                        <input type="date" id="alloc-start" name="lease_start" required
-                               class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 outline-none">
-                    </div>
-                    <div>
-                        <label for="alloc-end" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Selesai Kontrak *</label>
-                        <input type="date" id="alloc-end" name="lease_end" required
-                               class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="alloc-status" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status Kontrak</label>
-                        <select id="alloc-status" name="status" required
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white outline-none">
-                            <option value="Terisi">Aktif (Terisi)</option>
-                            <option value="Hampir Berakhir">Hampir Berakhir</option>
-                            <option value="Berakhir">Berakhir</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="alloc-payment" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pembayaran Awal</label>
-                        <select id="alloc-payment" name="payment_status" required
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white outline-none">
-                            <option value="Lunas">Lunas</option>
-                            <option value="Menunggu">Menunggu Pembayaran</option>
-                            <option value="Tertunggak">Tertunggak</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button type="submit" class="w-full py-3 bg-[#1E3A8A] text-white hover:bg-slate-900 rounded-xl font-bold text-sm shadow-md transition-colors cursor-pointer">
-                    Alokasikan Unit Sekarang
-                </button>
-            </form>
+            </div>
 
         </div>
     </div>
@@ -249,11 +201,9 @@
     const editBtn = document.getElementById('occupied-edit-btn');
     const releaseForm = document.getElementById('release-form');
     
-    // Vacant form widgets
-    const allocateForm = document.getElementById('allocate-form');
-    const allocSpaceId = document.getElementById('allocate-space-id');
-    const allocSize = document.getElementById('alloc-size');
-    const allocRent = document.getElementById('alloc-rent');
+    // Vacant details widget
+    const vacantSec = document.getElementById('vacant-details');
+    const addTenantLink = document.getElementById('add-tenant-link');
 
     function openAllocationModal(alloc, tenant) {
         modal.classList.remove('hidden');
@@ -262,13 +212,13 @@
             card.classList.add('scale-100', 'opacity-100');
         }, 50);
 
-        document.getElementById('modal-title').textContent = "Unit " + alloc.unit_number;
+        document.getElementById('modal-title').textContent = alloc.unit_number;
         document.getElementById('modal-subtitle').textContent = "{{ $activeBuilding->name }} — Lantai " + alloc.floor_number;
 
         if (alloc.status !== 'Kosong' && tenant) {
             // SHOW OCCUPIED STATE
             occupiedSec.classList.remove('hidden');
-            allocateForm.classList.add('hidden');
+            vacantSec.classList.add('hidden');
 
             tenantLink.textContent = tenant.company_name;
             tenantLink.href = "/admin/tenants/" + tenant.id;
@@ -293,13 +243,11 @@
             editBtn.href = "/admin/tenants/" + tenant.id + "/edit";
             releaseForm.action = "/admin/buildings/release/" + alloc.id;
         } else {
-            // SHOW VACANT ALLOCATE STATE
+            // SHOW VACANT STATE
             occupiedSec.classList.add('hidden');
-            allocateForm.classList.remove('hidden');
+            vacantSec.classList.remove('hidden');
 
-            allocSpaceId.value = alloc.id;
-            allocSize.value = alloc.area_size;
-            allocRent.value = alloc.rent_price;
+            addTenantLink.href = "/admin/tenants/create?space_allocation_id=" + alloc.id;
         }
     }
 

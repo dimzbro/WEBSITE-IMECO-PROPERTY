@@ -117,8 +117,8 @@
                                 <option value="">— Pilih Unit Gedung (Kosong) —</option>
                                 @foreach($vacantUnits as $unit)
                                     <option value="{{ $unit->id }}" data-size="{{ $unit->area_size }}" data-rent="{{ $unit->rent_price }}"
-                                            {{ old('space_allocation_id') == $unit->id ? 'selected' : '' }}>
-                                        {{ $unit->building->name ?? 'Gedung' }} — Lantai {{ $unit->floor_number }} — Unit {{ $unit->unit_number }} (Kosong)
+                                            {{ (old('space_allocation_id') ?? request('space_allocation_id')) == $unit->id ? 'selected' : '' }}>
+                                        {{ $unit->building->name ?? 'Gedung' }} - Lantai {{ $unit->floor_number }} - {{ $unit->unit_number }} (kosong)
                                     </option>
                                 @endforeach
                             </select>
@@ -201,15 +201,24 @@
         const inputRent = document.getElementById('rent_price');
 
         if (selectSpace && inputSize && inputRent) {
-            selectSpace.addEventListener('change', function() {
+            function updateFields() {
                 const selectedOption = selectSpace.options[selectSpace.selectedIndex];
-                const size = selectedOption.getAttribute('data-size');
-                const rent = selectedOption.getAttribute('data-rent');
-                
-                if (size) inputSize.value = size;
-                if (rent) inputRent.value = rent;
-            });
-        }        }
+                if (selectedOption) {
+                    const size = selectedOption.getAttribute('data-size');
+                    const rent = selectedOption.getAttribute('data-rent');
+                    
+                    if (size) inputSize.value = size;
+                    if (rent) inputRent.value = rent;
+                }
+            }
+
+            selectSpace.addEventListener('change', updateFields);
+
+            // Auto-fill on page load if pre-selected
+            if (selectSpace.value) {
+                updateFields();
+            }
+        }
     });
 </script>
 @endsection

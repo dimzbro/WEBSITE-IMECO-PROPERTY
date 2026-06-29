@@ -20,17 +20,17 @@ class PropertyManagementSeeder extends Seeder
             [
                 'name' => 'Gedung A',
                 'total_floors' => 8,
-                'total_capacity_units' => 40,
+                'total_capacity_units' => 32,
             ],
             [
                 'name' => 'Gedung B',
                 'total_floors' => 8,
-                'total_capacity_units' => 40,
+                'total_capacity_units' => 32,
             ],
             [
                 'name' => 'Gedung C',
                 'total_floors' => 8,
-                'total_capacity_units' => 40,
+                'total_capacity_units' => 32,
             ]
         ];
 
@@ -121,9 +121,9 @@ class PropertyManagementSeeder extends Seeder
         }
 
         // 3. Generate Space Allocations
-        // We will pre-populate all 40 units for each building.
-        // Units layout: floor number 1 to 8, unit index 1 to 5.
-        // e.g. Floor 3, unit index 1 -> A-301
+        // We will pre-populate all 32 units for each building.
+        // Units layout: floor number 1 to 8, unit index 1 to 4.
+        // e.g. Floor 3, unit index 1 -> Zona 1
         $occupiedUnits = [
             'Gedung A' => [
                 301 => [
@@ -201,9 +201,9 @@ class PropertyManagementSeeder extends Seeder
             SpaceAllocation::where('building_id', $bModel->id)->delete();
 
             for ($floor = 1; $floor <= 8; $floor++) {
-                for ($u = 1; $u <= 5; $u++) {
+                for ($u = 1; $u <= 4; $u++) {
                     $unitNumInt = ($floor * 100) + $u; // e.g. 301
-                    $unitNumStr = substr($bName, -1) . '-' . $unitNumInt; // e.g. A-301
+                    $unitNumStr = 'Zona ' . $u;
 
                     $allocationData = [
                         'building_id' => $bModel->id,

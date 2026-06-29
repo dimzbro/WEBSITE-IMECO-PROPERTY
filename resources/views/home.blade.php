@@ -1032,7 +1032,7 @@ function showNewsModal(title, category, date, image, content) {
     if (image) {
         imgEl.src = image;
         imgEl.alt = title;
-        document.getElementById('modal-image-container').style.display = 'block';
+        document.getElementById('modal-image-container').style.display = 'flex';
     } else {
         document.getElementById('modal-image-container').style.display = 'none';
     }

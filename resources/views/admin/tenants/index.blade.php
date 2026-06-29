@@ -92,7 +92,7 @@
                                 @if($alloc && $alloc->building)
                                     <div>
                                         <div class="font-bold text-slate-800">{{ $alloc->building->name }}</div>
-                                        <div class="text-[11px] text-slate-400 mt-0.5">Lt.{{ $alloc->floor_number }} - Unit {{ $alloc->unit_number }} - {{ $alloc->area_size }}m²</div>
+                                        <div class="text-[11px] text-slate-400 mt-0.5">Lt.{{ $alloc->floor_number }} - {{ $alloc->unit_number }} - {{ $alloc->area_size }}m²</div>
                                     </div>
                                 @else
                                     <span class="text-xs text-slate-400 font-semibold italic">Belum dialokasi</span>

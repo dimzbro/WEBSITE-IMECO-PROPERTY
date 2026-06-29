@@ -114,11 +114,11 @@
                                 @foreach($vacantUnits as $unit)
                                     <option value="{{ $unit->id }}" data-size="{{ $unit->area_size }}" data-rent="{{ $unit->rent_price }}"
                                             {{ old('space_allocation_id', $currentAllocation->id ?? '') == $unit->id ? 'selected' : '' }}>
-                                        {{ $unit->building->name ?? 'Gedung' }} — Lantai {{ $unit->floor_number }} — Unit {{ $unit->unit_number }} 
+                                        {{ $unit->building->name ?? 'Gedung' }} - Lantai {{ $unit->floor_number }} - {{ $unit->unit_number }} 
                                         @if($unit->tenant_id === $tenant->id)
-                                            (Unit Saat Ini)
+                                            (unit saat ini)
                                         @else
-                                            (Kosong)
+                                            (kosong)
                                         @endif
                                     </option>
                                 @endforeach

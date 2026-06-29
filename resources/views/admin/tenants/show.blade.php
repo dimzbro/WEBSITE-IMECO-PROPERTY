@@ -37,7 +37,7 @@
                     <p class="text-xs text-white/70 mt-1">
                         {{ $tenant->business_sector }} 
                         @if($alloc)
-                            • {{ $alloc->building->name ?? 'Gedung' }} • Lt.{{ $alloc->floor_number }} - Unit {{ $alloc->unit_number }}
+                            • {{ $alloc->building->name ?? 'Gedung' }} • Lt.{{ $alloc->floor_number }} - {{ $alloc->unit_number }}
                         @endif
                     </p>
                 </div>
@@ -115,7 +115,7 @@
                         </div>
                         <div>
                             <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Lantai / Nomor Unit</div>
-                            <div class="text-slate-800 mt-1 font-bold">Lantai {{ $alloc->floor_number }} — Unit {{ $alloc->unit_number }}</div>
+                            <div class="text-slate-800 mt-1 font-bold">Lantai {{ $alloc->floor_number }} — {{ $alloc->unit_number }}</div>
                         </div>
                         <div>
                             <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Luas Area Kantor</div>

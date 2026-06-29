@@ -59,6 +59,13 @@ body {
 #navbar.scrolled .nav-logo-text {
   color: #1E3A8A;
 }
+.nav-logo-img {
+  filter: brightness(0) invert(1);
+  transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#navbar.scrolled .nav-logo-img {
+  filter: none;
+}
 .nav-link {
   position: relative;
   transition: color 0.3s ease;

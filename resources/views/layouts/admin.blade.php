@@ -27,11 +27,7 @@
     <!-- Mobile Sidebar Header Toggle -->
     <div class="lg:hidden w-full bg-[#0F172A] text-white px-4 py-3 flex items-center justify-between border-b border-white/10 z-50">
         <a href="/" class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-tr from-[#1E3A8A] to-[#D4AF37]">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-            </div>
+            <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-8 h-8 object-contain">
             <div class="font-extrabold text-sm tracking-wide">BELTWAY</div>
         </a>
         <button id="mobile-sidebar-toggle" class="p-2 text-white hover:bg-slate-800 rounded-lg">
@@ -45,11 +41,7 @@
     <aside id="sidebar-nav" class="hidden lg:flex flex-col w-64 bg-[#0F172A] text-slate-300 border-r border-white/5 flex-shrink-0 z-40 fixed inset-y-0 left-0 lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <!-- Logo Branding -->
         <div class="p-6 border-b border-white/5 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-tr from-[#1E3A8A] to-[#D4AF37] shadow-lg shadow-[#1E3A8A]/30">
-                <svg class="w-5.5 h-5.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-            </div>
+            <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-10 h-10 object-contain">
             <div>
                 <div class="text-white font-extrabold text-base tracking-wide leading-none">Beltway Office</div>
                 <div class="text-[10px] font-semibold tracking-widest text-[#D4AF37] mt-0.5">PARK MANAGEMENT</div>

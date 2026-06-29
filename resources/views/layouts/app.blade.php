@@ -48,11 +48,7 @@
 
             <!-- Logo -->
             <a href="#hero" class="flex items-center gap-3 no-underline">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #1E3A8A, #D4AF37);">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-10 h-10 object-contain nav-logo-img" style="filter: brightness(0) invert(1); transition: filter 0.4s ease;">
                 <div>
                     <div class="nav-logo-text text-white font-extrabold text-lg leading-none tracking-tight">BELTWAY</div>
                     <div class="text-xs font-semibold tracking-widest" style="color: #D4AF37;">OFFICE PARK</div>
@@ -120,11 +116,7 @@
                 <!-- Brand Column -->
                 <div class="lg:col-span-1">
                     <div class="flex items-center gap-3 mb-5">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #1E3A8A, #D4AF37);">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
-                        </div>
+                        <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-10 h-10 object-contain brightness-0 invert">
                         <div>
                             <div class="text-white font-extrabold text-lg leading-none tracking-tight">BELTWAY</div>
                             <div class="text-xs font-semibold tracking-widest" style="color: #D4AF37;">OFFICE PARK</div>
@@ -230,13 +222,16 @@
     // ===== NAVBAR SCROLL =====
     const navbar = document.getElementById('navbar');
     const navLinks = document.querySelectorAll('.nav-link');
+    const logoImg = document.querySelector('.nav-logo-img');
     window.addEventListener('scroll', () => {
         if (window.scrollY > 60) {
             navbar.classList.add('scrolled');
             navLinks.forEach(l => l.style.color = '#0F172A');
+            if (logoImg) logoImg.style.filter = 'none';
         } else {
             navbar.classList.remove('scrolled');
             navLinks.forEach(l => l.style.color = 'white');
+            if (logoImg) logoImg.style.filter = 'brightness(0) invert(1)';
         }
     });
 

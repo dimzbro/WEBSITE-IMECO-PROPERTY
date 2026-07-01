@@ -363,7 +363,6 @@
                             </svg>
                         </div>
                         <div class="facility-name">{{ $facility['name'] }}</div>
-                        <div class="facility-desc">{{ $facility['desc'] }}</div>
                     </div>
                 @endforeach
             </div>
@@ -467,8 +466,8 @@
                                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <div>
-                            <div class="text-white font-bold text-sm">Jl. TB Simatupang Kav. 1</div>
-                            <div class="text-xs" style="color: rgba(255,255,255,0.65);">Jakarta Selatan 12560, DKI Jakarta
+                            <div class="text-white font-bold text-sm">Beltway Office Park, Jl. Ampera Raya No. 9–10, RT.7/RW.2</div>
+                            <div class="text-xs" style="color: rgba(255,255,255,0.65);">Ragunan, Pasar Minggu, Jakarta Selatan 12550
                             </div>
                         </div>
                     </div>
@@ -734,8 +733,7 @@
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 text-sm">Office Address</div>
-                                <div class="text-gray-500 text-sm mt-0.5">Jl. Ampera Raya 9-10 & Jl. TB Simatupang No. 41
-                                    Jakarta selatan.</div>
+                                <div class="text-gray-500 text-sm mt-0.5">Beltway Office Park, Jl. Ampera Raya No. 9–10, RT.7/RW.2, Ragunan, Pasar Minggu, Jakarta Selatan 12550</div>
                             </div>
                         </div>
                         <div class="contact-info-item">

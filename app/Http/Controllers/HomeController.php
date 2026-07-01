@@ -31,7 +31,7 @@ class HomeController extends Controller
                 'description' => 'Modern architecture with premium finishes. Tower A offers state-of-the-art facilities with panoramic city views, designed for prestigious companies seeking an elite corporate address.',
                 'image'       => $images['towerA'],
                 'floors'      => '8 Floors',
-                'area'        => 'Up to 500 sqm/floor',
+                'area'        => 'Up to 890 sqm/floor',
                 'status'      => 'Available',
             ],
             [
@@ -40,7 +40,7 @@ class HomeController extends Controller
                 'description' => 'Smart building technology meets flexible workspace solutions. Tower B is designed for dynamic businesses requiring adaptable spaces with cutting-edge smart building integration.',
                 'image'       => $images['towerB'],
                 'floors'      => '8 Floors',
-                'area'        => 'Up to 450 sqm/floor',
+                'area'        => 'Up to 1,200 sqm/floor',
                 'status'      => 'Available',
             ],
             [
@@ -49,7 +49,7 @@ class HomeController extends Controller
                 'description' => "The pinnacle of executive office environments. Tower C's Business Center offers exclusive amenities and private executive suites for C-suite leaders and international companies.",
                 'image'       => $images['towerC'],
                 'floors'      => '8 Floors',
-                'area'        => 'Up to 400 sqm/floor',
+                'area'        => 'Up to 830 sqm/floor',
                 'status'      => 'Limited',
             ],
         ];

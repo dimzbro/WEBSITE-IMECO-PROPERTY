@@ -135,7 +135,7 @@
                     <div class="section-divider"></div>
                     <p class="text-gray-600 leading-relaxed mb-4">
                         Beltway Office Park stands as South Jakarta's most prestigious commercial real estate development,
-                        spanning 4,500 hectares of meticulously planned business ecosystem. Our three iconic towers
+                        spanning 45.000 M² of meticulously planned business ecosystem. Our three iconic towers
                         redefine the standard of premium office environments in Indonesia.
                     </p>
                     <p class="text-gray-600 leading-relaxed mb-8">
@@ -148,7 +148,7 @@
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <div class="stat-card">
                             <div class="stat-number">
-                                <span data-counter data-target="4500" data-suffix="">4,500</span>
+                                <span data-counter data-target="4500" data-suffix="">4,5</span>
                             </div>
                             <div class="stat-suffix">Ha</div>
                             <div class="stat-label">Total Area</div>
@@ -976,11 +976,11 @@
                     });
                     // Change button content to "Show Less"
                     viewAllBtn.innerHTML = `
-                                Show Less
-                                <svg class="w-3.5 h-3.5 rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                                </svg>
-                            `;
+                                        Show Less
+                                        <svg class="w-3.5 h-3.5 rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                        </svg>
+                                    `;
                     showingAll = true;
                 } else {
                     articles.forEach((card, index) => {
@@ -994,11 +994,11 @@
                     document.getElementById('news')?.scrollIntoView({ behavior: 'smooth' });
                     // Change button content to "View All Articles"
                     viewAllBtn.innerHTML = `
-                                View All Articles
-                                <svg class="w-3.5 h-3.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                                </svg>
-                            `;
+                                        View All Articles
+                                        <svg class="w-3.5 h-3.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                        </svg>
+                                    `;
                     showingAll = false;
                 }
             });
@@ -1035,27 +1035,27 @@
 
                 // Update button status to indicate redirecting
                 submitBtn.innerHTML = `
-                            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Redirecting to WhatsApp...
-                        `;
+                                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Redirecting to WhatsApp...
+                                `;
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.8';
 
                 // Prepare the formatted message
-                const waMessage = `Halo Imeco Property,
+                const waMessage = `Halo Beltway Office Park,
 
-                Saya ingin mengirimkan pesan:
-                * Nama: ${name}
-                * Email: ${email}
-                * Perusahaan: ${company}
-                * No. HP: ${phone}
-                * Pesan: ${message}`;
+                        Saya ingin mengirimkan pesan:
+                        * Nama: ${name}
+                        * Email: ${email}
+                        * Perusahaan: ${company}
+                        * No. HP: ${phone}
+                        * Pesan: ${message}`;
 
                 // URL encode the message and point to the requested WhatsApp number
-                const waUrl = `https://wa.me/628129559059?text=${encodeURIComponent(waMessage)}`;
+                const waUrl = `https://wa.me/6281213115450?text=${encodeURIComponent(waMessage)}`;
 
                 // Open WhatsApp in a new tab
                 window.open(waUrl, '_blank');
@@ -1063,11 +1063,11 @@
                 // Reset the form and button after redirecting
                 setTimeout(() => {
                     submitBtn.innerHTML = `
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                </svg>
-                                Send Message
-                            `;
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                        </svg>
+                                        Send Message
+                                    `;
                     submitBtn.disabled = false;
                     submitBtn.style.opacity = '1';
                     contactForm.reset();
@@ -1080,8 +1080,8 @@
             document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
         @endif
 
-                // News Detail Modal Logic
-                const newsModal = document.getElementById('news-modal');
+                        // News Detail Modal Logic
+                        const newsModal = document.getElementById('news-modal');
         const modalContent = document.getElementById('news-modal-content');
 
         function showNewsModal(title, category, date, image, content) {

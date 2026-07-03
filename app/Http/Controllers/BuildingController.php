@@ -53,11 +53,30 @@ class BuildingController extends Controller
             'lease_end' => 'required|date|after_or_equal:lease_start',
             'rent_price' => 'required|integer|min:0',
             'area_size' => 'required|integer|min:1',
-            'status' => 'required|string|in:Terisi,Hampir Berakhir,Berakhir',
+            'status' => 'nullable|string',
             'payment_status' => 'required|string|in:Lunas,Menunggu,Tertunggak',
         ]);
 
         $space = SpaceAllocation::with('building')->findOrFail($validated['space_allocation_id']);
+        
+        // Calculate status dynamically based on lease dates
+        $status = 'Kosong';
+        if (!empty($validated['lease_end'])) {
+            $today = \Carbon\Carbon::today();
+            $end = \Carbon\Carbon::parse($validated['lease_end']);
+            if ($end->isBefore($today)) {
+                $status = 'Kontrak Habis';
+            } else {
+                $diff = $today->diffInDays($end, false);
+                if ($diff <= 30) {
+                    $status = 'Hampir Berakhir';
+                } elseif ($diff <= 180) {
+                    $status = 'Kontrak Mendekati Berakhir';
+                } else {
+                    $status = 'Kontrak Aktif';
+                }
+            }
+        }
         
         $buildingName = $space->building->name;
         $unitName = $space->unit_number;
@@ -113,7 +132,7 @@ class BuildingController extends Controller
                 'lease_end' => $validated['lease_end'],
                 'rent_price' => $validated['rent_price'],
                 'area_size' => $validated['area_size'],
-                'status' => $validated['status'],
+                'status' => $status,
                 'payment_status' => $validated['payment_status'],
             ]);
         } else {
@@ -124,7 +143,7 @@ class BuildingController extends Controller
                 'lease_end' => $validated['lease_end'],
                 'rent_price' => $validated['rent_price'],
                 'area_size' => $validated['area_size'],
-                'status' => $validated['status'],
+                'status' => $status,
                 'payment_status' => $validated['payment_status'],
             ]);
         }

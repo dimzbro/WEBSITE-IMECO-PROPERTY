@@ -32,9 +32,10 @@
             <select name="status" onchange="this.form.submit()" 
                     class="w-full sm:w-44 px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white focus:border-[#1E3A8A] outline-none">
                 <option value="">Semua Status</option>
-                <option value="Terisi" {{ request('status') == 'Terisi' ? 'selected' : '' }}>Aktif</option>
+                <option value="Kontrak Aktif" {{ request('status') == 'Kontrak Aktif' ? 'selected' : '' }}>Kontrak Aktif</option>
+                <option value="Kontrak Mendekati Berakhir" {{ request('status') == 'Kontrak Mendekati Berakhir' ? 'selected' : '' }}>Kontrak Mendekati Berakhir</option>
                 <option value="Hampir Berakhir" {{ request('status') == 'Hampir Berakhir' ? 'selected' : '' }}>Hampir Berakhir</option>
-                <option value="Berakhir" {{ request('status') == 'Berakhir' ? 'selected' : '' }}>Berakhir</option>
+                <option value="Kontrak Habis" {{ request('status') == 'Kontrak Habis' ? 'selected' : '' }}>Kontrak Habis</option>
             </select>
 
             @if(request('search') || request('building_id') || request('status'))
@@ -128,20 +129,25 @@
                                 <!-- Contract Status Badge -->
                                 <td class="px-6 py-4.5">
                                     @if($alloc)
-                                        @if($alloc->status === 'Terisi')
+                                        @if($alloc->status === 'Kontrak Aktif')
                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                                Aktif
+                                                Kontrak Aktif
+                                            </span>
+                                        @elseif($alloc->status === 'Kontrak Mendekati Berakhir')
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                Kontrak Mendekati Berakhir
                                             </span>
                                         @elseif($alloc->status === 'Hampir Berakhir')
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                                                 Hampir Berakhir
                                             </span>
-                                        @elseif($alloc->status === 'Berakhir')
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                                Berakhir
+                                        @elseif($alloc->status === 'Kontrak Habis')
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-950 text-white border border-black shadow">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                Kontrak Habis
                                             </span>
                                         @else
                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200">

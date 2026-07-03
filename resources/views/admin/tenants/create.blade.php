@@ -155,13 +155,11 @@
                         </div>
 
                         <div>
-                            <label for="contract_status" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status Kontrak</label>
-                            <select id="contract_status" name="contract_status"
-                                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none">
-                                <option value="Terisi" {{ old('contract_status') === 'Terisi' ? 'selected' : '' }}>Aktif (Terisi)</option>
-                                <option value="Hampir Berakhir" {{ old('contract_status') === 'Hampir Berakhir' ? 'selected' : '' }}>Hampir Berakhir</option>
-                                <option value="Berakhir" {{ old('contract_status') === 'Berakhir' ? 'selected' : '' }}>Berakhir</option>
-                            </select>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status Kontrak</label>
+                            <input type="hidden" name="contract_status" id="contract_status" value="Terisi">
+                            <div class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold select-none">
+                                Dihitung Otomatis
+                            </div>
                         </div>
 
                         <div>

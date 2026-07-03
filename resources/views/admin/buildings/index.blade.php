@@ -26,15 +26,19 @@
     <div class="flex flex-wrap items-center gap-5 text-xs font-bold text-slate-600 bg-white px-6 py-3 rounded-2xl border border-slate-200 shadow-sm">
         <div class="flex items-center gap-2">
             <span class="w-4.5 h-4.5 rounded bg-emerald-500 border border-emerald-600"></span>
-            <span>Terisi (Aktif)</span>
+            <span>Kontrak Aktif (>180 Hari)</span>
         </div>
         <div class="flex items-center gap-2">
-            <span class="w-4.5 h-4.5 rounded bg-amber-500 border border-amber-600 animate-pulse"></span>
-            <span>Hampir Berakhir</span>
+            <span class="w-4.5 h-4.5 rounded bg-amber-500 border border-amber-600"></span>
+            <span>Kontrak Mendekati Berakhir (31-180 Hari)</span>
         </div>
         <div class="flex items-center gap-2">
-            <span class="w-4.5 h-4.5 rounded bg-rose-500 border border-rose-600"></span>
-            <span>Berakhir</span>
+            <span class="w-4.5 h-4.5 rounded bg-rose-500 border border-rose-600 animate-pulse"></span>
+            <span>Hampir Berakhir (0-30 Hari)</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="w-4.5 h-4.5 rounded bg-slate-900 border border-black"></span>
+            <span>Kontrak Habis</span>
         </div>
         <div class="flex items-center gap-2">
             <span class="w-4.5 h-4.5 rounded bg-slate-200 border border-slate-300"></span>
@@ -80,7 +84,7 @@
                     <div class="flex-grow grid {{ $gridClass }} gap-3">
                         @foreach($groupedAllocations as $unitName => $allocs)
                             @php
-                                $occupiedAllocs = $allocs->whereIn('status', ['Terisi', 'Hampir Berakhir', 'Berakhir']);
+                                $occupiedAllocs = $allocs->where('status', '!=', 'Kosong');
                                 $isOccupied = $occupiedAllocs->isNotEmpty();
                                 
                                 if (!$isOccupied) {
@@ -89,12 +93,15 @@
                                 } else {
                                     if ($occupiedAllocs->where('status', 'Hampir Berakhir')->isNotEmpty()) {
                                         $overallStatus = 'Hampir Berakhir';
-                                        $statusClass = 'bg-amber-500 border-amber-600 text-white shadow-sm shadow-amber-500/10 animate-pulse';
-                                    } elseif ($occupiedAllocs->where('status', 'Berakhir')->isNotEmpty()) {
-                                        $overallStatus = 'Berakhir';
-                                        $statusClass = 'bg-rose-500 border-rose-600 text-white shadow-sm shadow-rose-500/10';
+                                        $statusClass = 'bg-rose-500 border-rose-600 text-white shadow-sm shadow-rose-500/10 animate-pulse';
+                                    } elseif ($occupiedAllocs->where('status', 'Kontrak Habis')->isNotEmpty()) {
+                                        $overallStatus = 'Kontrak Habis';
+                                        $statusClass = 'bg-slate-900 border-black text-white shadow-sm';
+                                    } elseif ($occupiedAllocs->where('status', 'Kontrak Mendekati Berakhir')->isNotEmpty()) {
+                                        $overallStatus = 'Kontrak Mendekati Berakhir';
+                                        $statusClass = 'bg-amber-500 border-amber-600 text-white shadow-sm shadow-amber-500/10';
                                     } else {
-                                        $overallStatus = 'Terisi';
+                                        $overallStatus = 'Kontrak Aktif';
                                         $statusClass = 'bg-emerald-500 border-emerald-600 text-white shadow-sm shadow-emerald-500/10';
                                     }
                                 }
@@ -251,13 +258,11 @@
                     <!-- Statuses Row -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label for="allocate-status" class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Status Kontrak</label>
-                            <select name="status" id="allocate-status" required
-                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none font-semibold">
-                                <option value="Terisi">Aktif</option>
-                                <option value="Hampir Berakhir">Hampir Berakhir</option>
-                                <option value="Berakhir">Berakhir</option>
-                            </select>
+                            <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Status Kontrak</label>
+                            <input type="hidden" name="status" id="allocate-status" value="Terisi">
+                            <div class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold text-xs select-none">
+                                Dihitung Otomatis
+                            </div>
                         </div>
                         <div>
                             <label for="allocate-payment-status" class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Status Pembayaran</label>

@@ -91,7 +91,7 @@ class TenantController extends Controller
             'rent_price' => 'nullable|integer|min:0',
             'lease_start' => 'nullable|date',
             'lease_end' => 'nullable|date|after_or_equal:lease_start',
-            'contract_status' => 'nullable|string|in:Terisi,Hampir Berakhir,Berakhir,Kosong',
+            'contract_status' => 'nullable|string',
             'payment_status' => 'nullable|string|in:Lunas,Menunggu,Tertunggak',
         ]);
 
@@ -110,13 +110,33 @@ class TenantController extends Controller
         // Allocate Space
         if (!empty($validated['space_allocation_id'])) {
             $space = SpaceAllocation::find($validated['space_allocation_id']);
+            
+            // Calculate status dynamically based on lease dates
+            $status = 'Kosong';
+            if (!empty($validated['lease_end'])) {
+                $today = \Carbon\Carbon::today();
+                $end = \Carbon\Carbon::parse($validated['lease_end']);
+                if ($end->isBefore($today)) {
+                    $status = 'Kontrak Habis';
+                } else {
+                    $diff = $today->diffInDays($end, false);
+                    if ($diff <= 30) {
+                        $status = 'Hampir Berakhir';
+                    } elseif ($diff <= 180) {
+                        $status = 'Kontrak Mendekati Berakhir';
+                    } else {
+                        $status = 'Kontrak Aktif';
+                    }
+                }
+            }
+
             $space->update([
                 'tenant_id' => $tenant->id,
                 'area_size' => $validated['area_size'] ?? $space->area_size,
                 'rent_price' => $validated['rent_price'] ?? $space->rent_price,
                 'lease_start' => $validated['lease_start'],
                 'lease_end' => $validated['lease_end'],
-                'status' => $validated['contract_status'] ?? 'Terisi',
+                'status' => $status,
                 'payment_status' => $validated['payment_status'] ?? 'Menunggu',
             ]);
         }
@@ -131,37 +151,49 @@ class TenantController extends Controller
     {
         $tenant->load(['spaceAllocations.building']);
         
-        // Simulate logs/receipts/history for a rich layout representation
-        $logs = [
-            [
-                'date' => Carbon::now()->subDays(2)->format('d M Y'),
-                'title' => 'Tagihan sewa bulan ini lunas terbayar',
-                'status' => 'Selesai',
-                'badge' => 'success',
-                'pic' => 'Sistem Finansial'
-            ],
-            [
-                'date' => Carbon::now()->subDays(15)->format('d M Y'),
-                'title' => 'Inspeksi berkala kelistrikan unit & AC',
-                'status' => 'Selesai',
-                'badge' => 'success',
-                'pic' => 'Tim Maintenance'
-            ],
-            [
-                'date' => Carbon::now()->subMonths(3)->format('d M Y'),
-                'title' => 'Pembaruan detail PIC kontak darurat',
-                'status' => 'Selesai',
-                'badge' => 'success',
-                'pic' => 'Admin BOP'
-            ],
-            [
-                'date' => Carbon::parse($tenant->created_at)->format('d M Y'),
-                'title' => 'Registrasi Tenant Baru & Alokasi Ruang',
-                'status' => 'Selesai',
-                'badge' => 'success',
-                'pic' => 'Admin BOP'
-            ]
+        $logs = [];
+        
+        // 1. Maintenance Requests log entries
+        $maintenance = \App\Models\MaintenanceRequest::where('tenant_id', $tenant->id)
+            ->orderBy('requested_at', 'desc')
+            ->get();
+            
+        foreach ($maintenance as $req) {
+            $logs[] = [
+                'date' => $req->requested_at ? $req->requested_at->format('d M Y') : $req->created_at->format('d M Y'),
+                'title' => 'Maintenance: ' . $req->title . ' (' . $req->category . ')',
+                'status' => $req->status,
+                'badge' => $req->status === 'Selesai' ? 'success' : ($req->status === 'Dalam Proses' ? 'warning' : 'info'),
+                'pic' => $req->assigned_to ?: 'Belum ditugaskan'
+            ];
+        }
+        
+        // 2. Billing & Rent logs based on payment status of their space allocations
+        foreach ($tenant->spaceAllocations as $alloc) {
+            if ($alloc->payment_status) {
+                $logs[] = [
+                    'date' => $alloc->lease_start ? \Carbon\Carbon::parse($alloc->lease_start)->format('d M Y') : $alloc->created_at->format('d M Y'),
+                    'title' => 'Tagihan sewa ' . $alloc->building->name . ' ' . $alloc->unit_number . ' - ' . ($alloc->payment_status === 'Lunas' ? 'Lunas Terbayar' : ($alloc->payment_status === 'Tertunggak' ? 'Tertunggak' : 'Menunggu Pembayaran')),
+                    'status' => $alloc->payment_status,
+                    'badge' => $alloc->payment_status === 'Lunas' ? 'success' : ($alloc->payment_status === 'Tertunggak' ? 'danger' : 'warning'),
+                    'pic' => 'Sistem Finansial'
+                ];
+            }
+        }
+        
+        // 3. Registration log entry
+        $logs[] = [
+            'date' => $tenant->created_at ? $tenant->created_at->format('d M Y') : '—',
+            'title' => 'Registrasi Tenant Baru & Alokasi Ruang',
+            'status' => 'Selesai',
+            'badge' => 'success',
+            'pic' => 'Admin BOP'
         ];
+        
+        // Sort logs by date descending
+        usort($logs, function ($a, $b) {
+            return strtotime($b['date']) - strtotime($a['date']);
+        });
 
         return view('admin.tenants.show', compact('tenant', 'logs'));
     }
@@ -208,7 +240,7 @@ class TenantController extends Controller
             'rent_price' => 'nullable|integer|min:0',
             'lease_start' => 'nullable|date',
             'lease_end' => 'nullable|date|after_or_equal:lease_start',
-            'contract_status' => 'nullable|string|in:Terisi,Hampir Berakhir,Berakhir,Kosong',
+            'contract_status' => 'nullable|string',
             'payment_status' => 'nullable|string|in:Lunas,Menunggu,Tertunggak',
         ]);
 
@@ -254,13 +286,32 @@ class TenantController extends Controller
         if (!empty($validated['space_allocation_id'])) {
             $space = SpaceAllocation::find($validated['space_allocation_id']);
             if ($space) {
+                // Calculate status dynamically based on lease dates
+                $status = 'Kosong';
+                if (!empty($validated['lease_end'])) {
+                    $today = \Carbon\Carbon::today();
+                    $end = \Carbon\Carbon::parse($validated['lease_end']);
+                    if ($end->isBefore($today)) {
+                        $status = 'Kontrak Habis';
+                    } else {
+                        $diff = $today->diffInDays($end, false);
+                        if ($diff <= 30) {
+                            $status = 'Hampir Berakhir';
+                        } elseif ($diff <= 180) {
+                            $status = 'Kontrak Mendekati Berakhir';
+                        } else {
+                            $status = 'Kontrak Aktif';
+                        }
+                    }
+                }
+
                 $space->update([
                     'tenant_id' => $tenant->id,
                     'area_size' => $validated['area_size'] ?? $space->area_size,
                     'rent_price' => $validated['rent_price'] ?? $space->rent_price,
                     'lease_start' => $validated['lease_start'],
                     'lease_end' => $validated['lease_end'],
-                    'status' => $validated['contract_status'] ?? 'Terisi',
+                    'status' => $status,
                     'payment_status' => $validated['payment_status'] ?? 'Menunggu',
                 ]);
             }

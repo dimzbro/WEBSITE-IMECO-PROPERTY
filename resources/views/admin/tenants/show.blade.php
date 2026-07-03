@@ -134,6 +134,22 @@
                             </div>
                         </div>
                         <div>
+                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Status Kontrak</div>
+                            <div class="mt-1 flex">
+                                @if($alloc->status === 'Kontrak Aktif')
+                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800">Kontrak Aktif</span>
+                                @elseif($alloc->status === 'Kontrak Mendekati Berakhir')
+                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Kontrak Mendekati Berakhir</span>
+                                @elseif($alloc->status === 'Hampir Berakhir')
+                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 animate-pulse">Hampir Berakhir</span>
+                                @elseif($alloc->status === 'Kontrak Habis')
+                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-900 text-white border border-black shadow-sm">Kontrak Habis</span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-800">{{ $alloc->status }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div>
                             <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Mulai Kontrak Sewa</div>
                             <div class="text-slate-800 mt-1">{{ $alloc->lease_start }}</div>
                         </div>

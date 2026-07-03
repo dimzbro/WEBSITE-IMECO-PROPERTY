@@ -17,7 +17,7 @@ class AdminController extends Controller
     {
         // 1. Core Metrics
         $totalUnits = SpaceAllocation::count();
-        $occupiedUnitsCount = SpaceAllocation::whereIn('status', ['Terisi', 'Hampir Berakhir', 'Berakhir'])->count();
+        $occupiedUnitsCount = SpaceAllocation::whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir', 'Kontrak Habis'])->count();
         $occupancyRate = $totalUnits > 0 ? round(($occupiedUnitsCount / $totalUnits) * 100, 1) : 0;
 
         $activeTenantsCount = Tenant::has('spaceAllocations')->count();
@@ -25,7 +25,7 @@ class AdminController extends Controller
         // Contracts approaching end (status = Hampir Berakhir or ending within 90 days)
         $approachingEndCount = SpaceAllocation::where('status', 'Hampir Berakhir')
             ->orWhere(function ($query) {
-                $query->whereIn('status', ['Terisi', 'Hampir Berakhir'])
+                $query->whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir'])
                       ->whereNotNull('lease_end')
                       ->where('lease_end', '<=', Carbon::now()->addDays(90));
             })->count();
@@ -36,14 +36,14 @@ class AdminController extends Controller
         $overdueAmount = SpaceAllocation::where('payment_status', 'Tertunggak')->sum('rent_price');
 
         // Total active monthly revenue
-        $monthlyRevenue = SpaceAllocation::whereIn('status', ['Terisi', 'Hampir Berakhir'])->sum('rent_price');
+        $monthlyRevenue = SpaceAllocation::whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir'])->sum('rent_price');
 
         // 2. Building Occupancy Progress Bars
         $buildings = Building::with('spaceAllocations')->get();
         $buildingStats = [];
         foreach ($buildings as $building) {
             $bTotalUnits = $building->spaceAllocations->count();
-            $bOccupiedUnits = $building->spaceAllocations->whereIn('status', ['Terisi', 'Hampir Berakhir', 'Berakhir'])->count();
+            $bOccupiedUnits = $building->spaceAllocations->whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir', 'Kontrak Habis'])->count();
             $bOccupancyRate = $bTotalUnits > 0 ? round(($bOccupiedUnits / $bTotalUnits) * 100, 1) : 0;
             $bVacantUnits = $bTotalUnits - $bOccupiedUnits;
 
@@ -78,7 +78,7 @@ class AdminController extends Controller
 
         $datasets = [];
         foreach ($buildings as $building) {
-            $currentRevenue = $building->spaceAllocations->whereIn('status', ['Terisi', 'Hampir Berakhir'])->sum('rent_price') / 1000000;
+            $currentRevenue = $building->spaceAllocations->whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir'])->sum('rent_price') / 1000000;
             // Generate a mock trend ending in current revenue
             $trend = [
                 round($currentRevenue * 0.85),
@@ -108,9 +108,10 @@ class AdminController extends Controller
 
         // Distribution of contracts by status (Pie chart)
         $contractStatusDistribution = [
-            'aktif' => SpaceAllocation::where('status', 'Terisi')->count(),
+            'aktif' => SpaceAllocation::where('status', 'Kontrak Aktif')->count(),
+            'mendekati_berakhir' => SpaceAllocation::where('status', 'Kontrak Mendekati Berakhir')->count(),
             'hampir_berakhir' => SpaceAllocation::where('status', 'Hampir Berakhir')->count(),
-            'berakhir' => SpaceAllocation::where('status', 'Berakhir')->count(),
+            'berakhir' => SpaceAllocation::where('status', 'Kontrak Habis')->count(),
             'kosong' => SpaceAllocation::where('status', 'Kosong')->count(),
         ];
 

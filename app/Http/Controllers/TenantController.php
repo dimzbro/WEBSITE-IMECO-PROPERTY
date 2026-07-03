@@ -224,9 +224,13 @@ class TenantController extends Controller
             'business_sector' => $validated['business_sector'] ?? 'Umum',
         ]);
 
-        // Release all current space allocations first to avoid duplicates
+        // Release all current space allocations first to avoid duplicates (except the one being applied/updated)
         $currentAllocations = SpaceAllocation::where('tenant_id', $tenant->id)->get();
         foreach ($currentAllocations as $alloc) {
+            if ($alloc->id == ($validated['space_allocation_id'] ?? null)) {
+                continue; // Skip releasing this allocation because it's being updated/re-applied
+            }
+            
             $otherAllocationsCount = SpaceAllocation::where('building_id', $alloc->building_id)
                 ->where('floor_number', $alloc->floor_number)
                 ->where('unit_number', $alloc->unit_number)
@@ -249,15 +253,17 @@ class TenantController extends Controller
         // Apply new allocation if selected
         if (!empty($validated['space_allocation_id'])) {
             $space = SpaceAllocation::find($validated['space_allocation_id']);
-            $space->update([
-                'tenant_id' => $tenant->id,
-                'area_size' => $validated['area_size'] ?? $space->area_size,
-                'rent_price' => $validated['rent_price'] ?? $space->rent_price,
-                'lease_start' => $validated['lease_start'],
-                'lease_end' => $validated['lease_end'],
-                'status' => $validated['contract_status'] ?? 'Terisi',
-                'payment_status' => $validated['payment_status'] ?? 'Menunggu',
-            ]);
+            if ($space) {
+                $space->update([
+                    'tenant_id' => $tenant->id,
+                    'area_size' => $validated['area_size'] ?? $space->area_size,
+                    'rent_price' => $validated['rent_price'] ?? $space->rent_price,
+                    'lease_start' => $validated['lease_start'],
+                    'lease_end' => $validated['lease_end'],
+                    'status' => $validated['contract_status'] ?? 'Terisi',
+                    'payment_status' => $validated['payment_status'] ?? 'Menunggu',
+                ]);
+            }
         }
 
         return redirect()->route('admin.tenants.show', $tenant->id)->with('success', 'Detail Tenant ' . $tenant->company_name . ' berhasil diperbarui.');

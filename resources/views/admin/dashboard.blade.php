@@ -173,44 +173,53 @@
             </div>
         </div>
 
-        <!-- Right: Tugas Mendatang widget -->
+        <!-- Right: Daftar Maintenance widget -->
         <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Tugas Mendatang</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Item operasional perlu perhatian</p>
+                    <h3 class="text-base font-extrabold text-slate-800">Daftar Maintenance</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Keluhan tenant perlu perhatian</p>
                 </div>
-                <span class="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-bold">{{ count($upcomingTasks) }}</span>
+                <span class="w-5 h-5 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center text-[10px] font-bold">{{ $maintenanceRequests->where('status', '!=', 'Selesai')->count() }}</span>
             </div>
 
             <div class="space-y-3.5">
-                @foreach($upcomingTasks as $task)
-                <div class="p-3 bg-slate-50 rounded-xl flex gap-3 border border-slate-100">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ $task['type'] === 'danger' ? 'bg-rose-100 text-rose-600' : ($task['type'] === 'warning' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600') }}">
-                        @if($task['icon'] === 'file-text')
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        @elseif($task['icon'] === 'credit-card')
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                            </svg>
-                        @elseif($task['icon'] === 'phone')
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                            </svg>
-                        @else
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                            </svg>
-                        @endif
+                @forelse($maintenanceRequests as $req)
+                <div class="p-3 bg-slate-50 rounded-xl flex gap-3 border border-slate-100 items-start hover:bg-slate-100/50 transition-colors">
+                    @php
+                        $iconColor = 'bg-blue-100 text-blue-600';
+                        if ($req->priority === 'Kritis') {
+                            $iconColor = 'bg-rose-100 text-rose-600';
+                        } elseif ($req->priority === 'Tinggi') {
+                            $iconColor = 'bg-orange-100 text-orange-600';
+                        } elseif ($req->priority === 'Sedang') {
+                            $iconColor = 'bg-amber-100 text-amber-600';
+                        }
+                    @endphp
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ $iconColor }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        </svg>
                     </div>
-                    <div class="overflow-hidden">
-                        <h4 class="text-xs font-bold text-slate-800 truncate">{{ $task['title'] }}</h4>
-                        <p class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ $task['date'] }}</p>
+                    <div class="overflow-hidden flex-grow">
+                        <div class="flex items-center justify-between gap-2">
+                            <h4 class="text-xs font-bold text-slate-800 truncate" title="{{ $req->tenant->company_name }}">{{ $req->tenant->company_name }}</h4>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded font-extrabold flex-shrink-0 {{ $req->status === 'Selesai' ? 'bg-emerald-50 text-emerald-600' : ($req->status === 'Dalam Proses' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600') }}">
+                                {{ $req->status }}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 font-semibold truncate mt-0.5">{{ $req->title }}</p>
+                        <div class="flex items-center justify-between text-[9px] text-slate-400 font-bold mt-1.5">
+                            <span>{{ $req->category }}</span>
+                            <span>{{ $req->requested_at ? $req->requested_at->format('d M Y') : '—' }}</span>
+                        </div>
                     </div>
                 </div>
-                @endforeach
+                @empty
+                <div class="py-8 text-center text-slate-400 font-semibold italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    Tidak ada maintenance request.
+                </div>
+                @endforelse
             </div>
         </div>
 

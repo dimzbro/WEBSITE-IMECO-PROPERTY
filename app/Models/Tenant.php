@@ -24,4 +24,9 @@ class Tenant extends Model
     {
         return $this->hasMany(SpaceAllocation::class);
     }
+
+    public function maintenanceRequests()
+    {
+        return $this->hasMany(MaintenanceRequest::class);
+    }
 }

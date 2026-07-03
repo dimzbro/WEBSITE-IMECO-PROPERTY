@@ -7,6 +7,7 @@ use App\Models\Building;
 use App\Models\Tenant;
 use App\Models\SpaceAllocation;
 use App\Models\FurnitureRental;
+use App\Models\MaintenanceRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -56,67 +57,12 @@ class AdminController extends Controller
             ];
         }
 
-        // 3. Upcoming Tasks ("Tugas Mendatang")
-        // Dynamically pull upcoming renewals or overdue collections
-        $upcomingTasks = [];
-        
-        // Add renewals
-        $expiringLeases = SpaceAllocation::with('tenant')
-            ->whereIn('status', ['Hampir Berakhir', 'Berakhir'])
-            ->whereNotNull('lease_end')
-            ->orderBy('lease_end', 'asc')
-            ->take(3)
+        // 3. Maintenance Requests ("Daftar Maintenance")
+        $maintenanceRequests = MaintenanceRequest::with('tenant')
+            ->orderBy('requested_at', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
             ->get();
-
-        foreach ($expiringLeases as $lease) {
-            if ($lease->tenant) {
-                $upcomingTasks[] = [
-                    'title' => 'Renewal Kontrak ' . $lease->tenant->company_name,
-                    'date' => Carbon::parse($lease->lease_end)->translatedFormat('d M Y'),
-                    'type' => 'warning',
-                    'icon' => 'file-text'
-                ];
-            }
-        }
-
-        // Add billings
-        $unpaidLeases = SpaceAllocation::with('tenant')
-            ->whereIn('payment_status', ['Menunggu', 'Tertunggak'])
-            ->take(2)
-            ->get();
-
-        foreach ($unpaidLeases as $lease) {
-            if ($lease->tenant) {
-                $upcomingTasks[] = [
-                    'title' => 'Penagihan ' . $lease->tenant->company_name,
-                    'date' => Carbon::parse($lease->lease_end ?? Carbon::now())->translatedFormat('d M Y'),
-                    'type' => $lease->payment_status === 'Tertunggak' ? 'danger' : 'info',
-                    'icon' => 'credit-card'
-                ];
-            }
-        }
-
-        // Add some static operations checks to round out the widget nicely
-        $upcomingTasks[] = [
-            'title' => 'Inspeksi rutin Gedung B lantai 3-5',
-            'date' => Carbon::now()->addDays(5)->translatedFormat('d M Y'),
-            'type' => 'info',
-            'icon' => 'check-square'
-        ];
-        $upcomingTasks[] = [
-            'title' => 'Follow-up keluhan AC PT Astra',
-            'date' => Carbon::now()->addDays(2)->translatedFormat('d M Y'),
-            'type' => 'warning',
-            'icon' => 'phone'
-        ];
-
-        // Sort upcoming tasks by date (closest first)
-        usort($upcomingTasks, function ($a, $b) {
-            return strtotime($a['date']) - strtotime($b['date']);
-        });
-
-        // Slice to max 5 items
-        $upcomingTasks = array_slice($upcomingTasks, 0, 5);
 
         // 4. Analytics: Space utilization & growth (dynamic trends based on seeded contracts)
         $colors = [
@@ -179,7 +125,7 @@ class AdminController extends Controller
             'overdueAmount',
             'monthlyRevenue',
             'buildingStats',
-            'upcomingTasks',
+            'maintenanceRequests',
             'monthlyUtilization',
             'contractStatusDistribution'
         ));

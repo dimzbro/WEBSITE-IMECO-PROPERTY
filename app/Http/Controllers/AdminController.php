@@ -118,13 +118,46 @@ class AdminController extends Controller
         // Slice to max 5 items
         $upcomingTasks = array_slice($upcomingTasks, 0, 5);
 
-        // 4. Analytics: Space utilization & growth (mocked trends based on seeded contracts)
+        // 4. Analytics: Space utilization & growth (dynamic trends based on seeded contracts)
+        $colors = [
+            'Gedung A' => '#1E3A8A', // Navy
+            'Gedung B' => '#D4AF37', // Gold
+            'Gedung C' => '#64748B', // Slate
+            'Annex' => '#0D9488',    // Teal
+            'Annex 1' => '#0284C7',  // Sky Blue
+            'Workshop' => '#4F46E5', // Indigo
+            'Canteen' => '#F97316',  // Orange
+            'Open Yard' => '#16A34A' // Green
+        ];
+
+        $datasets = [];
+        foreach ($buildings as $building) {
+            $currentRevenue = $building->spaceAllocations->whereIn('status', ['Terisi', 'Hampir Berakhir'])->sum('rent_price') / 1000000;
+            // Generate a mock trend ending in current revenue
+            $trend = [
+                round($currentRevenue * 0.85),
+                round($currentRevenue * 0.88),
+                round($currentRevenue * 0.90),
+                round($currentRevenue * 0.93),
+                round($currentRevenue * 0.95),
+                round($currentRevenue * 0.98),
+                round($currentRevenue)
+            ];
+            
+            $color = $colors[$building->name] ?? ('#' . substr(md5($building->name), 0, 6));
+
+            $datasets[] = [
+                'label' => $building->name,
+                'data' => $trend,
+                'backgroundColor' => $color,
+                'borderRadius' => 4
+            ];
+        }
+
         $monthlyUtilization = [
             'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul'],
             'growth' => [42, 45, 46, 49, 52, 54, $occupiedUnitsCount],
-            'revenue_gedung_a' => [320, 320, 320, 348, 348, 348, 348], // in Juta Rupiah
-            'revenue_gedung_b' => [200, 200, 210, 228, 228, 228, 228],
-            'revenue_gedung_c' => [240, 240, 240, 264, 264, 264, 264]
+            'datasets' => $datasets
         ];
 
         // Distribution of contracts by status (Pie chart)

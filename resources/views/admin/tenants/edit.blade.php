@@ -114,7 +114,13 @@
                                 @foreach($vacantUnits as $unit)
                                     <option value="{{ $unit->id }}" data-size="{{ $unit->area_size }}" data-rent="{{ $unit->rent_price }}"
                                             {{ old('space_allocation_id', $currentAllocation->id ?? '') == $unit->id ? 'selected' : '' }}>
-                                        {{ $unit->building->name ?? 'Gedung' }} - Lantai {{ $unit->floor_number }} - {{ $unit->unit_number }} 
+                                        @if($unit->building->name === 'Open Yard')
+                                            {{ $unit->building->name }} - Area Tanah - {{ $unit->unit_number }}
+                                        @elseif($unit->building->name === 'Workshop')
+                                            {{ $unit->building->name }} - Area Workshop - {{ $unit->unit_number }}
+                                        @else
+                                            {{ $unit->building->name ?? 'Gedung' }} - Lantai {{ $unit->floor_number }} - {{ $unit->unit_number }}
+                                        @endif 
                                         @if($unit->tenant_id === $tenant->id)
                                             (unit saat ini)
                                         @else

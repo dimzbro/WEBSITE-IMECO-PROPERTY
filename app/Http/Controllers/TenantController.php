@@ -227,13 +227,23 @@ class TenantController extends Controller
         // Release all current space allocations first to avoid duplicates
         $currentAllocations = SpaceAllocation::where('tenant_id', $tenant->id)->get();
         foreach ($currentAllocations as $alloc) {
-            $alloc->update([
-                'tenant_id' => null,
-                'status' => 'Kosong',
-                'lease_start' => null,
-                'lease_end' => null,
-                'payment_status' => null,
-            ]);
+            $otherAllocationsCount = SpaceAllocation::where('building_id', $alloc->building_id)
+                ->where('floor_number', $alloc->floor_number)
+                ->where('unit_number', $alloc->unit_number)
+                ->where('id', '!=', $alloc->id)
+                ->count();
+            
+            if ($otherAllocationsCount > 0) {
+                $alloc->delete();
+            } else {
+                $alloc->update([
+                    'tenant_id' => null,
+                    'status' => 'Kosong',
+                    'lease_start' => null,
+                    'lease_end' => null,
+                    'payment_status' => null,
+                ]);
+            }
         }
 
         // Apply new allocation if selected
@@ -259,13 +269,26 @@ class TenantController extends Controller
     public function destroy(Tenant $tenant)
     {
         // 1. Free up all space allocations occupied by this tenant
-        SpaceAllocation::where('tenant_id', $tenant->id)->update([
-            'tenant_id' => null,
-            'status' => 'Kosong',
-            'lease_start' => null,
-            'lease_end' => null,
-            'payment_status' => null,
-        ]);
+        $currentAllocations = SpaceAllocation::where('tenant_id', $tenant->id)->get();
+        foreach ($currentAllocations as $alloc) {
+            $otherAllocationsCount = SpaceAllocation::where('building_id', $alloc->building_id)
+                ->where('floor_number', $alloc->floor_number)
+                ->where('unit_number', $alloc->unit_number)
+                ->where('id', '!=', $alloc->id)
+                ->count();
+            
+            if ($otherAllocationsCount > 0) {
+                $alloc->delete();
+            } else {
+                $alloc->update([
+                    'tenant_id' => null,
+                    'status' => 'Kosong',
+                    'lease_start' => null,
+                    'lease_end' => null,
+                    'payment_status' => null,
+                ]);
+            }
+        }
 
         // 3. Delete tenant
         $companyName = $tenant->company_name;

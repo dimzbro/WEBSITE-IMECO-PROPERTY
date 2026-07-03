@@ -71,140 +71,160 @@
                 <tbody class="divide-y divide-slate-100 font-medium">
                     @forelse($tenants as $tenant)
                         @php
-                            $alloc = $tenant->spaceAllocations->first();
+                            // Get allocations matching filters
+                            $allocations = $tenant->spaceAllocations;
+                            if (request('building_id')) {
+                                $allocations = $allocations->where('building_id', request('building_id'));
+                            }
+                            if (request('status')) {
+                                $allocations = $allocations->where('status', request('status'));
+                            }
+                            if ($allocations->isEmpty()) {
+                                $allocations = collect([null]);
+                            }
                         @endphp
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <!-- Tenant name / PIC details -->
-                            <td class="px-6 py-4.5">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-full bg-[#1E3A8A]/10 text-[#1E3A8A] font-bold text-xs flex items-center justify-center flex-shrink-0">
-                                        {{ substr($tenant->company_name, 3, 2) ?: 'TN' }}
+                        @foreach($allocations as $alloc)
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <!-- Tenant name / PIC details -->
+                                <td class="px-6 py-4.5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-[#1E3A8A]/10 text-[#1E3A8A] font-bold text-xs flex items-center justify-center flex-shrink-0">
+                                            {{ substr($tenant->company_name, 3, 2) ?: 'TN' }}
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-slate-800">{{ $tenant->company_name }}</div>
+                                            <div class="text-[11px] text-slate-400 mt-0.5">{{ $tenant->pic_name }} • {{ $tenant->email }}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="font-bold text-slate-800">{{ $tenant->company_name }}</div>
-                                        <div class="text-[11px] text-slate-400 mt-0.5">{{ $tenant->pic_name }} • {{ $tenant->email }}</div>
-                                    </div>
-                                </div>
-                            </td>
+                                </td>
 
-                            <!-- Building Unit details -->
-                            <td class="px-6 py-4.5">
-                                @if($alloc && $alloc->building)
-                                    <div>
-                                        <div class="font-bold text-slate-800">{{ $alloc->building->name }}</div>
-                                        <div class="text-[11px] text-slate-400 mt-0.5">Lt.{{ $alloc->floor_number }} - {{ $alloc->unit_number }} - {{ $alloc->area_size }}m²</div>
-                                    </div>
-                                @else
-                                    <span class="text-xs text-slate-400 font-semibold italic">Belum dialokasi</span>
-                                @endif
-                            </td>
-
-                            <!-- Business Sector -->
-                            <td class="px-6 py-4.5">
-                                <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
-                                    {{ $tenant->business_sector }}
-                                </span>
-                            </td>
-
-                            <!-- Contract Status Badge -->
-                            <td class="px-6 py-4.5">
-                                @if($alloc)
-                                    @if($alloc->status === 'Terisi')
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                            Aktif
-                                        </span>
-                                    @elseif($alloc->status === 'Hampir Berakhir')
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                            Hampir Berakhir
-                                        </span>
-                                    @elseif($alloc->status === 'Berakhir')
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                            Berakhir
-                                        </span>
+                                <!-- Building Unit details -->
+                                <td class="px-6 py-4.5">
+                                    @if($alloc && $alloc->building)
+                                        <div>
+                                            <div class="font-bold text-slate-800">{{ $alloc->building->name }}</div>
+                                            <div class="text-[11px] text-slate-400 mt-0.5">
+                                                @if($alloc->building->name === 'Open Yard')
+                                                    Area Tanah - {{ $alloc->unit_number }} - {{ $alloc->area_size }}m²
+                                                @elseif($alloc->building->name === 'Workshop')
+                                                    Area Workshop - {{ $alloc->unit_number }} - {{ $alloc->area_size }}m²
+                                                @else
+                                                    Lt.{{ $alloc->floor_number }} - {{ $alloc->unit_number }} - {{ $alloc->area_size }}m²
+                                                @endif
+                                            </div>
+                                        </div>
                                     @else
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                                            Kosong
-                                        </span>
+                                        <span class="text-xs text-slate-400 font-semibold italic">Belum dialokasi</span>
                                     @endif
-                                @else
-                                    <span class="text-xs text-slate-400">Tidak ada</span>
-                                @endif
-                            </td>
+                                </td>
 
-                            <!-- Payment status badge -->
-                            <td class="px-6 py-4.5">
-                                @if($alloc)
-                                    @if($alloc->payment_status === 'Lunas')
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800">
-                                            Lunas
-                                        </span>
-                                    @elseif($alloc->payment_status === 'Menunggu')
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">
-                                            Menunggu
-                                        </span>
-                                    @elseif($alloc->payment_status === 'Tertunggak')
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800">
-                                            Tertunggak
-                                        </span>
+                                <!-- Business Sector -->
+                                <td class="px-6 py-4.5">
+                                    <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
+                                        {{ $tenant->business_sector }}
+                                    </span>
+                                </td>
+
+                                <!-- Contract Status Badge -->
+                                <td class="px-6 py-4.5">
+                                    @if($alloc)
+                                        @if($alloc->status === 'Terisi')
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                Aktif
+                                            </span>
+                                        @elseif($alloc->status === 'Hampir Berakhir')
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                Hampir Berakhir
+                                            </span>
+                                        @elseif($alloc->status === 'Berakhir')
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                                Berakhir
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                Kosong
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="text-xs text-slate-400">Tidak ada</span>
+                                    @endif
+                                </td>
+
+                                <!-- Payment status badge -->
+                                <td class="px-6 py-4.5">
+                                    @if($alloc)
+                                        @if($alloc->payment_status === 'Lunas')
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800">
+                                                Lunas
+                                            </span>
+                                        @elseif($alloc->payment_status === 'Menunggu')
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">
+                                                Menunggu
+                                            </span>
+                                        @elseif($alloc->payment_status === 'Tertunggak')
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800">
+                                                Tertunggak
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-slate-400">—</span>
+                                        @endif
                                     @else
                                         <span class="text-xs text-slate-400">—</span>
                                     @endif
-                                @else
-                                    <span class="text-xs text-slate-400">—</span>
-                                @endif
-                            </td>
+                                </td>
 
-                            <!-- Rent Price per Month -->
-                            <td class="px-6 py-4.5">
-                                @if($alloc)
-                                    <span class="font-bold text-slate-700">Rp {{ number_format($alloc->rent_price / 1000000, 0, ',', '.') }}jt</span>
-                                @else
-                                    <span class="text-xs text-slate-400">—</span>
-                                @endif
-                            </td>
+                                <!-- Rent Price per Month -->
+                                <td class="px-6 py-4.5">
+                                    @if($alloc)
+                                        <span class="font-bold text-slate-700">Rp {{ number_format($alloc->rent_price / 1000000, 0, ',', '.') }}jt</span>
+                                    @else
+                                        <span class="text-xs text-slate-400">—</span>
+                                    @endif
+                                </td>
 
-                            <!-- Lease End Date -->
-                            <td class="px-6 py-4.5 text-xs font-bold text-slate-500">
-                                @if($alloc && $alloc->lease_end)
-                                    {{ \Carbon\Carbon::parse($alloc->lease_end)->format('Y-m-d') }}
-                                @else
-                                    <span class="text-slate-400">—</span>
-                                @endif
-                            </td>
+                                <!-- Lease End Date -->
+                                <td class="px-6 py-4.5 text-xs font-bold text-slate-500">
+                                    @if($alloc && $alloc->lease_end)
+                                        {{ \Carbon\Carbon::parse($alloc->lease_end)->format('Y-m-d') }}
+                                    @else
+                                        <span class="text-slate-400">—</span>
+                                    @endif
+                                </td>
 
-                            <!-- Action buttons -->
-                            <td class="px-6 py-4.5 text-center">
-                                <div class="inline-flex items-center justify-center gap-2">
-                                    <a href="{{ route('admin.tenants.show', $tenant->id) }}" class="p-1.5 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-lg transition-colors" title="Lihat Detail">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-                                    
-                                    <a href="{{ route('admin.tenants.edit', $tenant->id) }}" class="p-1.5 hover:bg-slate-100 text-blue-500 hover:text-blue-700 rounded-lg transition-colors" title="Edit Data">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                    </a>
-
-                                    <!-- Secure Deletion Protocol Form -->
-                                    <form action="{{ route('admin.tenants.destroy', $tenant->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus tenant {{ $tenant->company_name }}? Tindakan ini akan mengosongkan unit gedung yang terisi oleh tenant ini.')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 hover:bg-rose-50 text-rose-500 hover:text-rose-700 rounded-lg transition-colors cursor-pointer" title="Hapus Tenant">
+                                <!-- Action buttons -->
+                                <td class="px-6 py-4.5 text-center">
+                                    <div class="inline-flex items-center justify-center gap-2">
+                                        <a href="{{ route('admin.tenants.show', $tenant->id) }}" class="p-1.5 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-lg transition-colors" title="Lihat Detail">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
+                                        </a>
+                                        
+                                        <a href="{{ route('admin.tenants.edit', $tenant->id) }}" class="p-1.5 hover:bg-slate-100 text-blue-500 hover:text-blue-700 rounded-lg transition-colors" title="Edit Data">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                        </a>
+
+                                        <!-- Secure Deletion Protocol Form -->
+                                        <form action="{{ route('admin.tenants.destroy', $tenant->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus tenant {{ $tenant->company_name }}? Tindakan ini akan mengosongkan unit gedung yang terisi oleh tenant ini.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1.5 hover:bg-rose-50 text-rose-500 hover:text-rose-700 rounded-lg transition-colors cursor-pointer" title="Hapus Tenant">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     @empty
                         <tr>
                             <td colspan="8" class="px-6 py-10 text-center text-slate-400 font-semibold italic bg-slate-50/50">

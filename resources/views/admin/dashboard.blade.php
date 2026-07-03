@@ -266,26 +266,7 @@
             type: 'bar',
             data: {
                 labels: {!! json_encode($monthlyUtilization['labels']) !!},
-                datasets: [
-                    {
-                        label: 'Gedung A',
-                        data: {!! json_encode($monthlyUtilization['revenue_gedung_a']) !!},
-                        backgroundColor: '#1E3A8A',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Gedung B',
-                        data: {!! json_encode($monthlyUtilization['revenue_gedung_b']) !!},
-                        backgroundColor: '#D4AF37',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Gedung C',
-                        data: {!! json_encode($monthlyUtilization['revenue_gedung_c']) !!},
-                        backgroundColor: '#64748B',
-                        borderRadius: 4
-                    }
-                ]
+                datasets: {!! json_encode($monthlyUtilization['datasets']) !!}
             },
             options: {
                 responsive: true,

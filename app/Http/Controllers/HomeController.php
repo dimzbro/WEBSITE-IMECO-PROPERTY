@@ -10,17 +10,17 @@ class HomeController extends Controller
     public function index()
     {
         $images = [
-            'heroBg'         => 'https://images.unsplash.com/photo-1690944851207-3f288c8fcd0b?w=1920&h=1080&fit=crop&auto=format',
-            'aerial'         => 'https://images.unsplash.com/photo-1640184713828-83b0fb39242a?w=900&h=700&fit=crop&auto=format',
-            'towerA'         => 'https://images.unsplash.com/photo-1637393933151-d37306ed606d?w=600&h=420&fit=crop&auto=format',
-            'towerB'         => 'https://images.unsplash.com/photo-1707823942892-3316eeb091a0?w=600&h=420&fit=crop&auto=format',
-            'towerC'         => 'https://images.unsplash.com/photo-1686676104932-3d7b6bbaef52?w=600&h=420&fit=crop&auto=format',
+            'heroBg'         => asset('bg-hero.jpg'),
+            'aerial'         => asset('ls.JPG'),
+            'towerA'         => asset('tower-a.jpg'),
+            'towerB'         => asset('tower-b.jpg'),
+            'towerC'         => asset('tower-c.jpg'),
             'lobby'          => 'https://images.unsplash.com/photo-1758448656987-cfae6bf225e4?w=800&h=600&fit=crop&auto=format',
             'meetingRoom'    => 'https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=800&h=600&fit=crop&auto=format',
             'officeInterior' => 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&h=600&fit=crop&auto=format',
             'businessLounge' => 'https://images.unsplash.com/photo-1628630468464-4168a51129f1?w=800&h=600&fit=crop&auto=format',
             'exterior2'      => 'https://images.unsplash.com/photo-1624213012413-fda54df1810f?w=600&h=600&fit=crop&auto=format',
-            'cityView'       => 'https://images.unsplash.com/photo-1640184713831-cb9be50b846e?w=1200&h=600&fit=crop&auto=format',
+            'cityView'       => asset('ls.JPG'),
             'conference'     => 'https://images.unsplash.com/photo-1606836591695-4d58a73eba1e?w=800&h=600&fit=crop&auto=format',
         ];
 
@@ -57,12 +57,12 @@ class HomeController extends Controller
         $features = [
             ['icon' => 'location', 'title' => 'Strategic Location', 'desc' => 'Prime South Jakarta location with easy access to toll roads, MRT, and major business districts.'],
             ['icon' => 'shield', 'title' => 'High Security', 'desc' => '24/7 CCTV surveillance, access card system, and trained security personnel for complete peace of mind.'],
-            ['icon' => 'chip', 'title' => 'Smart Building', 'desc' => 'IoT-integrated building management system with automated energy, climate, and lighting control.'],
+            ['icon' => 'charging', 'title' => 'SPKLU', 'desc' => 'Electric vehicle charging stations (SPKLU) available within the park for sustainable transit.'],
             ['icon' => 'wifi', 'title' => 'High-Speed Internet', 'desc' => 'Dedicated fiber optic backbone ensuring 99.9% uptime with redundant connectivity options.'],
             ['icon' => 'car', 'title' => 'Large Parking', 'desc' => 'Expansive multi-level parking facility with a high ratio of spaces per floor area.'],
             ['icon' => 'briefcase', 'title' => 'Pro Management', 'desc' => 'International standard property management delivering seamless tenant experience.'],
             ['icon' => 'users', 'title' => 'Business Community', 'desc' => 'A thriving ecosystem of 100+ companies fostering networking and business collaboration.'],
-            ['icon' => 'leaf', 'title' => 'Sustainable', 'desc' => 'Green building certified with energy-efficient systems and eco-friendly design practices.'],
+            ['icon' => 'sports', 'title' => 'Sport', 'desc' => 'Equipped with volleyball and table tennis courts, plus active communities for football, badminton, volleyball, and padel.'],
         ];
 
         $facilities = [
@@ -72,10 +72,10 @@ class HomeController extends Controller
             ['icon' => 'utensils', 'name' => 'Food Court', 'desc' => 'Multi-cuisine dining'],
             ['icon' => 'coffee', 'name' => 'Coffee Shop', 'desc' => 'Premium café experience'],
             ['icon' => 'credit-card', 'name' => 'ATM Center', 'desc' => 'Multi-bank ATM cluster'],
-            ['icon' => 'parking', 'name' => 'Parking Area', 'desc' => 'Basement & rooftop'],
+            ['icon' => 'parking', 'name' => 'Parking Area', 'desc' => 'Up to 700 slots'],
             ['icon' => 'shield-check', 'name' => '24/7 Security', 'desc' => 'Round-the-clock safety'],
             ['icon' => 'key', 'name' => 'Access Card', 'desc' => 'Biometric & RFID system'],
-            ['icon' => 'settings', 'name' => 'BMS System', 'desc' => 'Intelligent management'],
+            ['icon' => 'clinic', 'name' => 'Klinik', 'desc' => 'Medical clinic & first-aid room'],
         ];
 
         $officeSpaces = [

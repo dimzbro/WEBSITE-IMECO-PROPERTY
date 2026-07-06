@@ -135,7 +135,7 @@
                     <div class="section-divider"></div>
                     <p class="text-gray-600 leading-relaxed mb-4">
                         Beltway Office Park stands as South Jakarta's most prestigious commercial real estate development,
-                        spanning 45.000 M² of meticulously planned business ecosystem. Our three iconic towers
+                        spanning 45.000 sqm of meticulously planned business ecosystem. Our three iconic towers
                         redefine the standard of premium office environments in Indonesia.
                     </p>
                     <p class="text-gray-600 leading-relaxed mb-8">
@@ -148,9 +148,9 @@
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <div class="stat-card">
                             <div class="stat-number">
-                                <span data-counter data-target="4500" data-suffix="">4,5</span>
+                                <span data-counter data-target="45000" data-suffix="">45.000</span>
                             </div>
-                            <div class="stat-suffix">Ha</div>
+                            <div class="stat-suffix">sqm</div>
                             <div class="stat-label">Total Area</div>
                         </div>
                         <div class="stat-card">
@@ -500,9 +500,15 @@
                 {{-- Filter Buttons --}}
                 <div class="flex flex-wrap items-center gap-2 flex-shrink-0" id="space-filters">
                     <button class="space-filter-btn active" data-filter="all" id="filter-all">All</button>
-                    <button class="space-filter-btn" data-filter="tower-a" id="filter-tower-a">Tower A</button>
-                    <button class="space-filter-btn" data-filter="tower-b" id="filter-tower-b">Tower B</button>
-                    <button class="space-filter-btn" data-filter="tower-c" id="filter-tower-c">Tower C</button>
+                    @foreach($buildings as $building)
+                        @php
+                            $towerName = $building->name;
+                            if ($towerName === 'Gedung A') $towerName = 'Tower A';
+                            elseif ($towerName === 'Gedung B') $towerName = 'Tower B';
+                            elseif ($towerName === 'Gedung C') $towerName = 'Tower C';
+                        @endphp
+                        <button class="space-filter-btn" data-filter="{{ \Illuminate\Support\Str::slug($towerName) }}" id="filter-{{ \Illuminate\Support\Str::slug($towerName) }}">{{ $towerName }}</button>
+                    @endforeach
                 </div>
             </div>
 
@@ -515,7 +521,7 @@
                         {{-- Image with Status Badge --}}
                         <div class="relative overflow-hidden" style="height: 230px; border-radius: 12px 12px 0 0;">
                             <img src="{{ $space['image'] }}" alt="{{ $space['tower'] }} – {{ $space['floor'] }}"
-                                class="w-full h-full object-cover space-listing-img" loading="lazy">
+                                class="w-full h-full object-cover space-listing-img cursor-pointer" loading="lazy">
                             <span class="space-status-badge">
                                 <span class="space-status-dot"></span>
                                 {{ $space['status'] }}
@@ -544,12 +550,7 @@
 
                             {{-- Buttons --}}
                             <div class="flex gap-3 mt-auto">
-                                <button class="space-btn-outline flex-1"
-                                    onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})"
-                                    id="floorplan-btn-{{ $i }}">
-                                    View Floor Plan
-                                </button>
-                                <button class="space-btn-solid flex-1"
+                                <button class="space-btn-solid w-full"
                                     onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})"
                                     id="reqinfo-btn-{{ $i }}">
                                     Request Info
@@ -558,6 +559,11 @@
                         </div>
                     </div>
                 @endforeach
+
+                {{-- No Spaces Placeholder --}}
+                <div id="no-spaces-message" class="hidden col-span-full py-16 text-center text-gray-500 font-bold bg-slate-50 border border-slate-100 rounded-2xl w-full">
+                    Space not available
+                </div>
             </div>
 
         </div>

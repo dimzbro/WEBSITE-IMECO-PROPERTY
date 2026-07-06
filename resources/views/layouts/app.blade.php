@@ -321,6 +321,17 @@
         });
     });
 
+    document.querySelectorAll('.space-listing-img').forEach(img => {
+        img.addEventListener('click', () => {
+            if (lightboxImg) {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+
     lightboxClose.addEventListener('click', () => {
         lightbox.classList.remove('active');
         document.body.style.overflow = '';
@@ -350,15 +361,26 @@
             btn.classList.add('active');
 
             const filter = btn.dataset.filter;
+            let visibleCount = 0;
 
             spaceCards.forEach(card => {
                 if (filter === 'all' || card.dataset.filter === filter) {
                     card.classList.remove('hidden');
                     card.style.animation = 'fadeInUp 0.4s ease forwards';
+                    visibleCount++;
                 } else {
                     card.classList.add('hidden');
                 }
             });
+
+            const noSpacesMsg = document.getElementById('no-spaces-message');
+            if (noSpacesMsg) {
+                if (visibleCount === 0) {
+                    noSpacesMsg.classList.remove('hidden');
+                } else {
+                    noSpacesMsg.classList.add('hidden');
+                }
+            }
         });
     });
 

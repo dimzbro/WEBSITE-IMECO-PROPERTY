@@ -41,9 +41,15 @@
                         <select id="tower" name="tower" required
                                 class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 bg-white outline-none transition-all">
                             <option value="" disabled selected>Pilih Tower...</option>
-                            <option value="Tower A" {{ old('tower') === 'Tower A' ? 'selected' : '' }}>Tower A</option>
-                            <option value="Tower B" {{ old('tower') === 'Tower B' ? 'selected' : '' }}>Tower B</option>
-                            <option value="Tower C" {{ old('tower') === 'Tower C' ? 'selected' : '' }}>Tower C</option>
+                            @foreach($buildings as $building)
+                                @php
+                                    $displayName = $building->name;
+                                    if ($displayName === 'Gedung A') $displayName = 'Tower A';
+                                    elseif ($displayName === 'Gedung B') $displayName = 'Tower B';
+                                    elseif ($displayName === 'Gedung C') $displayName = 'Tower C';
+                                @endphp
+                                <option value="{{ $displayName }}" {{ old('tower') === $displayName ? 'selected' : '' }}>{{ $displayName }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -53,9 +59,6 @@
                         <select id="floor" name="floor" required
                                 class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 bg-white outline-none transition-all">
                             <option value="" disabled selected>Pilih Lantai...</option>
-                            @for ($i = 1; $i <= 8; $i++)
-                                <option value="{{ $i }}" {{ old('floor') == $i ? 'selected' : '' }}>{{ $i }}</option>
-                            @endfor
                         </select>
                     </div>
 
@@ -197,4 +200,75 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    const buildingAllocations = {
+        @foreach($buildings as $building)
+            @php
+                $keyName = $building->name;
+                if ($keyName === 'Gedung A') $keyName = 'Tower A';
+                elseif ($keyName === 'Gedung B') $keyName = 'Tower B';
+                elseif ($keyName === 'Gedung C') $keyName = 'Tower C';
+            @endphp
+            "{{ $keyName }}": [
+                @php
+                    $formattedOptions = [];
+                    foreach($building->spaceAllocations as $alloc) {
+                        $unitName = $alloc->unit_number;
+                        
+                        if (in_array($building->name, ['Annex', 'Annex 1'])) {
+                            $floorText = "Lantai " . $alloc->floor_number;
+                        } elseif ($building->name === 'Workshop') {
+                            $floorText = "Lantai 1";
+                        } elseif ($building->name === 'Open Yard') {
+                            $floorText = "Lantai 1";
+                        } else {
+                            $floorText = "Lantai " . $alloc->floor_number . " " . $unitName;
+                        }
+                        $formattedOptions[$floorText] = $floorText;
+                    }
+                @endphp
+                @foreach($formattedOptions as $option)
+                    {
+                        value: "{{ $option }}",
+                        text: "{{ $option }}"
+                    },
+                @endforeach
+            ],
+        @endforeach
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const towerSelect = document.getElementById('tower');
+        const floorSelect = document.getElementById('floor');
+
+        function updateFloorOptions() {
+            const selectedTower = towerSelect.value;
+            
+            // Clear previous options
+            floorSelect.innerHTML = '<option value="" disabled selected>Pilih Lantai...</option>';
+            
+            if (selectedTower && buildingAllocations[selectedTower]) {
+                buildingAllocations[selectedTower].forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.text;
+                    if (option.value === "{{ old('floor') }}") {
+                        opt.selected = true;
+                    }
+                    floorSelect.appendChild(opt);
+                });
+            }
+        }
+
+        towerSelect.addEventListener('change', updateFloorOptions);
+        
+        // Initial load
+        if (towerSelect.value) {
+            updateFloorOptions();
+        }
+    });
+</script>
 @endsection

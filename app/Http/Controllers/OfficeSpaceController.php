@@ -15,7 +15,8 @@ class OfficeSpaceController extends Controller
     public function index()
     {
         $officeSpaces = OfficeSpace::orderBy('created_at', 'desc')->get();
-        return view('admin.office_spaces.index', compact('officeSpaces'));
+        $buildings = \App\Models\Building::with('spaceAllocations')->get();
+        return view('admin.office_spaces.index', compact('officeSpaces', 'buildings'));
     }
 
     /**
@@ -25,7 +26,7 @@ class OfficeSpaceController extends Controller
     {
         $validated = $request->validate([
             'tower' => 'required|string|max:255',
-            'floor' => 'required|integer|between:1,8',
+            'floor' => 'required|string|max:255',
             'sqm' => 'required|string|max:255',
             'price' => 'required|string|max:255',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -33,8 +34,6 @@ class OfficeSpaceController extends Controller
         ], [
             'tower.required' => 'Nama Tower wajib diisi.',
             'floor.required' => 'Lantai wajib diisi.',
-            'floor.integer' => 'Lantai harus berupa angka.',
-            'floor.between' => 'Lantai harus bernilai antara 1 dan 8.',
             'sqm.required' => 'Ukuran ruangan (Sqm) wajib diisi.',
             'price.required' => 'Harga sewa wajib diisi.',
             'image_file.image' => 'File harus berupa gambar.',
@@ -42,12 +41,6 @@ class OfficeSpaceController extends Controller
             'image_file.max' => 'Ukuran gambar maksimal adalah 2MB.',
             'image_url.url' => 'Format URL gambar tidak valid.',
         ]);
-
-        // Convert floor number to ordinal representation (e.g. 3 -> "3rd Floor")
-        $floorNumber = intval($validated['floor']);
-        $suffixes = [1 => 'st', 2 => 'nd', 3 => 'rd'];
-        $suffix = $suffixes[$floorNumber] ?? 'th';
-        $validated['floor'] = $floorNumber . $suffix . ' Floor';
 
         // Format sqm (e.g. 250 -> "250 sqm", 1200 -> "1.200 sqm")
         if (is_numeric($validated['sqm'])) {
@@ -58,12 +51,12 @@ class OfficeSpaceController extends Controller
             }
         }
 
-        // Format price (if pure numeric e.g. 200000 -> "IDR 200.000/sqm/mo", otherwise keep text and append suffix)
+        // Format price (if pure numeric e.g. 200000 -> "IDR 200.000/month", otherwise keep text and append suffix)
         if (is_numeric($validated['price'])) {
-            $validated['price'] = 'IDR ' . number_format(intval($validated['price']), 0, ',', '.') . '/sqm/mo';
+            $validated['price'] = 'IDR ' . number_format(intval($validated['price']), 0, ',', '.') . '/month';
         } else {
-            if (!Str::endsWith($validated['price'], '/sqm/mo')) {
-                $validated['price'] .= '/sqm/mo';
+            if (!Str::endsWith($validated['price'], '/month')) {
+                $validated['price'] .= '/month';
             }
         }
 

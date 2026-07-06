@@ -79,6 +79,7 @@ class HomeController extends Controller
         ];
 
         $officeSpaces = \App\Models\OfficeSpace::all();
+        $buildings = \App\Models\Building::all();
 
         $gallery = \App\Models\Gallery::all();
 
@@ -92,7 +93,7 @@ class HomeController extends Controller
 
         $news = News::orderBy('published_at', 'desc')->get();
 
-        return view('home', compact('images', 'towers', 'features', 'facilities', 'officeSpaces', 'gallery', 'tenants', 'news'));
+        return view('home', compact('images', 'towers', 'features', 'facilities', 'officeSpaces', 'gallery', 'tenants', 'news', 'buildings'));
     }
 
     public function contact(Request $request)

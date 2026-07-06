@@ -701,12 +701,27 @@
             }
         });
 
-        // Realtime Clock Functionality
+        // Realtime Clock & Greeting Functionality
         const clockEl = document.getElementById('realtime-clock');
+        const greetingEl = document.getElementById('dynamic-greeting');
         if (clockEl) {
             function updateClock() {
                 const now = new Date();
                 clockEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                
+                const hour = now.getHours();
+                let greeting = 'Selamat Pagi';
+                if (hour >= 12 && hour < 15) {
+                    greeting = 'Selamat Siang';
+                } else if (hour >= 15 && hour < 18) {
+                    greeting = 'Selamat Sore';
+                } else if (hour >= 18 || hour < 5) {
+                    greeting = 'Selamat Malam';
+                }
+                
+                if (greetingEl) {
+                    greetingEl.textContent = greeting;
+                }
             }
             setInterval(updateClock, 1000);
             updateClock();

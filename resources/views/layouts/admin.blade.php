@@ -101,24 +101,21 @@
                         </svg>
                         News & Articles
                     </a>
-                </div>
-            </div>
 
-            <!-- Optional: Static category helpers for aesthetics -->
-            <div>
-                <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Operasional</div>
-                <div class="space-y-1">
-                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium opacity-60 cursor-not-allowed hover:bg-white/5">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                        </svg>
-                        Billing & Payments
-                    </a>
-                    <a href="{{ route('admin.maintenance.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/maintenance*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                    <a href="{{ route('admin.maintenance.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/maintenance*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                         </svg>
                         Maintenance
+                    </a>
+
+                    <a href="{{ route('admin.calendar.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/calendar*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Kalender
                     </a>
                 </div>
             </div>

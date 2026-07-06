@@ -4,84 +4,209 @@
 @section('breadcrumb', 'Dashboard')
 
 @section('content')
-<div class="space-y-6">
+@php
+    $hour = date('H');
+    $greeting = 'Selamat Pagi';
+    if ($hour >= 12 && $hour < 15) {
+        $greeting = 'Selamat Siang';
+    } elseif ($hour >= 15 && $hour < 18) {
+        $greeting = 'Selamat Sore';
+    } elseif ($hour >= 18 || $hour < 5) {
+        $greeting = 'Selamat Malam';
+    }
+    
+    $adminName = Auth::user()->name ?? 'Admin Kawasan';
+    $todayDate = \Carbon\Carbon::now()->translatedFormat('l, d F Y');
+    
+    // Compile dynamic timeline events
+    $timelineEvents = [];
+    foreach ($maintenanceRequests as $req) {
+        $timelineEvents[] = [
+            'title' => 'Maintenance Dilaporkan',
+            'desc' => ($req->tenant->company_name ?? 'Tenant') . ' melapor "' . $req->title . '"',
+            'time' => $req->requested_at ? $req->requested_at->diffForHumans() : 'Baru saja',
+            'type' => 'maintenance',
+            'badge' => $req->priority,
+            'color' => $req->priority === 'Kritis' ? 'bg-rose-500' : ($req->priority === 'Tinggi' ? 'bg-orange-500' : 'bg-indigo-500')
+        ];
+    }
+    
+    $expiringAllocations = \App\Models\SpaceAllocation::with(['tenant', 'building'])
+        ->whereNotNull('lease_end')
+        ->orderBy('lease_end', 'asc')
+        ->take(3)
+        ->get();
+        
+    foreach ($expiringAllocations as $alloc) {
+        $timelineEvents[] = [
+            'title' => 'Kontrak Segera Habis',
+            'desc' => 'Sewa ' . ($alloc->tenant->company_name ?? 'Tenant') . ' di ' . ($alloc->building->name ?? '') . ' Lt. ' . ($alloc->floor_number ?? '—') . ' ' . ($alloc->unit_number ?? ''),
+            'time' => $alloc->lease_end ? \Carbon\Carbon::parse($alloc->lease_end)->translatedFormat('d M Y') : '',
+            'type' => 'lease',
+            'badge' => 'Perlu Tindakan',
+            'color' => 'bg-amber-500'
+        ];
+    }
+@endphp
+
+<div class="space-y-8 animate-fade-in pb-12">
+
+    <!-- Smart Hero Panel -->
+    <div class="bg-gradient-to-br from-slate-900 via-[#162A5E] to-slate-950 p-6 lg:p-8 rounded-3xl shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 text-white relative overflow-hidden border border-white/5">
+        <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute right-32 -bottom-24 w-64 h-64 rounded-full bg-[#1E3A8A]/20 blur-3xl pointer-events-none"></div>
+        
+        <div class="space-y-4 z-10">
+            <div class="flex items-center gap-3">
+                <span id="realtime-clock" class="text-xs font-black bg-white/10 border border-white/10 px-3 py-1 rounded-full backdrop-blur-md shadow-inner tracking-widest text-[#93C5FD]"></span>
+                <span class="text-slate-400 text-xs font-bold">{{ $todayDate }}</span>
+            </div>
+            
+            <div class="space-y-1.5">
+                <h2 class="text-2xl lg:text-3xl font-black tracking-tight flex items-center gap-2">
+                    <span id="dynamic-greeting">{{ $greeting }}</span>, {{ $adminName }}
+                </h2>
+                <p class="text-slate-350 text-xs font-semibold max-w-xl leading-relaxed">
+                    Berikut ringkasan operasional hari ini: 
+                    <span class="text-amber-400 font-extrabold">{{ $approachingEndCount }} Kontrak</span> akan habis sewa,
+                    <span class="text-[#93C5FD] font-extrabold">{{ $maintenanceRequests->where('status', '!=', 'Selesai')->count() }} Pekerjaan</span> pemeliharaan aktif, dan
+                    <span class="text-rose-450 font-extrabold">{{ $paymentDueCount }} Tagihan</span> jatuh tempo.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center gap-3 z-10">
+            <a href="{{ route('admin.tenants.create') }}" class="px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-50 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5 duration-200">
+                <svg class="w-4 h-4 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                </svg>
+                Tambah Tenant
+            </a>
+            <button onclick="openAddModal()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/15 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5 duration-200 backdrop-blur-md">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Request Maintenance
+            </button>
+            <a href="{{ route('admin.calendar.index') }}" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/15 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5 duration-200 backdrop-blur-md">
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Kalender Properti
+            </a>
+        </div>
+    </div>
 
     <!-- Metrics Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         <!-- Metric: Active Tenants -->
-        <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex items-start justify-between hover:shadow-md transition-shadow">
-            <div class="space-y-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#1E3A8A]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center text-[#1E3A8A] transition-transform group-hover:scale-110 duration-200">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <svg class="w-16 h-8 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 100 30">
+                        <path d="M0 28 L10 24 L20 25 L30 20 L40 22 L50 14 L60 18 L70 10 L80 12 L90 5 L100 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-3xl font-extrabold text-slate-800">{{ $activeTenantsCount }}</h3>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Total Tenant Aktif</p>
+                    <h3 class="text-4xl font-black text-slate-800 tracking-tight">{{ $activeTenantsCount }}</h3>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">Tenant Aktif</p>
                 </div>
-                <p class="text-[11px] text-slate-500">dari {{ $totalUnits }} unit tersedia • {{ $occupancyRate }}% occupancy</p>
             </div>
-            <div class="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-600 rounded-full flex items-center gap-1">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>
-                </svg>
-                +5.7%
+            
+            <div class="pt-4 border-t border-slate-100 mt-4 space-y-2">
+                <div class="flex items-center justify-between text-[10px] font-bold text-slate-400">
+                    <span>PERSENTASE OKUPANSI</span>
+                    <span class="text-slate-700">{{ $occupancyRate }}%</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full bg-[#1E3A8A] rounded-full transition-all duration-1000 ease-out" style="width: {{ $occupancyRate }}%"></div>
+                </div>
+                <p class="text-[10px] text-slate-500 font-semibold mt-1">Mengelola {{ $totalUnits }} total unit ruangan sewa</p>
             </div>
         </div>
 
         <!-- Metric: Approaching End Contracts -->
-        <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex items-start justify-between hover:shadow-md transition-shadow">
-            <div class="space-y-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 transition-transform group-hover:scale-110 duration-200">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <svg class="w-16 h-8 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 100 30">
+                        <path d="M0 5 L10 10 L20 8 L30 15 L40 12 L50 20 L60 17 L70 24 L80 20 L90 28 L100 26" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-3xl font-extrabold text-slate-800">{{ $approachingEndCount }}</h3>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Kontrak Akan Berakhir</p>
+                    <h3 class="text-4xl font-black text-slate-800 tracking-tight">{{ $approachingEndCount }}</h3>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">Kontrak Mendekati Habis</p>
                 </div>
-                <p class="text-[11px] text-slate-500">dalam 90 hari ke depan • tindak lanjut segera</p>
             </div>
-            <div class="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-600 rounded-full flex items-center gap-1">
-                +2
+            
+            <div class="pt-4 border-t border-slate-100 mt-4 space-y-2 font-semibold">
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                    <span>TENGGAT WAKTU</span>
+                    <span class="text-amber-600 font-black">90 HARI</span>
+                </div>
+                <p class="text-[10px] text-slate-500 leading-relaxed pt-1">Segera hubungi tenant bersangkutan untuk negosiasi pembaharuan masa sewa unit.</p>
             </div>
         </div>
 
         <!-- Metric: Due Payments -->
-        <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex items-start justify-between hover:shadow-md transition-shadow">
-            <div class="space-y-3">
-                <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600 transition-transform group-hover:scale-110 duration-200">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <svg class="w-16 h-8 text-rose-500 flex-shrink-0" fill="none" viewBox="0 0 100 30">
+                        <path d="M0 25 L15 15 L30 20 L45 8 L60 12 L75 5 L90 18 L100 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-3xl font-extrabold text-slate-800">{{ $paymentDueCount }}</h3>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Pembayaran Jatuh Tempo</p>
+                    <h3 class="text-4xl font-black text-slate-800 tracking-tight">{{ $paymentDueCount }}</h3>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">Pembayaran Jatuh Tempo</p>
                 </div>
-                <p class="text-[11px] text-slate-500">total tagihan bulanan • {{ $overdueCount }} tertunggak</p>
             </div>
-            <div class="px-2.5 py-1 text-xs font-bold bg-rose-50 text-rose-600 rounded-full flex items-center gap-1">
-                Rp {{ number_format($overdueAmount / 1000000, 0, ',', '.') }}jt
+            
+            <div class="pt-4 border-t border-slate-100 mt-4 space-y-2">
+                <div class="flex items-center justify-between text-[10px] font-bold text-slate-450">
+                    <span>JUMLAH TERTUNGGAK</span>
+                    <span class="text-rose-600 font-extrabold">Rp {{ number_format($overdueAmount / 1000000, 0, ',', '.') }}jt</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full bg-rose-500 rounded-full" style="width: 35%"></div>
+                </div>
+                <p class="text-[10px] text-slate-500 font-semibold mt-1">Harap tindak lanjuti tagihan sewa yang belum dilunasi.</p>
             </div>
         </div>
 
     </div>
 
-    <!-- Occupancy Progress Bars & Secondary Statistics -->
+    <!-- Main Grid: Charts and Occupancy Breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Occupancy breakdown per building (Dynamic Progress Bars) -->
-        <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2 space-y-6">
+        <!-- Left: Occupancy breakdown per building (Dynamic Progress Bars) -->
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] lg:col-span-2 space-y-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Okupansi Gedung</h3>
+                    <h3 class="text-base font-extrabold text-slate-800">Okupansi & Visual Heatmap Gedung</h3>
                     <p class="text-xs text-slate-500 mt-0.5">Persentase ruang disewa per gedung perkantoran</p>
                 </div>
-                <a href="{{ route('admin.buildings.index') }}" class="text-xs font-bold text-[#1E3A8A] hover:underline flex items-center gap-1">
+                <a href="{{ route('admin.buildings.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors flex items-center gap-1.5">
                     Detail Map
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -89,135 +214,139 @@
                 </a>
             </div>
 
-            <div class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                 @foreach($buildingStats as $stats)
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between text-xs font-bold">
-                        <span class="text-slate-700">{{ $stats['name'] }}</span>
-                        <span class="text-slate-800">{{ $stats['occupancy_rate'] }}%</span>
+                @php
+                    $hColor = 'bg-rose-500';
+                    $hText = 'Sangat Kosong';
+                    if ($stats['occupancy_rate'] >= 80) {
+                        $hColor = 'bg-emerald-500 animate-pulse';
+                        $hText = 'Hampir Penuh';
+                    } elseif ($stats['occupancy_rate'] >= 50) {
+                        $hColor = 'bg-teal-500';
+                        $hText = 'Okupansi Sedang';
+                    } elseif ($stats['occupancy_rate'] >= 30) {
+                        $hColor = 'bg-amber-500';
+                        $hText = 'Okupansi Rendah';
+                    }
+                @endphp
+                <div class="space-y-2.5 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:bg-slate-50 hover:border-slate-200/80 transition-all duration-200 group">
+                    <div class="flex items-center justify-between text-xs font-black">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full {{ $hColor }}" title="{{ $hText }}"></span>
+                            <span class="text-slate-800">{{ $stats['name'] }}</span>
+                        </div>
+                        <span class="text-slate-900 bg-white px-2 py-0.5 rounded-lg border border-slate-200/60 shadow-sm">{{ $stats['occupancy_rate'] }}%</span>
                     </div>
                     <!-- Progress Bar container -->
-                    <div class="w-full h-3 rounded-full bg-slate-100 overflow-hidden relative">
-                        <div class="h-full rounded-full transition-all duration-500 ease-out {{ $stats['occupancy_rate'] > 75 ? 'bg-emerald-500' : ($stats['occupancy_rate'] > 40 ? 'bg-amber-500' : 'bg-rose-500') }}"
+                    <div class="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden relative">
+                        <div class="h-full rounded-full transition-all duration-1000 ease-out {{ $stats['occupancy_rate'] > 75 ? 'bg-emerald-500' : ($stats['occupancy_rate'] > 40 ? 'bg-amber-500' : 'bg-rose-500') }}"
                              style="width: {{ $stats['occupancy_rate'] }}%"></div>
                     </div>
-                    <div class="flex items-center justify-between text-[11px] text-slate-500">
-                        <span>{{ $stats['occupied_units'] }} tenant aktif</span>
-                        <span>{{ $stats['vacant_units'] }} unit kosong</span>
+                    <div class="flex items-center justify-between text-[10px] text-slate-450 font-bold">
+                        <span>{{ $stats['occupied_units'] }} Tenant Aktif</span>
+                        <span>{{ $stats['vacant_units'] }} Unit Kosong</span>
                     </div>
                 </div>
                 @endforeach
             </div>
         </div>
 
-        <!-- Metric Details / Revenue summaries -->
-        <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm space-y-6 flex flex-col justify-between">
+        <!-- Right: Revenue summaries & stats -->
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6 flex flex-col justify-between">
             <div class="space-y-4">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800">Pendapatan Operasional</h3>
                     <p class="text-xs text-slate-500 mt-0.5">Estimasi pemasukan bulanan berjalan</p>
                 </div>
                 
-                <div class="py-4 border-y border-slate-100 flex flex-col items-center justify-center text-center">
-                    <span class="text-slate-400 text-xs font-bold uppercase tracking-wider">Pendapatan Bulan Ini</span>
-                    <h2 class="text-3xl font-black text-[#1E3A8A] mt-1.5">Rp {{ number_format($monthlyRevenue / 1000000, 0, ',', '.') }}jt</h2>
-                    <span class="text-[10px] text-emerald-600 font-bold mt-1 bg-emerald-50 px-2 py-0.5 rounded-full">+12.3% dari bulan lalu</span>
+                <div class="py-6 border-y border-slate-100 flex flex-col items-center justify-center text-center bg-gradient-to-b from-slate-50/50 to-slate-100/30 rounded-2xl border border-slate-200/60 p-4">
+                    <span class="text-slate-400 text-[10px] font-black uppercase tracking-wider">Pendapatan Bulan Ini</span>
+                    <h2 class="text-3xl font-black text-[#1E3A8A] mt-2">Rp {{ number_format($monthlyRevenue / 1000000, 0, ',', '.') }}jt</h2>
+                    <span class="text-[10px] text-emerald-600 font-extrabold mt-2.5 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        +12.3% dari bulan lalu
+                    </span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                <div>
-                    <div class="font-extrabold text-slate-800">{{ $totalUnits }}</div>
-                    <div class="text-[10px] text-slate-400 font-semibold uppercase mt-0.5">Unit</div>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs pt-2">
+                <div class="bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
+                    <div class="font-black text-slate-800 text-sm">{{ $totalUnits }}</div>
+                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Unit</div>
                 </div>
-                <div>
-                    <div class="font-extrabold text-emerald-600">{{ $occupiedUnitsCount }}</div>
-                    <div class="text-[10px] text-slate-400 font-semibold uppercase mt-0.5">Terisi</div>
+                <div class="bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/50">
+                    <div class="font-black text-emerald-600 text-sm">{{ $occupiedUnitsCount }}</div>
+                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Terisi</div>
                 </div>
-                <div>
-                    <div class="font-extrabold text-slate-500">{{ $totalUnits - $occupiedUnitsCount }}</div>
-                    <div class="text-[10px] text-slate-400 font-semibold uppercase mt-0.5">Tersedia</div>
+                <div class="bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
+                    <div class="font-black text-slate-655 text-sm">{{ $totalUnits - $occupiedUnitsCount }}</div>
+                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Tersedia</div>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Charts & Upcoming Tasks -->
+    <!-- Charts & Timeline activities -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- Left: Charts panel -->
-        <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2 space-y-6">
-            <div>
-                <h3 class="text-base font-extrabold text-slate-800">Analisis Pertumbuhan & Pendapatan</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Statistik pertumbuhan tenant sepanjang 2024</p>
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] lg:col-span-2 space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800">Analisis Pertumbuhan & Pendapatan</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Statistik pertumbuhan tenant sepanjang 2569</p>
+                </div>
             </div>
 
             <!-- Canvas charts -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Tenant Growth Line Chart -->
-                <div class="space-y-2">
-                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tenant Growth</h4>
-                    <div class="h-56 relative flex items-center justify-center">
+                <div class="space-y-3 bg-slate-50/30 p-4 rounded-2xl border border-slate-100">
+                    <h4 class="text-xs font-black text-slate-500 uppercase tracking-wider">Tenant Growth</h4>
+                    <div class="h-60 relative flex items-center justify-center">
                         <canvas id="tenantGrowthChart" class="w-full h-full"></canvas>
                     </div>
                 </div>
 
                 <!-- Pendapatan per Gedung Bar Chart -->
-                <div class="space-y-2">
-                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wide">Pendapatan per Gedung</h4>
-                    <div class="h-56 relative flex items-center justify-center">
+                <div class="space-y-3 bg-slate-50/30 p-4 rounded-2xl border border-slate-100">
+                    <h4 class="text-xs font-black text-slate-500 uppercase tracking-wider">Pendapatan per Gedung</h4>
+                    <div class="h-60 relative flex items-center justify-center">
                         <canvas id="revenueBuildingChart" class="w-full h-full"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right: Daftar Maintenance widget -->
-        <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
+        <!-- Right: Activity Timeline widget -->
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-5">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Daftar Maintenance</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Keluhan tenant perlu perhatian</p>
+                    <h3 class="text-base font-extrabold text-slate-800">Recent Activities</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Aktivitas & tenggat waktu terdekat</p>
                 </div>
-                <span class="w-5 h-5 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center text-[10px] font-bold">{{ $maintenanceRequests->where('status', '!=', 'Selesai')->count() }}</span>
             </div>
 
-            <div class="space-y-3.5">
-                @forelse($maintenanceRequests as $req)
-                <div class="p-3 bg-slate-50 rounded-xl flex gap-3 border border-slate-100 items-start hover:bg-slate-100/50 transition-colors">
-                    @php
-                        $iconColor = 'bg-blue-100 text-blue-600';
-                        if ($req->priority === 'Kritis') {
-                            $iconColor = 'bg-rose-100 text-rose-600';
-                        } elseif ($req->priority === 'Tinggi') {
-                            $iconColor = 'bg-orange-100 text-orange-600';
-                        } elseif ($req->priority === 'Sedang') {
-                            $iconColor = 'bg-amber-100 text-amber-600';
-                        }
-                    @endphp
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ $iconColor }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        </svg>
-                    </div>
-                    <div class="overflow-hidden flex-grow">
-                        <div class="flex items-center justify-between gap-2">
-                            <h4 class="text-xs font-bold text-slate-800 truncate" title="{{ $req->tenant->company_name }}">{{ $req->tenant->company_name }}</h4>
-                            <span class="text-[9px] px-1.5 py-0.5 rounded font-extrabold flex-shrink-0 {{ $req->status === 'Selesai' ? 'bg-emerald-50 text-emerald-600' : ($req->status === 'Dalam Proses' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600') }}">
-                                {{ $req->status }}
-                            </span>
+            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                @forelse($timelineEvents as $event)
+                <div class="flex gap-3 items-start p-2 rounded-xl hover:bg-slate-50 transition-colors">
+                    <div class="w-2.5 h-2.5 rounded-full {{ $event['color'] }} mt-1.5 flex-shrink-0 shadow-sm"></div>
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-xs font-black text-slate-800 leading-snug">{{ $event['title'] }}</h4>
+                            <span class="text-[8px] font-black uppercase bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">{{ $event['badge'] }}</span>
                         </div>
-                        <p class="text-[11px] text-slate-600 font-semibold truncate mt-0.5">{{ $req->title }}</p>
-                        <div class="flex items-center justify-between text-[9px] text-slate-400 font-bold mt-1.5">
-                            <span>{{ $req->category }}</span>
-                            <span>{{ $req->requested_at ? $req->requested_at->format('d M Y') : '—' }}</span>
-                        </div>
+                        <p class="text-[11px] font-semibold text-slate-500 leading-relaxed">{{ $event['desc'] }}</p>
+                        <span class="text-[9px] font-bold text-[#1E3A8A]/70 block">{{ $event['time'] }}</span>
                     </div>
                 </div>
                 @empty
-                <div class="py-8 text-center text-slate-400 font-semibold italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    Tidak ada maintenance request.
+                <div class="py-12 text-center text-slate-400 font-semibold italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    Belum ada aktivitas baru.
                 </div>
                 @endforelse
             </div>
@@ -225,6 +354,267 @@
 
     </div>
 
+    <!-- Row: Daftar Maintenance & Quick Insights -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Daftar Maintenance list -->
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] lg:col-span-2 space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800">Keluhan & Perawatan Properti</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar maintenance request aktif</p>
+                </div>
+                <a href="{{ route('admin.maintenance.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors">
+                    Kelola Semua
+                </a>
+            </div>
+
+            <div class="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
+                @forelse($maintenanceRequests as $req)
+                <div class="p-4 bg-slate-50/50 rounded-2xl flex gap-4 border border-slate-100 items-start hover:bg-slate-50 hover:border-slate-200/80 transition-all duration-200">
+                    @php
+                        $iconColor = 'bg-blue-100/80 text-blue-600';
+                        if ($req->priority === 'Kritis') {
+                            $iconColor = 'bg-rose-100/80 text-rose-600';
+                        } elseif ($req->priority === 'Tinggi') {
+                            $iconColor = 'bg-orange-100/80 text-orange-600';
+                        } elseif ($req->priority === 'Sedang') {
+                            $iconColor = 'bg-amber-100/80 text-amber-600';
+                        }
+                    @endphp
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 {{ $iconColor }} shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        </svg>
+                    </div>
+                    <div class="overflow-hidden flex-grow space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <h4 class="text-xs font-black text-slate-800 truncate" title="{{ $req->tenant->company_name }}">{{ $req->tenant->company_name }}</h4>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded-lg font-black flex-shrink-0 {{ $req->status === 'Selesai' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : ($req->status === 'Dalam Proses' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-amber-50 text-amber-600 border border-amber-100') }}">
+                                {{ $req->status }}
+                            </span>
+                        </div>
+                        <p class="text-[11.5px] text-slate-750 font-bold leading-normal">{{ $req->title }}</p>
+                        <div class="flex items-center justify-between text-[9px] text-slate-400 font-bold pt-1.5">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-slate-350" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                                {{ $req->building->name ?? '—' }} ({{ $req->unit }})
+                            </span>
+                            <span>{{ $req->requested_at ? $req->requested_at->format('d M Y') : '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="py-12 text-center text-slate-400 font-semibold italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    Tidak ada maintenance request aktif saat ini.
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Right: Quick Insights -->
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6 flex flex-col justify-between">
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800">Quick Insights</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Analisis instan kondisi real-estate</p>
+                </div>
+
+                @php
+                    $highestOccupancyBuilding = collect($buildingStats)->sortByDesc('occupancy_rate')->first();
+                    $lowestOccupancyBuilding = collect($buildingStats)->sortBy('occupancy_rate')->first();
+                @endphp
+
+                <div class="space-y-4 font-semibold text-xs">
+                    <!-- Insight 1: Highest Occupancy -->
+                    <div class="p-3.5 bg-emerald-50/40 rounded-2xl border border-emerald-100/50 flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                            ▲
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-emerald-800 text-[11px] uppercase tracking-wider">Okupansi Tertinggi</h4>
+                            <p class="text-slate-700 font-bold mt-0.5">{{ $highestOccupancyBuilding['name'] }} ({{ $highestOccupancyBuilding['occupancy_rate'] }}%)</p>
+                        </div>
+                    </div>
+
+                    <!-- Insight 2: Lowest Occupancy -->
+                    <div class="p-3.5 bg-rose-50/40 rounded-2xl border border-rose-100/50 flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                            ▼
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-rose-800 text-[11px] uppercase tracking-wider">Okupansi Terendah</h4>
+                            <p class="text-slate-700 font-bold mt-0.5">{{ $lowestOccupancyBuilding['name'] }} ({{ $lowestOccupancyBuilding['occupancy_rate'] }}%)</p>
+                        </div>
+                    </div>
+
+                    <!-- Insight 3: Maintenance Status -->
+                    <div class="p-3.5 bg-slate-50/60 rounded-2xl border border-slate-200/80 flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-655 flex items-center justify-center flex-shrink-0">
+                            ⚙
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">Suku Cadang & Pemeliharaan</h4>
+                            <p class="text-slate-700 font-bold mt-0.5">{{ $maintenanceRequests->where('status', 'Menunggu')->count() }} menunggu verifikasi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auto Insights Row -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                <span class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Sistem Normal
+                </span>
+                <span>Insight: {{ count($buildingStats) }} Gedung Aktif</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL: ADD REQUEST (Embedded for quick action compatibility) -->
+<div id="add-request-modal" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto hidden">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 transform transition-all duration-300 scale-95 opacity-0" id="add-modal-card">
+        
+        <div class="bg-[#0F172A] text-white p-5 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-extrabold">Buat Maintenance Request Baru</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Ajukan permohonan maintenance baru untuk unit tenant</p>
+            </div>
+            <button onclick="closeAddModal()" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">✕</button>
+        </div>
+
+        <form action="{{ route('admin.maintenance.store') }}" method="POST" class="p-6 space-y-4 text-xs font-bold text-slate-655">
+            @csrf
+            
+            <!-- Tenant (Custom searchable select dropdown) -->
+            <div class="relative" id="custom-select-container">
+                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Pilih Tenant</label>
+                <input type="hidden" name="tenant_id" id="allocate-tenant-id" required>
+                
+                <button type="button" onclick="document.getElementById('tenant-dropdown-panel').classList.toggle('hidden')"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-left font-semibold text-slate-700 flex items-center justify-between shadow-sm focus:border-[#1E3A8A] outline-none">
+                    <span id="selected-tenant-label" class="text-slate-400 font-semibold">— Pilih Tenant —</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <!-- Dropdown panel -->
+                <div id="tenant-dropdown-panel" class="absolute left-0 right-0 mt-1.5 p-2 bg-white rounded-xl border border-slate-200 shadow-xl z-30 hidden space-y-2">
+                    <div class="relative">
+                        <input type="text" id="tenant-search-input" placeholder="Cari nama tenant..." oninput="filterTenants(this.value)"
+                               class="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-200 focus:border-[#1E3A8A] outline-none">
+                        <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <div class="max-h-48 overflow-y-auto divide-y divide-slate-50" id="tenant-options-list" style="max-height: 200px; overflow-y: auto;">
+                        @foreach(\App\Models\Tenant::with('spaceAllocations')->get() as $t)
+                            @php
+                                $allocationsJson = $t->spaceAllocations->map(fn($a) => [
+                                    'building_id' => $a->building_id,
+                                    'building_name' => $a->building->name,
+                                    'unit_text' => ($a->floor_number ? 'Lt. ' . $a->floor_number . ' - ' : '') . $a->unit_number
+                                ])->toArray();
+                            @endphp
+                            <button type="button" 
+                                    class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg transition-colors font-semibold text-slate-700 flex items-center justify-between tenant-option"
+                                    data-id="{{ $t->id }}"
+                                    data-name="{{ $t->company_name }}"
+                                    data-allocations="{{ json_encode($allocationsJson) }}">
+                                <span>{{ $t->company_name }}</span>
+                                <span class="text-[9px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded">{{ $t->pic_name }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gedung & Unit (Select Dropdowns filled by JS) -->
+            <div class="grid grid-cols-2 gap-3.5">
+                <div>
+                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Gedung</label>
+                    <select name="building_id" id="allocate-gedung" required
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white outline-none font-semibold">
+                        <option value="">— Pilih Gedung —</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Unit</label>
+                    <select name="unit" id="allocate-unit" required
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white outline-none font-semibold">
+                        <option value="">— Pilih Unit —</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Kategori -->
+            <div>
+                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Kategori</label>
+                <select name="category" required
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none font-semibold">
+                    <option value="AC / HVAC">AC / HVAC</option>
+                    <option value="Kelistrikan">Kelistrikan</option>
+                    <option value="Plumbing">Plumbing</option>
+                    <option value="Lift / Escalator">Lift / Escalator</option>
+                    <option value="Struktur Sipil">Struktur Sipil</option>
+                    <option value="Kebersihan / Janitorial">Kebersihan / Janitorial</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+
+            <!-- Judul Keluhan -->
+            <div>
+                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Judul Keluhan</label>
+                <input type="text" name="title" required placeholder="Contoh: AC ruang meeting tidak dingin"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
+            </div>
+
+            <!-- Deskripsi -->
+            <div>
+                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Deskripsi Keluhan</label>
+                <textarea name="description" required rows="3" placeholder="Detail deskripsi keluhan..."
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold resize-none"></textarea>
+            </div>
+
+            <!-- Priority and Assigned Team -->
+            <div class="grid grid-cols-2 gap-3.5">
+                <div>
+                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Prioritas</label>
+                    <select name="priority" required
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none font-semibold">
+                        <option value="Rendah">Rendah</option>
+                        <option value="Sedang" selected>Sedang</option>
+                        <option value="Tinggi">Tinggi</option>
+                        <option value="Kritis">Kritis</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Ditugaskan Kepada</label>
+                    <input type="text" name="assigned_to" required placeholder="Contoh: Tim Mechanical"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
+                </div>
+            </div>
+
+            <!-- Tanggal Proses -->
+            <div>
+                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Tanggal Proses</label>
+                <input type="date" name="scheduled_at" required
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full py-3 text-center bg-[#1E3A8A] text-white hover:bg-slate-900 rounded-xl font-bold text-xs transition-colors cursor-pointer mt-2">
+                Simpan Request
+            </button>
+        </form>
+    </div>
 </div>
 @endsection
 
@@ -235,6 +625,12 @@
     document.addEventListener("DOMContentLoaded", function() {
         // Line Chart: Tenant Growth
         const ctxGrowth = document.getElementById('tenantGrowthChart').getContext('2d');
+        
+        // Gradient Fill for line
+        const gradientBlue = ctxGrowth.createLinearGradient(0, 0, 0, 240);
+        gradientBlue.addColorStop(0, 'rgba(30, 58, 138, 0.2)');
+        gradientBlue.addColorStop(1, 'rgba(30, 58, 138, 0.0)');
+
         new Chart(ctxGrowth, {
             type: 'line',
             data: {
@@ -243,12 +639,16 @@
                     label: 'Jumlah Tenant',
                     data: {!! json_encode($monthlyUtilization['growth']) !!},
                     borderColor: '#1E3A8A',
-                    backgroundColor: 'rgba(30, 58, 138, 0.05)',
+                    backgroundColor: gradientBlue,
                     borderWidth: 3,
                     fill: true,
-                    tension: 0.3,
+                    tension: 0.4,
                     pointBackgroundColor: '#1E3A8A',
-                    pointRadius: 4
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#1E3A8A',
+                    pointHoverBorderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
@@ -260,7 +660,7 @@
                 scales: {
                     y: {
                         beginAtZero: false,
-                        grid: { color: 'rgba(0,0,0,0.04)' }
+                        grid: { color: 'rgba(0,0,0,0.03)' }
                     },
                     x: {
                         grid: { display: false }
@@ -283,13 +683,13 @@
                 plugins: {
                     legend: {
                         position: 'top',
-                        labels: { boxWidth: 10, font: { size: 10 } }
+                        labels: { boxWidth: 8, font: { size: 9, weight: 'bold' } }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.04)' },
+                        grid: { color: 'rgba(0,0,0,0.03)' },
                         ticks: {
                             callback: function(val) { return val + 'jt'; }
                         }
@@ -300,6 +700,132 @@
                 }
             }
         });
+
+        // Realtime Clock Functionality
+        const clockEl = document.getElementById('realtime-clock');
+        if (clockEl) {
+            function updateClock() {
+                const now = new Date();
+                clockEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+        }
+    });
+
+    // ----------------------------------------------------
+    // Quick Add Modal scripts for Maintenance request creation
+    // ----------------------------------------------------
+    const addModal = document.getElementById('add-request-modal');
+    const addCard = document.getElementById('add-modal-card');
+    const gedungSelect = document.getElementById('allocate-gedung');
+    const unitSelect = document.getElementById('allocate-unit');
+    let currentAllocations = [];
+
+    function openAddModal() {
+        addModal.classList.remove('hidden');
+        setTimeout(() => {
+            addCard.classList.remove('scale-95', 'opacity-0');
+            addCard.classList.add('scale-100', 'opacity-100');
+        }, 50);
+        
+        // Reset creation form
+        document.getElementById('allocate-tenant-id').value = '';
+        document.getElementById('selected-tenant-label').textContent = '— Pilih Tenant —';
+        document.getElementById('selected-tenant-label').className = 'text-slate-400 font-semibold';
+        gedungSelect.innerHTML = '<option value="">— Pilih Gedung —</option>';
+        unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
+    }
+
+    function closeAddModal() {
+        addCard.classList.remove('scale-100', 'opacity-100');
+        addCard.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            addModal.classList.add('hidden');
+        }, 200);
+    }
+
+    // Filter tenant dropdown
+    function filterTenants(query) {
+        const options = document.querySelectorAll('.tenant-option');
+        const lowerQuery = query.toLowerCase();
+        options.forEach(opt => {
+            const name = opt.getAttribute('data-name').toLowerCase();
+            if (name.includes(lowerQuery)) {
+                opt.classList.remove('hidden');
+            } else {
+                opt.classList.add('hidden');
+            }
+        });
+    }
+
+    document.getElementById('tenant-options-list').addEventListener('click', function(e) {
+        const button = e.target.closest('.tenant-option');
+        if (button) {
+            e.preventDefault();
+            const tenantId = button.getAttribute('data-id');
+            const tenantName = button.getAttribute('data-name');
+            const allocationsData = button.getAttribute('data-allocations');
+
+            document.getElementById('allocate-tenant-id').value = tenantId;
+            
+            const label = document.getElementById('selected-tenant-label');
+            label.textContent = tenantName;
+            label.className = "text-slate-800 font-bold";
+
+            currentAllocations = JSON.parse(allocationsData || '[]');
+            gedungSelect.innerHTML = '<option value="">— Pilih Gedung —</option>';
+            unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
+
+            const uniqueBuildings = {};
+            currentAllocations.forEach(alloc => {
+                uniqueBuildings[alloc.building_id] = alloc.building_name;
+            });
+
+            const buildingKeys = Object.keys(uniqueBuildings);
+            buildingKeys.forEach(bId => {
+                const option = document.createElement('option');
+                option.value = bId;
+                option.textContent = uniqueBuildings[bId];
+                gedungSelect.appendChild(option);
+            });
+
+            if (buildingKeys.length === 1) {
+                gedungSelect.value = buildingKeys[0];
+                populateUnits(buildingKeys[0]);
+            }
+
+            document.getElementById('tenant-dropdown-panel').classList.add('hidden');
+        }
+    });
+
+    function populateUnits(buildingId) {
+        unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
+        if (!buildingId) return;
+
+        const filteredUnits = currentAllocations.filter(alloc => alloc.building_id == buildingId);
+        filteredUnits.forEach(alloc => {
+            const option = document.createElement('option');
+            option.value = alloc.unit_text;
+            option.textContent = alloc.unit_text;
+            unitSelect.appendChild(option);
+        });
+
+        if (filteredUnits.length === 1) {
+            unitSelect.value = filteredUnits[0].unit_text;
+        }
+    }
+
+    gedungSelect.addEventListener('change', function() {
+        populateUnits(this.value);
+    });
+
+    // Close select dropdown on click outside
+    document.addEventListener('click', (e) => {
+        const container = document.getElementById('custom-select-container');
+        if (container && !container.contains(e.target)) {
+            document.getElementById('tenant-dropdown-panel').classList.add('hidden');
+        }
     });
 </script>
 @endsection

@@ -22,7 +22,7 @@ class MaintenanceRequestController extends Controller
         $completedRequests = MaintenanceRequest::where('status', 'Selesai')->count();
 
         // 2. Query maintenance requests
-        $query = MaintenanceRequest::with(['tenant.spaceAllocations.building']);
+        $query = MaintenanceRequest::with(['tenant.spaceAllocations.building', 'building']);
 
         // Filter: Search (Tenant, Building, Unit, Category, Title)
         if ($request->filled('search')) {
@@ -94,11 +94,14 @@ class MaintenanceRequestController extends Controller
     {
         $validated = $request->validate([
             'tenant_id' => 'required|exists:tenants,id',
+            'building_id' => 'required|exists:buildings,id',
+            'unit' => 'required|string|max:255',
             'category' => 'required|string',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'priority' => 'required|string|in:Rendah,Sedang,Tinggi,Kritis',
             'assigned_to' => 'required|string',
+            'scheduled_at' => 'nullable|date',
         ]);
 
         $validated['requested_at'] = Carbon::today()->toDateString();
@@ -125,6 +128,7 @@ class MaintenanceRequestController extends Controller
             'priority' => 'required|string|in:Rendah,Sedang,Tinggi,Kritis',
             'assigned_to' => 'required|string',
             'notes' => 'nullable|string',
+            'scheduled_at' => 'nullable|date',
         ]);
 
         if ($validated['status'] === 'Selesai' && $maintenance->status !== 'Selesai') {

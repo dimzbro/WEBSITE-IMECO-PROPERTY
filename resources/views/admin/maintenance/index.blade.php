@@ -150,10 +150,15 @@
                     $pColors = $priorityColors[$req->priority] ?? $priorityColors['Rendah'];
                     $sColor = $statusColors[$req->status] ?? $statusColors['Menunggu'];
                     
-                    // Get building & unit names from the tenant space allocations
-                    $allocations = $req->tenant->spaceAllocations;
-                    $buildingsStr = $allocations->map(fn($a) => $a->building->name)->unique()->implode(', ') ?: '—';
-                    $unitsStr = $allocations->map(fn($a) => ($a->floor_number ? 'Lt.' . $a->floor_number . ' - ' : '') . $a->unit_number)->implode(', ') ?: '—';
+                    // Get building & unit names: use specific values if saved, otherwise fall back to all tenant's space allocations (historical records)
+                    if ($req->building_id && $req->unit) {
+                        $buildingsStr = $req->building->name;
+                        $unitsStr = $req->unit;
+                    } else {
+                        $allocations = $req->tenant->spaceAllocations;
+                        $buildingsStr = $allocations->map(fn($a) => $a->building->name)->unique()->implode(', ') ?: '—';
+                        $unitsStr = $allocations->map(fn($a) => ($a->floor_number ? 'Lt. ' . $a->floor_number . ' - ' : '') . $a->unit_number)->implode(', ') ?: '—';
+                    }
                 @endphp
                 
                 <div class="py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 first:pt-0 last:pb-0 hover:bg-slate-50/20 transition-all duration-200 px-3 rounded-xl">
@@ -225,7 +230,7 @@
                         <div class="flex items-center gap-2 pt-1.5">
                             <!-- View button -->
                             <button type="button" 
-                                    onclick="openViewModal({{ json_encode($req) }}, '{{ $buildingsStr }}', '{{ $unitsStr }}', '{{ $req->requested_at ? $req->requested_at->format('d M Y') : '—' }}', '{{ $req->completed_at ? $req->completed_at->format('d M Y') : '—' }}')"
+                                    onclick="openViewModal({{ json_encode($req) }}, '{{ $buildingsStr }}', '{{ $unitsStr }}', '{{ $req->requested_at ? $req->requested_at->format('d M Y') : '—' }}', '{{ $req->completed_at ? $req->completed_at->format('d M Y') : '—' }}', '{{ $req->scheduled_at ? $req->scheduled_at->format('d M Y') : '—' }}')"
                                     class="p-2 text-slate-400 hover:text-[#1E3A8A] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer" 
                                     title="Lihat Detail">
                                 <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,15 +327,17 @@
                     <div class="max-h-48 overflow-y-auto divide-y divide-slate-50" id="tenant-options-list" style="max-height: 200px; overflow-y: auto;">
                         @foreach($tenants as $t)
                             @php
-                                $bNames = $t->spaceAllocations->map(fn($a) => $a->building->name)->unique()->implode(', ') ?: '—';
-                                $uNames = $t->spaceAllocations->map(fn($a) => ($a->floor_number ? 'Lt. ' . $a->floor_number . ' - ' : '') . $a->unit_number)->implode(', ') ?: '—';
+                                $allocationsJson = $t->spaceAllocations->map(fn($a) => [
+                                    'building_id' => $a->building_id,
+                                    'building_name' => $a->building->name,
+                                    'unit_text' => ($a->floor_number ? 'Lt. ' . $a->floor_number . ' - ' : '') . $a->unit_number
+                                ])->toArray();
                             @endphp
                             <button type="button" 
                                     class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg transition-colors font-semibold text-slate-700 flex items-center justify-between tenant-option"
                                     data-id="{{ $t->id }}"
                                     data-name="{{ $t->company_name }}"
-                                    data-buildings="{{ $bNames }}"
-                                    data-units="{{ $uNames }}">
+                                    data-allocations="{{ json_encode($allocationsJson) }}">
                                 <span>{{ $t->company_name }}</span>
                                 <span class="text-[9px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded">{{ $t->pic_name }}</span>
                             </button>
@@ -339,17 +346,21 @@
                 </div>
             </div>
 
-            <!-- Gedung & Unit (Readonly Auto filled) -->
+            <!-- Gedung & Unit (Select Dropdowns filled by JS) -->
             <div class="grid grid-cols-2 gap-3.5">
                 <div>
                     <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Gedung</label>
-                    <input type="text" id="allocate-gedung" readonly placeholder="Auto fill"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold outline-none cursor-not-allowed">
+                    <select name="building_id" id="allocate-gedung" required
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white outline-none font-semibold">
+                        <option value="">— Pilih Gedung —</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Unit</label>
-                    <input type="text" id="allocate-unit" readonly placeholder="Auto fill"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold outline-none cursor-not-allowed">
+                    <select name="unit" id="allocate-unit" required
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white outline-none font-semibold">
+                        <option value="">— Pilih Unit —</option>
+                    </select>
                 </div>
             </div>
 
@@ -398,6 +409,13 @@
                 </div>
             </div>
 
+            <!-- Tanggal Proses -->
+            <div>
+                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Tanggal Proses</label>
+                <input type="date" name="scheduled_at" required
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
+            </div>
+
             <!-- Submit Button -->
             <button type="submit" class="w-full py-3 text-center bg-[#1E3A8A] text-white hover:bg-slate-900 rounded-xl font-bold text-xs transition-colors cursor-pointer mt-2">
                 Simpan Request
@@ -429,6 +447,7 @@
                     <div><span class="text-slate-400">Status:</span> <span class="text-slate-800 font-bold block mt-0.5" id="view-status"></span></div>
                     <div><span class="text-slate-400">Tim Teknisi:</span> <span class="text-slate-800 font-bold block mt-0.5" id="view-assigned-to"></span></div>
                     <div><span class="text-slate-400">Tanggal Request:</span> <span class="text-slate-800 font-bold block mt-0.5" id="view-requested-at"></span></div>
+                    <div><span class="text-slate-400">Tanggal Proses:</span> <span class="text-slate-800 font-bold block mt-0.5" id="view-scheduled-at"></span></div>
                     <div id="view-completed-row" class="col-span-2 hidden"><span class="text-slate-400">Tanggal Selesai:</span> <span class="text-slate-800 font-bold block mt-0.5" id="view-completed-at"></span></div>
                 </div>
             </div>
@@ -506,6 +525,13 @@
                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
             </div>
 
+            <!-- Tanggal Proses -->
+            <div>
+                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Tanggal Proses</label>
+                <input type="date" name="scheduled_at" id="edit-scheduled-at" required
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
+            </div>
+
             <!-- Notes -->
             <div>
                 <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Catatan / Update Resolusi</label>
@@ -547,38 +573,98 @@
         });
     }
 
-    // Set dropdown options click listener
-    document.querySelectorAll('.tenant-option').forEach(element => {
-        element.addEventListener('click', function(e) {
-            e.preventDefault();
-            const tenantId = this.getAttribute('data-id');
-            const tenantName = this.getAttribute('data-name');
-            const buildings = this.getAttribute('data-buildings');
-            const units = this.getAttribute('data-units');
+    // Set dropdown options click listener using event delegation
+    document.addEventListener('DOMContentLoaded', function() {
+        const optionsList = document.getElementById('tenant-options-list');
+        const gedungSelect = document.getElementById('allocate-gedung');
+        const unitSelect = document.getElementById('allocate-unit');
+        let currentAllocations = [];
 
-            // Set hidden input value
-            document.getElementById('allocate-tenant-id').value = tenantId;
-            
-            // Update trigger label
-            const label = document.getElementById('selected-tenant-label');
-            label.textContent = tenantName;
-            label.className = "text-slate-800 font-bold";
+        if (optionsList) {
+            optionsList.addEventListener('click', function(e) {
+                const button = e.target.closest('.tenant-option');
+                if (button) {
+                    e.preventDefault();
+                    const tenantId = button.getAttribute('data-id');
+                    const tenantName = button.getAttribute('data-name');
+                    const allocationsData = button.getAttribute('data-allocations');
 
-            // Fill building & units
-            document.getElementById('allocate-gedung').value = buildings;
-            document.getElementById('allocate-unit').value = units;
+                    // Set hidden input value
+                    document.getElementById('allocate-tenant-id').value = tenantId;
+                    
+                    // Update trigger label
+                    const label = document.getElementById('selected-tenant-label');
+                    label.textContent = tenantName;
+                    label.className = "text-slate-800 font-bold";
 
-            // Close panel
-            document.getElementById('tenant-dropdown-panel').classList.add('hidden');
-        });
-    });
+                    // Parse allocations
+                    currentAllocations = JSON.parse(allocationsData || '[]');
 
-    // Close select dropdown on click outside
-    document.addEventListener('click', (e) => {
-        const container = document.getElementById('custom-select-container');
-        if (container && !container.contains(e.target)) {
-            document.getElementById('tenant-dropdown-panel').classList.add('hidden');
+                    // Populate Gedung select
+                    gedungSelect.innerHTML = '<option value="">— Pilih Gedung —</option>';
+                    unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
+
+                    const uniqueBuildings = {};
+                    currentAllocations.forEach(alloc => {
+                        uniqueBuildings[alloc.building_id] = alloc.building_name;
+                    });
+
+                    const buildingKeys = Object.keys(uniqueBuildings);
+                    buildingKeys.forEach(bId => {
+                        const option = document.createElement('option');
+                        option.value = bId;
+                        option.textContent = uniqueBuildings[bId];
+                        gedungSelect.appendChild(option);
+                    });
+
+                    // If only 1 building, auto-select it and trigger unit population
+                    if (buildingKeys.length === 1) {
+                        gedungSelect.value = buildingKeys[0];
+                        populateUnits(buildingKeys[0]);
+                    } else if (buildingKeys.length === 0) {
+                        gedungSelect.innerHTML = '<option value="">Tidak ada gedung terdaftar</option>';
+                        unitSelect.innerHTML = '<option value="">Tidak ada unit terdaftar</option>';
+                    }
+
+                    // Close panel
+                    document.getElementById('tenant-dropdown-panel').classList.add('hidden');
+                }
+            });
         }
+
+        // Helper to populate units based on selected building
+        function populateUnits(buildingId) {
+            unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
+            if (!buildingId) return;
+
+            const filteredUnits = currentAllocations.filter(alloc => alloc.building_id == buildingId);
+            filteredUnits.forEach(alloc => {
+                const option = document.createElement('option');
+                option.value = alloc.unit_text;
+                option.textContent = alloc.unit_text;
+                unitSelect.appendChild(option);
+            });
+
+            // If only 1 unit, auto-select it
+            if (filteredUnits.length === 1) {
+                unitSelect.value = filteredUnits[0].unit_text;
+            }
+        }
+
+        // Listen to Gedung select change
+        if (gedungSelect) {
+            gedungSelect.addEventListener('change', function() {
+                populateUnits(this.value);
+            });
+        }
+
+        // Close select dropdown on click outside
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('custom-select-container');
+            if (container && !container.contains(e.target)) {
+                document.getElementById('tenant-dropdown-panel').classList.add('hidden');
+            }
+        });
     });
 
     // ----------------------------------------------------
@@ -605,8 +691,9 @@
         document.getElementById('allocate-tenant-id').value = '';
         document.getElementById('selected-tenant-label').textContent = '— Pilih Tenant —';
         document.getElementById('selected-tenant-label').className = 'text-slate-400 font-semibold';
-        document.getElementById('allocate-gedung').value = '';
-        document.getElementById('allocate-unit').value = '';
+        document.getElementById('allocate-gedung').innerHTML = '<option value="">— Pilih Gedung —</option>';
+        document.getElementById('allocate-unit').innerHTML = '<option value="">— Pilih Unit —</option>';
+        document.getElementsByName('scheduled_at')[0].value = '';
     }
 
     function closeAddModal() {
@@ -618,7 +705,7 @@
     }
 
     // View Modal
-    function openViewModal(req, buildings, units, reqDate, compDate) {
+    function openViewModal(req, buildings, units, reqDate, compDate, schedDate) {
         viewModal.classList.remove('hidden');
         setTimeout(() => {
             viewCard.classList.remove('scale-95', 'opacity-0');
@@ -633,6 +720,7 @@
         document.getElementById('view-status').textContent = req.status;
         document.getElementById('view-assigned-to').textContent = req.assigned_to;
         document.getElementById('view-requested-at').textContent = reqDate;
+        document.getElementById('view-scheduled-at').textContent = schedDate;
         
         const compRow = document.getElementById('view-completed-row');
         if (req.status === 'Selesai' && compDate !== '—') {
@@ -668,6 +756,11 @@
         document.getElementById('edit-priority').value = req.priority;
         document.getElementById('edit-status').value = req.status;
         document.getElementById('edit-assigned-to').value = req.assigned_to;
+        if (req.scheduled_at) {
+            document.getElementById('edit-scheduled-at').value = req.scheduled_at.substring(0, 10);
+        } else {
+            document.getElementById('edit-scheduled-at').value = '';
+        }
         document.getElementById('edit-notes').value = req.notes || '';
     }
 

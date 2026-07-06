@@ -41,6 +41,7 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::resource('maintenance', MaintenanceRequestController::class)->names('admin.maintenance');
     Route::resource('office-spaces', OfficeSpaceController::class)->names('admin.office_spaces');
     Route::resource('gallery', GalleryController::class)->names('admin.gallery');
+    Route::get('calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('admin.calendar.index');
 });
 
 Route::post('/logout', function (Illuminate\Http\Request $request) {

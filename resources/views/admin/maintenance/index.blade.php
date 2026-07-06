@@ -234,14 +234,25 @@
                                 </svg>
                             </button>
                             <!-- Edit button -->
-                            <button type="button" 
-                                    onclick="openEditModal({{ json_encode($req) }})"
-                                    class="p-2 text-slate-400 hover:text-amber-655 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer" 
-                                    title="Ubah Status / Detail">
-                                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                </svg>
-                            </button>
+                            @if($req->status === 'Selesai')
+                                <button type="button" 
+                                        class="p-2 text-slate-300 cursor-not-allowed opacity-50" 
+                                        disabled
+                                        title="Request yang sudah selesai tidak dapat diedit">
+                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </button>
+                            @else
+                                <button type="button" 
+                                        onclick="openEditModal({{ json_encode($req) }})"
+                                        class="p-2 text-slate-400 hover:text-amber-655 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer" 
+                                        title="Ubah Status / Detail">
+                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </button>
+                            @endif
                             <!-- Delete button -->
                             <form action="{{ route('admin.maintenance.destroy', $req->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus request ini?')">
                                 @csrf

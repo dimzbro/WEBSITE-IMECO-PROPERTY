@@ -15,6 +15,8 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\MaintenanceRequestController;
+use App\Http\Controllers\OfficeSpaceController;
+use App\Http\Controllers\GalleryController;
 use Illuminate\Support\Facades\Auth;
 
 Route::post('/login', function (Illuminate\Http\Request $request) {
@@ -37,6 +39,8 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::post('buildings/release/{allocation}', [BuildingController::class, 'release'])->name('admin.buildings.release');
     Route::resource('news', NewsController::class)->names('admin.news');
     Route::resource('maintenance', MaintenanceRequestController::class)->names('admin.maintenance');
+    Route::resource('office-spaces', OfficeSpaceController::class)->names('admin.office_spaces');
+    Route::resource('gallery', GalleryController::class)->names('admin.gallery');
 });
 
 Route::post('/logout', function (Illuminate\Http\Request $request) {

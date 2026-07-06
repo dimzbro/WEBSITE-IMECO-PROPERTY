@@ -24,7 +24,7 @@
         <!-- Logo/Header -->
         <div class="text-center mb-8">
             <a href="/" class="inline-flex items-center gap-3 no-underline mb-4">
-                <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-12 h-12 object-contain">
+                <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-12 h-12 object-contain brightness-0 invert">
             </a>
             <h2 class="text-2xl font-black tracking-tight text-white mb-1">Welcome Back</h2>
             <p class="text-sm text-white/60">Beltway Office Park Admin Portal</p>

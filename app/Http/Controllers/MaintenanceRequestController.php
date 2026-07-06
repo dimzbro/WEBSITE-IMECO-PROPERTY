@@ -116,6 +116,10 @@ class MaintenanceRequestController extends Controller
     {
         $maintenance = MaintenanceRequest::findOrFail($id);
 
+        if ($maintenance->status === 'Selesai') {
+            return redirect()->route('admin.maintenance.index')->with('error', 'Request pemeliharaan yang sudah selesai tidak dapat diedit.');
+        }
+
         $validated = $request->validate([
             'status' => 'required|string|in:Menunggu,Dalam Proses,Selesai,Dibatalkan',
             'priority' => 'required|string|in:Rendah,Sedang,Tinggi,Kritis',

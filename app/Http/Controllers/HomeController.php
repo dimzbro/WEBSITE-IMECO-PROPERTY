@@ -78,71 +78,9 @@ class HomeController extends Controller
             ['icon' => 'clinic', 'name' => 'Klinik', 'desc' => 'Medical clinic & first-aid room'],
         ];
 
-        $officeSpaces = [
-            [
-                'tower'    => 'Tower A',
-                'floor'    => '3rd Floor',
-                'sqm'      => '250 sqm',
-                'price'    => 'IDR 185,000/sqm/mo',
-                'status'   => 'Available',
-                'image'    => 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=700&h=460&fit=crop&auto=format',
-                'filter'   => 'tower-a',
-            ],
-            [
-                'tower'    => 'Tower A',
-                'floor'    => '5th Floor',
-                'sqm'      => '500 sqm',
-                'price'    => 'IDR 185,000/sqm/mo',
-                'status'   => 'Available',
-                'image'    => 'https://images.unsplash.com/photo-1431540015161-0bf868a2d407?w=700&h=460&fit=crop&auto=format',
-                'filter'   => 'tower-a',
-            ],
-            [
-                'tower'    => 'Tower B',
-                'floor'    => '6th Floor',
-                'sqm'      => '1,200 sqm',
-                'price'    => 'IDR 190,000/sqm/mo',
-                'status'   => 'Available',
-                'image'    => 'https://images.unsplash.com/photo-1628630468464-4168a51129f1?w=700&h=460&fit=crop&auto=format',
-                'filter'   => 'tower-b',
-            ],
-            [
-                'tower'    => 'Tower B',
-                'floor'    => '2nd Floor',
-                'sqm'      => '320 sqm',
-                'price'    => 'IDR 190,000/sqm/mo',
-                'status'   => 'Available',
-                'image'    => 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=700&h=460&fit=crop&auto=format',
-                'filter'   => 'tower-b',
-            ],
-            [
-                'tower'    => 'Tower C',
-                'floor'    => '7th Floor',
-                'sqm'      => '800 sqm',
-                'price'    => 'IDR 200,000/sqm/mo',
-                'status'   => 'Available',
-                'image'    => 'https://images.unsplash.com/photo-1606836591695-4d58a73eba1e?w=700&h=460&fit=crop&auto=format',
-                'filter'   => 'tower-c',
-            ],
-            [
-                'tower'    => 'Tower C',
-                'floor'    => '4th Floor',
-                'sqm'      => '150 sqm',
-                'price'    => 'IDR 200,000/sqm/mo',
-                'status'   => 'Available',
-                'image'    => 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=700&h=460&fit=crop&auto=format',
-                'filter'   => 'tower-c',
-            ],
-        ];
+        $officeSpaces = \App\Models\OfficeSpace::all();
 
-        $gallery = [
-            ['image' => $images['lobby'],          'title' => 'Grand Lobby',         'span' => 'large'],
-            ['image' => $images['meetingRoom'],    'title' => 'Meeting Room',         'span' => 'normal'],
-            ['image' => $images['officeInterior'], 'title' => 'Office Interior',      'span' => 'normal'],
-            ['image' => $images['businessLounge'], 'title' => 'Business Lounge',      'span' => 'normal'],
-            ['image' => $images['conference'],     'title' => 'Conference Hall',       'span' => 'large'],
-            ['image' => $images['exterior2'],      'title' => 'Building Exterior',     'span' => 'normal'],
-        ];
+        $gallery = \App\Models\Gallery::all();
 
         $tenants = [
             ['name' => 'Circle K',                'logo' => 'ck.png'],

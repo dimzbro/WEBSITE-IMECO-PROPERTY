@@ -27,7 +27,7 @@
     <!-- Mobile Sidebar Header Toggle -->
     <div class="lg:hidden w-full bg-[#0F172A] text-white px-4 py-3 flex items-center justify-between border-b border-white/10 z-50">
         <a href="/" class="flex items-center gap-2">
-            <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-8 h-8 object-contain">
+            <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-8 h-8 object-contain brightness-0 invert">
             <div class="font-extrabold text-sm tracking-wide">BELTWAY</div>
         </a>
         <button id="mobile-sidebar-toggle" class="p-2 text-white hover:bg-slate-800 rounded-lg">
@@ -41,7 +41,7 @@
     <aside id="sidebar-nav" class="hidden lg:flex flex-col w-64 bg-[#0F172A] text-slate-300 border-r border-white/5 flex-shrink-0 z-40 fixed inset-y-0 left-0 lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <!-- Logo Branding -->
         <div class="p-6 border-b border-white/5 flex items-center gap-3">
-            <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-10 h-10 object-contain">
+            <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-10 h-10 object-contain brightness-0 invert">
             <div>
                 <div class="text-white font-extrabold text-base tracking-wide leading-none">Beltway Office</div>
                 <div class="text-[10px] font-semibold tracking-widest text-[#D4AF37] mt-0.5">PARK MANAGEMENT</div>
@@ -76,6 +76,22 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                         Building Management
+                    </a>
+
+                    <a href="{{ route('admin.office_spaces.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/office-spaces*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                        </svg>
+                        Available Spaces
+                    </a>
+
+                    <a href="{{ route('admin.gallery.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/gallery*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Gallery Management
                     </a>
 
                     <a href="{{ route('admin.news.index') }}" 
@@ -222,6 +238,88 @@
                 }
             });
         }
+    </script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to convert native confirm to data-confirm
+            function convertConfirms(root = document) {
+                if (root.nodeType !== Node.ELEMENT_NODE && root.nodeType !== Node.DOCUMENT_NODE) return;
+                root.querySelectorAll('form').forEach(function(form) {
+                    const onsubmit = form.getAttribute('onsubmit');
+                    if (onsubmit && onsubmit.includes('confirm(')) {
+                        const match = onsubmit.match(/confirm\(['"](.*?)['"]\)/);
+                        if (match && match[1]) {
+                            form.setAttribute('data-confirm', match[1]);
+                            form.removeAttribute('onsubmit');
+                        }
+                    }
+                });
+            }
+
+            // Initial conversion
+            convertConfirms();
+
+            // Observe dynamic elements to convert newly added forms
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            convertConfirms(node);
+                            // Also check if node itself is a form
+                            if (node.tagName === 'FORM') {
+                                const onsubmit = node.getAttribute('onsubmit');
+                                if (onsubmit && onsubmit.includes('confirm(')) {
+                                    const match = onsubmit.match(/confirm\(['"](.*?)['"]\)/);
+                                    if (match && match[1]) {
+                                        node.setAttribute('data-confirm', match[1]);
+                                        node.removeAttribute('onsubmit');
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            // Handle custom confirmation dialogs using event delegation
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.hasAttribute('data-confirm')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const confirmMsg = form.getAttribute('data-confirm');
+
+                    Swal.fire({
+                        title: 'Konfirmasi Tindakan',
+                        text: confirmMsg,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#1E3A8A',
+                        cancelButtonColor: '#EF4444',
+                        confirmButtonText: 'Ya, Lanjutkan',
+                        cancelButtonText: 'Batal',
+                        background: '#ffffff',
+                        customClass: {
+                            popup: 'rounded-2xl border border-slate-100 shadow-xl p-6',
+                            title: 'text-lg font-bold text-slate-800 mt-2',
+                            htmlContainer: 'text-sm text-slate-500 mt-1',
+                            confirmButton: 'px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-md transition-all',
+                            cancelButton: 'px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.removeAttribute('data-confirm');
+                            form.submit();
+                        }
+                    });
+                }
+            });
+        });
     </script>
     
     @yield('scripts')

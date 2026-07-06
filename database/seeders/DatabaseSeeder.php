@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             PropertyManagementSeeder::class,
             NewsSeeder::class,
             MaintenanceRequestSeeder::class,
+            OfficeSpaceSeeder::class,
+            GallerySeeder::class,
         ]);
     }
 }

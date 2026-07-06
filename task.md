@@ -1,0 +1,18 @@
+- [x] Create `OfficeSpace` model and migration
+- [x] Create `OfficeSpaceSeeder` and update `DatabaseSeeder`
+- [x] Run migration and seed database
+- [x] Create `OfficeSpaceController`
+- [x] Add routes in `web.php`
+- [x] Add menu item in `layouts/admin.blade.php`
+- [x] Create admin index view `resources/views/admin/office_spaces/index.blade.php`
+- [x] Update `HomeController.php` to fetch from database
+- [x] Verify functionality
+- [x] Create `Gallery` model and migration for Gallery
+- [x] Create `GallerySeeder` and update `DatabaseSeeder`
+- [x] Run migration and seed database for Gallery
+- [x] Create `GalleryController`
+- [x] Add Gallery resource routes in `web.php`
+- [x] Add Gallery menu item in `layouts/admin.blade.php`
+- [x] Create gallery index view `resources/views/admin/gallery/index.blade.php`
+- [x] Update `HomeController.php` to fetch gallery dynamically from database
+- [x] Verify Gallery functionality

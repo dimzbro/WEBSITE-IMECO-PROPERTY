@@ -154,9 +154,9 @@
                 <!-- Our Towers -->
                 <div>
                     <h4 class="text-white font-bold text-sm uppercase tracking-widest mb-5">Our Towers</h4>
-                    <a href="#towers" class="footer-link">Tower A – Premium Office</a>
-                    <a href="#towers" class="footer-link">Tower B – Flexible Workspace</a>
-                    <a href="#towers" class="footer-link">Tower C – Executive Office</a>
+                    <a href="#towers" class="footer-link">Tower A – Middle Office Space</a>
+                    <a href="#towers" class="footer-link">Tower B – Executive Office Space</a>
+                    <a href="#towers" class="footer-link">Tower C – Middle Office Space</a>
                 </div>
 
                 <!-- Contact Info -->

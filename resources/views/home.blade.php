@@ -214,7 +214,6 @@
                                 <div class="text-white font-black text-xl">{{ $tower['name'] }}</div>
                                 <div class="text-sm font-semibold" style="color: #D4AF37;">{{ $tower['subtitle'] }}</div>
                             </div>
-                            <div class="tower-badge">{{ $tower['status'] }}</div>
                         </div>
                         <div class="tower-card-body">
                             <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ $tower['description'] }}</p>
@@ -626,28 +625,40 @@
                 <div class="section-divider mx-auto fade-up delay-200"></div>
             </div>
 
-            {{-- Static Tenant Grid --}}
-            <div class="flex flex-wrap items-center justify-center gap-6 md:gap-8 fade-up delay-300">
-                @foreach($tenants as $i => $tenant)
-                    @php
-                        $isZoomed = in_array($tenant['logo'], ['kopken.png', 'kapal api.jpg']);
-                        $cardClass = $isZoomed ? 'tenant-logo-card p-2' : 'tenant-logo-card p-4';
-                        $imgClass = $isZoomed ? 'h-14 w-auto object-contain max-w-full' : 'h-10 w-auto object-contain max-w-full';
-                    @endphp
-                    <div class="{{ $cardClass }}" id="tenant-{{ $i }}">
-                        <img src="{{ asset($tenant['logo']) }}" alt="{{ $tenant['name'] }}"
-                            class="{{ $imgClass }} transition-transform duration-300 hover:scale-105" loading="lazy">
+            {{-- Tenant Logo Showcase Marquee --}}
+            <div class="marquee-container fade-up delay-300">
+                <div class="marquee-track">
+                    <!-- Group 1 -->
+                    <div class="marquee-group">
+                        @foreach($tenants as $i => $tenant)
+                            @php
+                                $isZoomed = in_array($tenant['logo'], ['kopken.png', 'kapal api.jpg', 'spklu.jpeg', 'mp.png', 'ck.png']);
+                                $cardClass = $isZoomed ? 'tenant-logo-card p-2' : 'tenant-logo-card p-4';
+                                $imgClass = $isZoomed ? 'h-14 w-auto object-contain max-w-full' : 'h-10 w-auto object-contain max-w-full';
+                            @endphp
+                            <div class="{{ $cardClass }}" id="tenant-{{ $i }}">
+                                <img src="{{ asset($tenant['logo']) }}" alt="{{ $tenant['name'] }}"
+                                    class="{{ $imgClass }}" loading="lazy">
+                            </div>
+                        @endforeach
                     </div>
-                @endforeach
+                    <!-- Group 2 (Duplicate for Seamless Loop) -->
+                    <div class="marquee-group" aria-hidden="true">
+                        @foreach($tenants as $i => $tenant)
+                            @php
+                                $isZoomed = in_array($tenant['logo'], ['kopken.png', 'kapal api.jpg', 'spklu.jpeg', 'mp.png', 'ck.png']);
+                                $cardClass = $isZoomed ? 'tenant-logo-card p-2' : 'tenant-logo-card p-4';
+                                $imgClass = $isZoomed ? 'h-14 w-auto object-contain max-w-full' : 'h-10 w-auto object-contain max-w-full';
+                            @endphp
+                            <div class="{{ $cardClass }}" id="tenant-dup-{{ $i }}">
+                                <img src="{{ asset($tenant['logo']) }}" alt="{{ $tenant['name'] }}"
+                                    class="{{ $imgClass }}" loading="lazy">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
 
-            {{-- Tenant Count --}}
-            <div class="text-center mt-10 fade-up delay-400">
-                <p class="text-gray-500 text-sm">
-                    Bergabung dengan <span class="font-bold" style="color: #1E3A8A;">100+ perusahaan</span> yang telah
-                    mempercayakan kebutuhan kantor mereka kepada kami.
-                </p>
-            </div>
         </div>
     </section>
 

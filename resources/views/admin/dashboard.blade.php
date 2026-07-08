@@ -188,7 +188,7 @@
                     <span class="text-rose-600 font-extrabold">Rp {{ number_format($overdueAmount / 1000000, 0, ',', '.') }}jt</span>
                 </div>
                 <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div class="h-full bg-rose-500 rounded-full" style="width: 35%"></div>
+                    <div class="h-full bg-rose-500 rounded-full transition-all duration-1000 ease-out" style="width: {{ $duePaymentRatio }}%"></div>
                 </div>
                 <p class="text-[10px] text-slate-500 font-semibold mt-1">Harap tindak lanjuti tagihan sewa yang belum dilunasi.</p>
             </div>

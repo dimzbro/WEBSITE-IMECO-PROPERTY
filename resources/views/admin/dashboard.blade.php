@@ -24,7 +24,7 @@
         $timelineEvents[] = [
             'title' => 'Maintenance Dilaporkan',
             'desc' => ($req->tenant->company_name ?? 'Tenant') . ' melapor "' . $req->title . '"',
-            'time' => $req->requested_at ? $req->requested_at->diffForHumans() : 'Baru saja',
+            'time' => $req->created_at ? $req->created_at->diffForHumans() : ($req->requested_at ? $req->requested_at->diffForHumans() : 'Baru saja'),
             'type' => 'maintenance',
             'badge' => $req->priority,
             'color' => $req->priority === 'Kritis' ? 'bg-rose-500' : ($req->priority === 'Tinggi' ? 'bg-orange-500' : 'bg-indigo-500')
@@ -68,9 +68,8 @@
                 </h2>
                 <p class="text-slate-350 text-xs font-semibold max-w-xl leading-relaxed">
                     Berikut ringkasan operasional hari ini: 
-                    <span class="text-amber-400 font-extrabold">{{ $approachingEndCount }} Kontrak</span> akan habis sewa,
-                    <span class="text-[#93C5FD] font-extrabold">{{ $maintenanceRequests->where('status', '!=', 'Selesai')->count() }} Pekerjaan</span> pemeliharaan aktif, dan
-                    <span class="text-rose-450 font-extrabold">{{ $paymentDueCount }} Tagihan</span> jatuh tempo.
+                    <span class="text-amber-400 font-extrabold">{{ $approachingEndCount }} Kontrak</span> akan habis sewa, dan
+                    <span class="text-[#93C5FD] font-extrabold">{{ $maintenanceRequests->where('status', '!=', 'Selesai')->count() }} Pekerjaan</span> pemeliharaan aktif.
                 </p>
             </div>
         </div>
@@ -99,7 +98,7 @@
     </div>
 
     <!-- Metrics Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Metric: Active Tenants -->
         <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
@@ -162,45 +161,13 @@
             </div>
         </div>
 
-        <!-- Metric: Due Payments -->
-        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600 transition-transform group-hover:scale-110 duration-200">
-                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                        </svg>
-                    </div>
-                    <!-- Sparkline SVG -->
-                    <svg class="w-16 h-8 text-rose-500 flex-shrink-0" fill="none" viewBox="0 0 100 30">
-                        <path d="M0 25 L15 15 L30 20 L45 8 L60 12 L75 5 L90 18 L100 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-4xl font-black text-slate-800 tracking-tight">{{ $paymentDueCount }}</h3>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">Pembayaran Jatuh Tempo</p>
-                </div>
-            </div>
-            
-            <div class="pt-4 border-t border-slate-100 mt-4 space-y-2">
-                <div class="flex items-center justify-between text-[10px] font-bold text-slate-450">
-                    <span>JUMLAH TERTUNGGAK</span>
-                    <span class="text-rose-600 font-extrabold">Rp {{ number_format($overdueAmount / 1000000, 0, ',', '.') }}jt</span>
-                </div>
-                <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div class="h-full bg-rose-500 rounded-full transition-all duration-1000 ease-out" style="width: {{ $duePaymentRatio }}%"></div>
-                </div>
-                <p class="text-[10px] text-slate-500 font-semibold mt-1">Harap tindak lanjuti tagihan sewa yang belum dilunasi.</p>
-            </div>
-        </div>
-
     </div>
 
-    <!-- Main Grid: Charts and Occupancy Breakdown -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Grid: Occupancy Breakdown -->
+    <div class="grid grid-cols-1 gap-6">
         
-        <!-- Left: Occupancy breakdown per building (Dynamic Progress Bars) -->
-        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] lg:col-span-2 space-y-6">
+        <!-- Occupancy breakdown per building (Dynamic Progress Bars) -->
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800">Okupansi & Visual Heatmap Gedung</h3>
@@ -252,42 +219,6 @@
             </div>
         </div>
 
-        <!-- Right: Revenue summaries & stats -->
-        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6 flex flex-col justify-between">
-            <div class="space-y-4">
-                <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Pendapatan Operasional</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Estimasi pemasukan bulanan berjalan</p>
-                </div>
-                
-                <div class="py-6 border-y border-slate-100 flex flex-col items-center justify-center text-center bg-gradient-to-b from-slate-50/50 to-slate-100/30 rounded-2xl border border-slate-200/60 p-4">
-                    <span class="text-slate-400 text-[10px] font-black uppercase tracking-wider">Pendapatan Bulan Ini</span>
-                    <h2 class="text-3xl font-black text-[#1E3A8A] mt-2">Rp {{ number_format($monthlyRevenue / 1000000, 0, ',', '.') }}jt</h2>
-                    <span class="text-[10px] text-emerald-600 font-extrabold mt-2.5 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                        </svg>
-                        +12.3% dari bulan lalu
-                    </span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 text-center text-xs pt-2">
-                <div class="bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
-                    <div class="font-black text-slate-800 text-sm">{{ $totalUnits }}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Unit</div>
-                </div>
-                <div class="bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/50">
-                    <div class="font-black text-emerald-600 text-sm">{{ $occupiedUnitsCount }}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Terisi</div>
-                </div>
-                <div class="bg-slate-50/60 p-2.5 rounded-xl border border-slate-100">
-                    <div class="font-black text-slate-655 text-sm">{{ $totalUnits - $occupiedUnitsCount }}</div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Tersedia</div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Charts & Timeline activities -->
@@ -297,26 +228,18 @@
         <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] lg:col-span-2 space-y-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Analisis Pertumbuhan & Pendapatan</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Statistik pertumbuhan tenant sepanjang 2569</p>
+                    <h3 class="text-base font-extrabold text-slate-800">Analisis Pertumbuhan Tenant</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Statistik pertumbuhan tenant</p>
                 </div>
             </div>
 
             <!-- Canvas charts -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 gap-8">
                 <!-- Tenant Growth Line Chart -->
                 <div class="space-y-3 bg-slate-50/30 p-4 rounded-2xl border border-slate-100">
                     <h4 class="text-xs font-black text-slate-500 uppercase tracking-wider">Tenant Growth</h4>
                     <div class="h-60 relative flex items-center justify-center">
                         <canvas id="tenantGrowthChart" class="w-full h-full"></canvas>
-                    </div>
-                </div>
-
-                <!-- Pendapatan per Gedung Bar Chart -->
-                <div class="space-y-3 bg-slate-50/30 p-4 rounded-2xl border border-slate-100">
-                    <h4 class="text-xs font-black text-slate-500 uppercase tracking-wider">Pendapatan per Gedung</h4>
-                    <div class="h-60 relative flex items-center justify-center">
-                        <canvas id="revenueBuildingChart" class="w-full h-full"></canvas>
                     </div>
                 </div>
             </div>
@@ -669,37 +592,7 @@
             }
         });
 
-        // Bar Chart: Revenue/Utilization per Building
-        const ctxRevenue = document.getElementById('revenueBuildingChart').getContext('2d');
-        new Chart(ctxRevenue, {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($monthlyUtilization['labels']) !!},
-                datasets: {!! json_encode($monthlyUtilization['datasets']) !!}
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: { boxWidth: 8, font: { size: 9, weight: 'bold' } }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.03)' },
-                        ticks: {
-                            callback: function(val) { return val + 'jt'; }
-                        }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
+
 
         // Realtime Clock & Greeting Functionality
         const clockEl = document.getElementById('realtime-clock');

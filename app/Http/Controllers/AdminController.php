@@ -61,7 +61,6 @@ class AdminController extends Controller
 
         // 3. Maintenance Requests ("Daftar Maintenance")
         $maintenanceRequests = MaintenanceRequest::with('tenant')
-            ->orderBy('requested_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();

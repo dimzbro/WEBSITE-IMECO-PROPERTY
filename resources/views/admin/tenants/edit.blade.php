@@ -137,11 +137,7 @@
                                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none">
                         </div>
 
-                        <div>
-                            <label for="rent_price" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Harga Sewa / Bulan (Rp)</label>
-                            <input type="number" id="rent_price" name="rent_price" value="{{ old('rent_price', $currentAllocation->rent_price ?? '') }}" placeholder="Harga Sewa Rupiah"
-                                   class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none">
-                        </div>
+                        <input type="hidden" id="rent_price" name="rent_price" value="{{ old('rent_price', $currentAllocation->rent_price ?? 0) }}">
 
                         <div>
                             <label for="lease_start" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mulai Kontrak Sewa</label>
@@ -163,15 +159,7 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label for="payment_status" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Status Pembayaran</label>
-                            <select id="payment_status" name="payment_status"
-                                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none">
-                                <option value="Lunas" {{ old('payment_status', $currentAllocation->payment_status ?? '') === 'Lunas' ? 'selected' : '' }}>Lunas</option>
-                                <option value="Menunggu" {{ old('payment_status', $currentAllocation->payment_status ?? '') === 'Menunggu' ? 'selected' : '' }}>Menunggu Pembayaran</option>
-                                <option value="Tertunggak" {{ old('payment_status', $currentAllocation->payment_status ?? '') === 'Tertunggak' ? 'selected' : '' }}>Tertunggak</option>
-                            </select>
-                        </div>
+                        <input type="hidden" id="payment_status" name="payment_status" value="{{ old('payment_status', $currentAllocation->payment_status ?? 'Lunas') }}">
                     </div>
                 </div>
 
@@ -214,7 +202,7 @@
                 if (size) inputSize.value = size;
                 if (rent) inputRent.value = rent;
             });
-        }        }
+        }
     });
 </script>
 @endsection

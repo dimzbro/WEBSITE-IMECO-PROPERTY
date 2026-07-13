@@ -45,9 +45,8 @@
             
             <div class="text-left md:text-right">
                 @if($alloc)
-                    <div class="text-slate-300 text-xs font-semibold uppercase tracking-wider">Harga Sewa / Bulan</div>
-                    <div class="text-2xl font-black text-[#D4AF37] mt-0.5">Rp {{ number_format($alloc->rent_price, 0, ',', '.') }}</div>
-                    <div class="text-[10px] text-white/60 mt-1">Selesai Kontrak: {{ $alloc->lease_end }}</div>
+                    <div class="text-slate-300 text-xs font-semibold uppercase tracking-wider">Selesai Kontrak</div>
+                    <div class="text-base font-black text-white mt-1">{{ $alloc->lease_end }}</div>
                 @else
                     <span class="text-xs text-white/50 italic">Belum dialokasi unit</span>
                 @endif
@@ -121,18 +120,7 @@
                             <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Luas Area Kantor</div>
                             <div class="text-slate-800 mt-1">{{ $alloc->area_size }} m²</div>
                         </div>
-                        <div>
-                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Status Pembayaran Sewa</div>
-                            <div class="mt-1">
-                                @if($alloc->payment_status === 'Lunas')
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800">Lunas</span>
-                                @elseif($alloc->payment_status === 'Menunggu')
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Menunggu Tagihan</span>
-                                @else
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 animate-pulse">Tertunggak</span>
-                                @endif
-                            </div>
-                        </div>
+
                         <div>
                             <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Status Kontrak</div>
                             <div class="mt-1 flex">

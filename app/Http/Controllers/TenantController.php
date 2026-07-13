@@ -155,12 +155,13 @@ class TenantController extends Controller
         
         // 1. Maintenance Requests log entries
         $maintenance = \App\Models\MaintenanceRequest::where('tenant_id', $tenant->id)
-            ->orderBy('requested_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
             
         foreach ($maintenance as $req) {
             $logs[] = [
-                'date' => $req->requested_at ? $req->requested_at->format('d M Y') : $req->created_at->format('d M Y'),
+                'date' => $req->created_at ? $req->created_at->format('d M Y, H:i') : ($req->requested_at ? $req->requested_at->format('d M Y, H:i') : '—'),
+                'timestamp' => $req->created_at ? $req->created_at->timestamp : ($req->requested_at ? $req->requested_at->timestamp : 0),
                 'title' => 'Maintenance: ' . $req->title . ' (' . $req->category . ')',
                 'status' => $req->status,
                 'badge' => $req->status === 'Selesai' ? 'success' : ($req->status === 'Dalam Proses' ? 'warning' : 'info'),
@@ -168,31 +169,21 @@ class TenantController extends Controller
             ];
         }
         
-        // 2. Billing & Rent logs based on payment status of their space allocations
-        foreach ($tenant->spaceAllocations as $alloc) {
-            if ($alloc->payment_status) {
-                $logs[] = [
-                    'date' => $alloc->lease_start ? \Carbon\Carbon::parse($alloc->lease_start)->format('d M Y') : $alloc->created_at->format('d M Y'),
-                    'title' => 'Tagihan sewa ' . $alloc->building->name . ' ' . $alloc->unit_number . ' - ' . ($alloc->payment_status === 'Lunas' ? 'Lunas Terbayar' : ($alloc->payment_status === 'Tertunggak' ? 'Tertunggak' : 'Menunggu Pembayaran')),
-                    'status' => $alloc->payment_status,
-                    'badge' => $alloc->payment_status === 'Lunas' ? 'success' : ($alloc->payment_status === 'Tertunggak' ? 'danger' : 'warning'),
-                    'pic' => 'Sistem Finansial'
-                ];
-            }
-        }
+
         
         // 3. Registration log entry
         $logs[] = [
-            'date' => $tenant->created_at ? $tenant->created_at->format('d M Y') : '—',
+            'date' => $tenant->created_at ? $tenant->created_at->format('d M Y, H:i') : '—',
+            'timestamp' => $tenant->created_at ? $tenant->created_at->timestamp : 0,
             'title' => 'Registrasi Tenant Baru & Alokasi Ruang',
             'status' => 'Selesai',
             'badge' => 'success',
             'pic' => 'Admin BOP'
         ];
         
-        // Sort logs by date descending
+        // Sort logs by timestamp descending
         usort($logs, function ($a, $b) {
-            return strtotime($b['date']) - strtotime($a['date']);
+            return $b['timestamp'] - $a['timestamp'];
         });
 
         return view('admin.tenants.show', compact('tenant', 'logs'));

@@ -155,9 +155,9 @@
                                 <div class="text-[9px] opacity-80 mt-1 font-bold">
                                     @if(!$isOccupied)
                                         @php $firstAlloc = $allocs->first(); @endphp
-                                        {{ $firstAlloc->area_size }}m² • Rp {{ number_format($firstAlloc->rent_price / 1000000, 0, ',', '.') }}jt
+                                        {{ $firstAlloc->area_size }}m²
                                     @else
-                                        {{ $occupiedAllocs->sum('area_size') }}m² • Rp {{ number_format($occupiedAllocs->sum('rent_price') / 1000000, 0, ',', '.') }}jt
+                                        {{ $occupiedAllocs->sum('area_size') }}m²
                                     @endif
                                 </div>
                             </button>
@@ -227,19 +227,13 @@
                         </select>
                     </div>
 
-                    <!-- Size and Rent Row -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label for="allocate-area-size" class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Luas Area (m²)</label>
-                            <input type="number" name="area_size" id="allocate-area-size" required min="1"
-                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
-                        </div>
-                        <div>
-                            <label for="allocate-rent-price" class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Harga Sewa / Bulan (Rp)</label>
-                            <input type="number" name="rent_price" id="allocate-rent-price" required min="0"
-                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
-                        </div>
+                    <!-- Size Row -->
+                    <div>
+                        <label for="allocate-area-size" class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Luas Area (m²)</label>
+                        <input type="number" name="area_size" id="allocate-area-size" required min="1"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
                     </div>
+                    <input type="hidden" name="rent_price" id="allocate-rent-price">
 
                     <!-- Dates Row -->
                     <div class="grid grid-cols-2 gap-3">
@@ -255,25 +249,15 @@
                         </div>
                     </div>
 
-                    <!-- Statuses Row -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Status Kontrak</label>
-                            <input type="hidden" name="status" id="allocate-status" value="Terisi">
-                            <div class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold text-xs select-none">
-                                Dihitung Otomatis
-                            </div>
-                        </div>
-                        <div>
-                            <label for="allocate-payment-status" class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Status Pembayaran</label>
-                            <select name="payment_status" id="allocate-payment-status" required
-                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none font-semibold">
-                                <option value="Lunas">Lunas</option>
-                                <option value="Menunggu">Menunggu</option>
-                                <option value="Tertunggak">Tertunggak</option>
-                            </select>
+                    <!-- Status Row -->
+                    <div>
+                        <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Status Kontrak</label>
+                        <input type="hidden" name="status" id="allocate-status" value="Terisi">
+                        <div class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-bold text-xs select-none">
+                            Dihitung Otomatis
                         </div>
                     </div>
+                    <input type="hidden" name="payment_status" id="allocate-payment-status">
 
                     <!-- Submit Button -->
                     <button type="submit" class="w-full py-2.5 text-center bg-[#1E3A8A] text-white hover:bg-slate-900 rounded-xl font-bold text-xs transition-colors cursor-pointer mt-2">
@@ -334,26 +318,16 @@
             
             occupiedAllocs.forEach(alloc => {
                 const tenant = alloc.tenant;
-                const formattedRent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(alloc.rent_price);
                 
-                let paymentBadgeClass = "bg-rose-100 text-rose-800";
-                if (alloc.payment_status === 'Lunas') {
-                    paymentBadgeClass = "bg-emerald-100 text-emerald-800";
-                } else if (alloc.payment_status === 'Menunggu') {
-                    paymentBadgeClass = "bg-amber-100 text-amber-800";
-                }
-
                 const itemHtml = `
                     <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 font-semibold text-xs text-slate-600">
                         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
                             <span class="text-slate-800 font-extrabold text-sm">${tenant.company_name}</span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-black ${paymentBadgeClass}">${alloc.payment_status}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2 text-[11px] font-semibold text-slate-600">
                             <div><span class="text-slate-400">PIC:</span> <span class="text-slate-800 font-bold">${tenant.pic_name}</span></div>
                             <div><span class="text-slate-400">Sektor:</span> <span class="text-slate-800 font-bold">${tenant.business_sector}</span></div>
                             <div><span class="text-slate-400">Luas:</span> <span class="text-slate-800 font-bold">${alloc.area_size} m²</span></div>
-                            <div><span class="text-slate-400">Sewa:</span> <span class="text-slate-800 font-bold">${formattedRent}</span></div>
                             <div class="col-span-2"><span class="text-slate-400">Kontrak:</span> <span class="text-slate-800 font-bold">${alloc.lease_start} s/d ${alloc.lease_end}</span></div>
                         </div>
                         <div class="flex items-center gap-2 pt-1">

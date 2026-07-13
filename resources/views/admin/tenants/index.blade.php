@@ -63,8 +63,6 @@
                         <th class="px-6 py-4">Gedung / Unit</th>
                         <th class="px-6 py-4">Jenis Usaha</th>
                         <th class="px-6 py-4">Status Kontrak</th>
-                        <th class="px-6 py-4">Pembayaran</th>
-                        <th class="px-6 py-4">Sewa/Bulan</th>
                         <th class="px-6 py-4">Berakhir</th>
                         <th class="px-6 py-4 text-center">Aksi</th>
                     </tr>
@@ -160,37 +158,7 @@
                                     @endif
                                 </td>
 
-                                <!-- Payment status badge -->
-                                <td class="px-6 py-4.5">
-                                    @if($alloc)
-                                        @if($alloc->payment_status === 'Lunas')
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800">
-                                                Lunas
-                                            </span>
-                                        @elseif($alloc->payment_status === 'Menunggu')
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">
-                                                Menunggu
-                                            </span>
-                                        @elseif($alloc->payment_status === 'Tertunggak')
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800">
-                                                Tertunggak
-                                            </span>
-                                        @else
-                                            <span class="text-xs text-slate-400">—</span>
-                                        @endif
-                                    @else
-                                        <span class="text-xs text-slate-400">—</span>
-                                    @endif
-                                </td>
 
-                                <!-- Rent Price per Month -->
-                                <td class="px-6 py-4.5">
-                                    @if($alloc)
-                                        <span class="font-bold text-slate-700">Rp {{ number_format($alloc->rent_price / 1000000, 0, ',', '.') }}jt</span>
-                                    @else
-                                        <span class="text-xs text-slate-400">—</span>
-                                    @endif
-                                </td>
 
                                 <!-- Lease End Date -->
                                 <td class="px-6 py-4.5 text-xs font-bold text-slate-500">
@@ -233,7 +201,7 @@
                         @endforeach
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-10 text-center text-slate-400 font-semibold italic bg-slate-50/50">
+                            <td colspan="6" class="px-6 py-10 text-center text-slate-400 font-semibold italic bg-slate-50/50">
                                 Tidak ada data tenant ditemukan.
                             </td>
                         </tr>

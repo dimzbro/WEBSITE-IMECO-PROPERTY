@@ -55,27 +55,27 @@ class HomeController extends Controller
         ];
 
         $features = [
-            ['icon' => 'location', 'title' => 'Strategic Location', 'desc' => 'Prime South Jakarta location with easy access to toll roads, MRT, and major business districts.'],
-            ['icon' => 'shield', 'title' => 'High Security', 'desc' => '24/7 CCTV surveillance, access card system, and trained security personnel for complete peace of mind.'],
-            ['icon' => 'charging', 'title' => 'SPKLU', 'desc' => 'Electric vehicle charging stations (SPKLU) available within the park for sustainable transit.'],
-            ['icon' => 'wifi', 'title' => 'High-Speed Internet', 'desc' => 'Dedicated fiber optic backbone ensuring 99.9% uptime with redundant connectivity options.'],
-            ['icon' => 'car', 'title' => 'Large Parking', 'desc' => 'Expansive multi-level parking facility with a high ratio of spaces per floor area.'],
-            ['icon' => 'briefcase', 'title' => 'Pro Management', 'desc' => 'International standard property management delivering seamless tenant experience.'],
-            ['icon' => 'users', 'title' => 'Business Community', 'desc' => 'A thriving ecosystem of 100+ companies fostering networking and business collaboration.'],
+            ['icon' => 'lucide:map-pin', 'title' => 'Strategic Location', 'desc' => 'Prime South Jakarta location with easy access to toll roads, MRT, and major business districts.'],
+            ['icon' => 'lucide:shield', 'title' => 'High Security', 'desc' => '24/7 CCTV surveillance, access card system, and trained security personnel for complete peace of mind.'],
+            ['icon' => 'lucide:battery-charging', 'title' => 'SPKLU', 'desc' => 'Electric vehicle charging stations (SPKLU) available within the park for sustainable transit.'],
+            ['icon' => 'lucide:wifi', 'title' => 'High-Speed Internet', 'desc' => 'Dedicated fiber optic backbone ensuring 99.9% uptime with redundant connectivity options.'],
+            ['icon' => 'lucide:car', 'title' => 'Share Car', 'desc' => 'Instant self-drive car sharing service available across Greater Jakarta, offering flexible rental durations from 1 to 72 hours.'],
+            ['icon' => 'lucide:briefcase', 'title' => 'Pro Management', 'desc' => 'International standard property management delivering seamless tenant experience.'],
+            ['icon' => 'lucide:users', 'title' => 'Business Community', 'desc' => 'A thriving ecosystem of 100+ companies fostering networking and business collaboration.'],
             ['icon' => 'sports', 'title' => 'Sport', 'desc' => 'Equipped with volleyball and table tennis courts, plus active communities for football, badminton, volleyball, and padel.'],
         ];
 
         $facilities = [
-            ['icon' => 'sofa', 'name' => 'Business Lounge', 'desc' => 'Premium networking space'],
-            ['icon' => 'presentation', 'name' => 'Meeting Room', 'desc' => 'Fully-equipped rooms'],
-            ['icon' => 'mic', 'name' => 'Conference Hall', 'desc' => 'Capacity up to 500 pax'],
-            ['icon' => 'utensils', 'name' => 'Food Court', 'desc' => 'Multi-cuisine dining'],
-            ['icon' => 'coffee', 'name' => 'Coffee Shop', 'desc' => 'Premium café experience'],
-            ['icon' => 'credit-card', 'name' => 'ATM Center', 'desc' => 'Multi-bank ATM cluster'],
-            ['icon' => 'parking', 'name' => 'Parking Area', 'desc' => 'Up to 700 slots'],
-            ['icon' => 'shield-check', 'name' => '24/7 Security', 'desc' => 'Round-the-clock safety'],
-            ['icon' => 'key', 'name' => 'Access Card', 'desc' => 'Biometric & RFID system'],
-            ['icon' => 'clinic', 'name' => 'Klinik', 'desc' => 'Medical clinic & first-aid room'],
+            ['icon' => 'lucide:presentation', 'name' => 'Meeting Room', 'desc' => 'Fully-equipped rooms'],
+            ['icon' => 'lucide:mic', 'name' => 'Conference Hall', 'desc' => 'Capacity up to 500 pax'],
+            ['icon' => 'lucide:lock', 'name' => 'Security System', 'desc' => 'Integrated security & access control'],
+            ['icon' => 'tabler:building-mosque', 'name' => 'Mosque', 'desc' => 'On-site mosque & prayer rooms'],
+            ['icon' => 'tabler:tools-kitchen-2', 'name' => 'Food Court', 'desc' => 'Multi-cuisine dining'],
+            ['icon' => 'lucide:coffee', 'name' => 'Coffee Shop', 'desc' => 'Premium café experience'],
+            ['icon' => 'lucide:credit-card', 'name' => 'ATM Center', 'desc' => 'Multi-bank ATM cluster'],
+            ['icon' => 'lucide:hospital', 'name' => 'MCU Clinic', 'desc' => 'On-site medical check-up services'],
+            ['icon' => 'lucide:heart', 'name' => 'Wellness Center', 'desc' => 'Health & wellness facilities'],
+            ['icon' => 'lucide:parking-square', 'name' => 'Parking Area', 'desc' => 'Up to 700 slots'],
         ];
 
         $officeSpaces = \App\Models\OfficeSpace::all();

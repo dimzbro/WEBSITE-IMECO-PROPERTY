@@ -270,51 +270,12 @@
                 @foreach($features as $i => $feature)
                     <div class="feature-card fade-up delay-{{ min(($i + 1) * 100, 600) }}" id="feature-{{ $i }}">
                         <div class="feature-icon">
-                            @if($feature['icon'] === 'location')
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                            @elseif($feature['icon'] === 'shield')
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                            @elseif($feature['icon'] === 'charging')
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            @elseif($feature['icon'] === 'wifi')
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                                </svg>
-                            @elseif($feature['icon'] === 'car')
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                            @elseif($feature['icon'] === 'briefcase')
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                            @elseif($feature['icon'] === 'users')
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            @elseif($feature['icon'] === 'sports')
+                            @if($feature['icon'] === 'sports')
                                 <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M6 8v8M9 6v12M15 6v12M18 8v8" />
                                 </svg>
                             @else
-                                <svg class="w-6 h-6" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                </svg>
+                                <iconify-icon icon="{{ $feature['icon'] }}" style="font-size: 24px; color: #1E3A8A;"></iconify-icon>
                             @endif
                         </div>
                         <h3 class="font-bold text-gray-900 text-base mb-2">{{ $feature['title'] }}</h3>
@@ -347,24 +308,7 @@
                 @foreach($facilities as $i => $facility)
                     <div class="facility-card fade-up delay-{{ min(($i + 1) * 100, 500) }}" id="facility-{{ $i }}">
                         <div class="facility-icon-wrap">
-                            @php
-                                $facilityIcons = [
-                                    'sofa' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4M20 12a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v4a2 2 0 002 2M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6"/>',
-                                    'presentation' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>',
-                                    'mic' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>',
-                                    'utensils' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
-                                    'coffee' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
-                                    'credit-card' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>',
-                                    'parking' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z M9 5v14 M9 5h5a3.5 3.5 0 010 7H9"/>',
-                                    'shield-check' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
-                                    'key' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>',
-                                    'clinic' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18z M12 8v8 M8 12h8"/>',
-                                    'charging' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
-                                ];
-                            @endphp
-                            <svg class="w-7 h-7" style="color: #1E3A8A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                {!! $facilityIcons[$facility['icon']] ?? '' !!}
-                            </svg>
+                            <iconify-icon icon="{{ $facility['icon'] }}" style="font-size: 28px; color: #1E3A8A;"></iconify-icon>
                         </div>
                         <div class="facility-name">{{ $facility['name'] }}</div>
                     </div>
@@ -403,12 +347,12 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @php
                         $locationBenefits = [
-                            ['icon' => 'road', 'title' => 'Toll Road Access', 'desc' => 'Direct access to JORR Toll Road, connecting to all major city arteries within minutes.'],
+                            ['icon' => 'road', 'title' => 'Toll Road Access', 'desc' => 'Direct access to JORR Toll Road, connecting to all major city arteries within minutes and Soekarno-Hatta International Airport in 45 minutes.'],
+                            ['icon' => 'transit', 'title' => 'KRL Stations & Public Transport', 'desc' => 'Excellent public transportation connectivity with Pasar Minggu and Tanjung Barat KRL Stations nearby, while directly served by TransJakarta bus routes for convenient access across Jakarta.'],
                             ['icon' => 'train', 'title' => 'MRT Station', 'desc' => 'Walking distance to Fatmawati MRT Station for convenient public transport connectivity.'],
                             ['icon' => 'building', 'title' => 'Business District', 'desc' => 'Surrounded by major corporate headquarters, financial institutions, and business hubs.'],
-                            ['icon' => 'plane', 'title' => 'Airport Access', 'desc' => '45 minutes to Soekarno-Hatta International Airport via toll road express.'],
-                            ['icon' => 'hotel', 'title' => 'Nearby Hotels', 'desc' => 'Premium 5-star hotels within 2km for client entertainment and corporate events.'],
-                            ['icon' => 'shop', 'title' => 'Shopping Malls', 'desc' => 'Adjacent to Pondok Indah Mall and other major retail destinations.'],
+                            ['icon' => 'hotel', 'title' => 'Nearby Hotels', 'desc' => 'Conveniently located just 250 meters from Aloft South Jakarta, with additional business and premium hotels nearby, providing comfortable accommodation for corporate guests, business travelers, and client meetings.'],
+                            ['icon' => 'shop', 'title' => 'Shopping Malls', 'desc' => 'Conveniently located near leading shopping destinations including Cilandak Town Square (CITOS), Pondok Indah Mall, AEON Mall Tanjung Barat, One Belpark Mall, and Poins Square, all within a 5–20 minute drive.'],
                         ];
                     @endphp
                     @foreach($locationBenefits as $i => $benefit)
@@ -427,9 +371,9 @@
                                         @elseif($benefit['icon'] === 'building')
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        @elseif($benefit['icon'] === 'plane')
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        @elseif($benefit['icon'] === 'transit')
+                                            <rect width="16" height="16" x="4" y="3" rx="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 11h16 M12 3v8 M9 19v2 M15 19v2 M8 15h.01 M16 15h.01" />
                                         @elseif($benefit['icon'] === 'hotel')
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />

@@ -471,6 +471,7 @@ body {
   border-radius: 16px;
   padding: 1.5rem;
   transition: all 0.3s ease;
+  height: 100%;
 }
 .location-card:hover {
   background: rgba(255,255,255,0.15);

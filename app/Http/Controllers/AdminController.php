@@ -34,6 +34,8 @@ class AdminController extends Controller
         $paymentDueCount = SpaceAllocation::where('payment_status', 'Menunggu')->count();
         $overdueCount = SpaceAllocation::where('payment_status', 'Tertunggak')->count();
         $overdueAmount = SpaceAllocation::where('payment_status', 'Tertunggak')->sum('rent_price');
+        $totalTenants = Tenant::count();
+        $duePaymentRatio = $totalTenants > 0 ? ($paymentDueCount / $totalTenants) * 100 : 0;
 
         // Total active monthly revenue
         $monthlyRevenue = SpaceAllocation::whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir'])->sum('rent_price');
@@ -124,6 +126,7 @@ class AdminController extends Controller
             'paymentDueCount',
             'overdueCount',
             'overdueAmount',
+            'duePaymentRatio',
             'monthlyRevenue',
             'buildingStats',
             'maintenanceRequests',

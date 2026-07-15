@@ -20,7 +20,15 @@ class AdminController extends Controller
         $occupiedUnitsCount = SpaceAllocation::whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir', 'Kontrak Habis'])->count();
         $occupancyRate = $totalUnits > 0 ? round(($occupiedUnitsCount / $totalUnits) * 100, 1) : 0;
 
-        $activeTenantsCount = Tenant::has('spaceAllocations')->count();
+        $activeTenantsList = Tenant::with(['spaceAllocations' => function($q) {
+                $q->where('status', 'Kontrak Aktif')->with('building');
+            }])
+            ->whereHas('spaceAllocations', function ($q) {
+                $q->where('status', 'Kontrak Aktif');
+            })
+            ->get();
+
+        $activeTenantsCount = $activeTenantsList->count();
 
         // Contracts approaching end (status = Hampir Berakhir or ending within 90 days)
         $approachingEndCount = SpaceAllocation::where('status', 'Hampir Berakhir')
@@ -116,6 +124,19 @@ class AdminController extends Controller
             'kosong' => SpaceAllocation::where('status', 'Kosong')->count(),
         ];
 
+
+        $expiringContractsList = SpaceAllocation::with(['tenant', 'building'])
+            ->where(function ($query) {
+                $query->where('status', 'Hampir Berakhir')
+                      ->orWhere(function ($sub) {
+                          $sub->whereIn('status', ['Kontrak Aktif', 'Kontrak Mendekati Berakhir', 'Hampir Berakhir'])
+                                ->whereNotNull('lease_end')
+                                ->where('lease_end', '<=', Carbon::now()->addDays(90));
+                      });
+            })
+            ->orderBy('lease_end', 'asc')
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalUnits',
             'occupiedUnitsCount',
@@ -130,7 +151,9 @@ class AdminController extends Controller
             'buildingStats',
             'maintenanceRequests',
             'monthlyUtilization',
-            'contractStatusDistribution'
+            'contractStatusDistribution',
+            'activeTenantsList',
+            'expiringContractsList'
         ));
     }
 }

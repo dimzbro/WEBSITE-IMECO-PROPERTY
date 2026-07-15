@@ -128,7 +128,15 @@
                 <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
                     <div class="h-full bg-[#1E3A8A] rounded-full transition-all duration-1000 ease-out" style="width: {{ $occupancyRate }}%"></div>
                 </div>
-                <p class="text-[10px] text-slate-500 font-semibold mt-1">Mengelola {{ $totalUnits }} total unit ruangan sewa</p>
+                <div class="flex items-center justify-between mt-1 pt-1">
+                    <p class="text-[10px] text-slate-500 font-semibold">Mengelola {{ $totalUnits }} total unit ruangan sewa</p>
+                    <button onclick="openActiveTenantsModal()" class="text-[10px] font-bold text-[#1E3A8A] hover:text-slate-900 transition-colors flex items-center gap-1 cursor-pointer">
+                        Lihat Detail
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -157,7 +165,15 @@
                     <span>TENGGAT WAKTU</span>
                     <span class="text-amber-600 font-black">90 HARI</span>
                 </div>
-                <p class="text-[10px] text-slate-500 leading-relaxed pt-1">Segera hubungi tenant bersangkutan untuk negosiasi pembaharuan masa sewa unit.</p>
+                <div class="flex items-center justify-between mt-1 pt-1 gap-2">
+                    <p class="text-[10px] text-slate-500 leading-relaxed max-w-[70%]">Segera hubungi tenant bersangkutan untuk negosiasi pembaharuan masa sewa unit.</p>
+                    <button onclick="openExpiringContractsModal()" class="text-[10px] font-bold text-amber-600 hover:text-amber-800 transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap">
+                        Lihat Detail
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -539,6 +555,198 @@
         </form>
     </div>
 </div>
+
+<!-- Active Tenants Modal -->
+<div id="active-tenants-modal" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto hidden">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 transform transition-all duration-300 scale-95 opacity-0 flex flex-col max-h-[85vh]" id="active-tenants-card">
+        
+        <div class="bg-[#0F172A] text-white p-5 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-extrabold">Daftar Tenant Aktif</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Seluruh tenant yang memiliki alokasi unit sewa aktif</p>
+            </div>
+            <button onclick="closeActiveTenantsModal()" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">✕</button>
+        </div>
+
+        <div class="p-6 overflow-y-auto flex-grow">
+            <div class="overflow-x-auto rounded-xl border border-slate-150">
+                <table class="w-full border-collapse text-left text-xs text-slate-655">
+                    <thead class="bg-slate-50 border-b border-slate-150 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        <tr>
+                            <th class="px-5 py-3.5">Nama Tenant</th>
+                            <th class="px-5 py-3.5">Gedung / Unit</th>
+                            <th class="px-5 py-3.5">Luas</th>
+                            <th class="px-5 py-3.5">PIC / Kontak</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        @forelse($activeTenantsList as $tenant)
+                            @foreach($tenant->spaceAllocations as $alloc)
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-5 py-3.5">
+                                        <div class="font-bold text-slate-800">{{ $tenant->company_name }}</div>
+                                        <div class="text-[10px] text-slate-400 mt-0.5">{{ $tenant->business_sector }}</div>
+                                    </td>
+                                    <td class="px-5 py-3.5">
+                                        @if($alloc->building)
+                                            <div class="font-bold text-slate-700">{{ $alloc->building->name }}</div>
+                                            <div class="text-[10px] text-slate-400 mt-0.5">
+                                                @if($alloc->building->name === 'Open Yard' || $alloc->building->name === 'Workshop')
+                                                    {{ $alloc->unit_number }}
+                                                @else
+                                                    Lt. {{ $alloc->floor_number }} — {{ $alloc->unit_number }}
+                                                @endif
+                                            </div>
+                                        @else
+                                            <span class="text-slate-400">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-5 py-3.5">
+                                        <div class="font-bold text-slate-750">{{ $alloc->area_size }} m²</div>
+                                    </td>
+                                    <td class="px-5 py-3.5">
+                                        <div class="font-bold text-slate-700">{{ $tenant->pic_name }}</div>
+                                        <div class="text-[10px] text-slate-400 mt-0.5">{{ $tenant->phone }} • {{ $tenant->email }}</div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-5 py-8 text-center text-slate-400 font-semibold italic bg-slate-50/50">
+                                    Tidak ada data tenant aktif.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="p-5 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+            <button onclick="closeActiveTenantsModal()" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer">
+                Tutup
+            </button>
+            <a href="{{ route('admin.tenants.index') }}" class="px-4 py-2 bg-[#1E3A8A] hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer">
+                Kelola Tenant
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Expiring Contracts Modal -->
+<div id="expiring-contracts-modal" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto hidden">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 transform transition-all duration-300 scale-95 opacity-0 flex flex-col max-h-[85vh]" id="expiring-contracts-card">
+        
+        <div class="bg-[#0F172A] text-white p-5 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-extrabold">Kontrak Mendekati Habis</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Daftar unit sewa dengan sisa masa kontrak kurang dari 90 hari</p>
+            </div>
+            <button onclick="closeExpiringContractsModal()" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">✕</button>
+        </div>
+
+        <div class="p-6 overflow-y-auto flex-grow">
+            <div class="overflow-x-auto rounded-xl border border-slate-150">
+                <table class="w-full border-collapse text-left text-xs text-slate-655">
+                    <thead class="bg-slate-50 border-b border-slate-150 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        <tr>
+                            <th class="px-5 py-3.5">Nama Tenant</th>
+                            <th class="px-5 py-3.5">Gedung / Unit</th>
+                            <th class="px-5 py-3.5">Masa Kontrak</th>
+                            <th class="px-5 py-3.5">Sisa Hari</th>
+                            <th class="px-5 py-3.5 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        @forelse($expiringContractsList as $alloc)
+                            @php
+                                $leaseEnd = \Carbon\Carbon::parse($alloc->lease_end);
+                                $remainingDays = \Carbon\Carbon::now()->startOfDay()->diffInDays($leaseEnd->startOfDay(), false);
+                            @endphp
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-5 py-3.5">
+                                    <div class="font-bold text-slate-800">{{ $alloc->tenant->company_name ?? 'Tenant' }}</div>
+                                    <div class="text-[10px] text-slate-400 mt-0.5">{{ $alloc->tenant->pic_name ?? '—' }} • {{ $alloc->tenant->phone ?? '—' }}</div>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    @if($alloc->building)
+                                        <div class="font-bold text-slate-700">{{ $alloc->building->name }}</div>
+                                        <div class="text-[10px] text-slate-400 mt-0.5">
+                                            @if($alloc->building->name === 'Open Yard' || $alloc->building->name === 'Workshop')
+                                                {{ $alloc->unit_number }} ({{ $alloc->area_size }} m²)
+                                            @else
+                                                Lt. {{ $alloc->floor_number }} — {{ $alloc->unit_number }} ({{ $alloc->area_size }} m²)
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-slate-400">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="text-slate-700">Mulai: <span class="font-bold">{{ \Carbon\Carbon::parse($alloc->lease_start)->translatedFormat('d M Y') }}</span></div>
+                                    <div class="text-slate-700 mt-0.5">Selesai: <span class="font-black text-amber-700">{{ $leaseEnd->translatedFormat('d M Y') }}</span></div>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    @if($remainingDays < 0)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">
+                                            Lewat {{ abs($remainingDays) }} hari
+                                        </span>
+                                    @elseif($remainingDays == 0)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500 text-white animate-pulse">
+                                            Hari ini habis
+                                        </span>
+                                    @elseif($remainingDays <= 30)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">
+                                            {{ $remainingDays }} hari lagi
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800">
+                                            {{ $remainingDays }} hari lagi
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3.5 text-center">
+                                    @if($alloc->status === 'Hampir Berakhir' || $remainingDays <= 30)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                            Hampir Berakhir
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                            Mendekati Berakhir
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-5 py-8 text-center text-slate-400 font-semibold italic bg-slate-50/50">
+                                    Tidak ada data kontrak mendekati habis.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="p-5 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+            <button onclick="closeExpiringContractsModal()" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer">
+                Tutup
+            </button>
+            <a href="{{ route('admin.tenants.index', ['status' => 'Hampir Berakhir']) }}" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer">
+                Tindak Lanjuti
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -735,5 +943,61 @@
             document.getElementById('tenant-dropdown-panel').classList.add('hidden');
         }
     });
+
+    // Active Tenants Modal Script
+    const activeModal = document.getElementById('active-tenants-modal');
+    const activeCard = document.getElementById('active-tenants-card');
+
+    function openActiveTenantsModal() {
+        activeModal.classList.remove('hidden');
+        setTimeout(() => {
+            activeCard.classList.remove('scale-95', 'opacity-0');
+            activeCard.classList.add('scale-100', 'opacity-100');
+        }, 50);
+    }
+
+    function closeActiveTenantsModal() {
+        activeCard.classList.remove('scale-100', 'opacity-100');
+        activeCard.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            activeModal.classList.add('hidden');
+        }, 200);
+    }
+
+    if (activeModal) {
+        activeModal.addEventListener('click', function(e) {
+            if (e.target === activeModal) {
+                closeActiveTenantsModal();
+            }
+        });
+    }
+
+    // Expiring Contracts Modal Script
+    const expiringModal = document.getElementById('expiring-contracts-modal');
+    const expiringCard = document.getElementById('expiring-contracts-card');
+
+    function openExpiringContractsModal() {
+        expiringModal.classList.remove('hidden');
+        setTimeout(() => {
+            expiringCard.classList.remove('scale-95', 'opacity-0');
+            expiringCard.classList.add('scale-100', 'opacity-100');
+        }, 50);
+    }
+
+    function closeExpiringContractsModal() {
+        expiringCard.classList.remove('scale-100', 'opacity-100');
+        expiringCard.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            expiringModal.classList.add('hidden');
+        }, 200);
+    }
+
+    if (expiringModal) {
+        expiringModal.addEventListener('click', function(e) {
+            if (e.target === expiringModal) {
+                closeExpiringContractsModal();
+            }
+        });
+    }
 </script>
 @endsection

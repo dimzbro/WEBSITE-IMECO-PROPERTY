@@ -77,7 +77,7 @@
                 </div>
                 <div class="w-px h-10 self-center" style="background: rgba(255,255,255,0.2);"></div>
                 <div class="text-center">
-                    <div class="text-3xl font-black" style="color: #D4AF37;">100<span class="text-xl">+</span></div>
+                    <div class="text-3xl font-black" style="color: #D4AF37;">60<span class="text-xl">+</span></div>
                     <div class="text-xs text-white/60 font-semibold uppercase tracking-widest">Tenants</div>
                 </div>
             </div>
@@ -169,7 +169,7 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">
-                                <span data-counter data-target="100" data-suffix="+">100+</span>
+                                <span data-counter data-target="60" data-suffix="+">60+</span>
                             </div>
                             <div class="stat-suffix"></div>
                             <div class="stat-label">Business Tenants</div>

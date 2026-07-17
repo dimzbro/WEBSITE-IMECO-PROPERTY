@@ -414,6 +414,45 @@
 
     </div>
 
+    {{-- ── LK3 Dashboard Charts (additive – sumber data: tabel lk3_reports) ── --}}
+    @if($lk3TotalRecords > 0)
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {{-- Bar Chart 1: LK3 per Jenis Pekerjaan --}}
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800">Rekap Data LK3 – Jenis Pekerjaan</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Jumlah laporan berdasarkan jenis pekerjaan</p>
+                </div>
+                <a href="{{ route('admin.lk3.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors">
+                    Lihat Detail
+                </a>
+            </div>
+            <div class="h-56 relative">
+                <canvas id="dashLk3ChartJenis"></canvas>
+            </div>
+        </div>
+
+        {{-- Bar Chart 2: LK3 per Departemen Pelapor --}}
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800">Rekap Data Pelapor LK3 – Departemen</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Jumlah laporan berdasarkan departemen pelapor</p>
+                </div>
+                <a href="{{ route('admin.lk3.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors">
+                    Lihat Detail
+                </a>
+            </div>
+            <div class="h-56 relative">
+                <canvas id="dashLk3ChartDept"></canvas>
+            </div>
+        </div>
+
+    </div>
+    @endif
+
 </div>
 
 <!-- MODAL: ADD REQUEST (Embedded for quick action compatibility) -->
@@ -1000,4 +1039,96 @@
         });
     }
 </script>
+
+{{-- ── LK3 Bar Charts Script (additive) ─────────────────────────────────── --}}
+@if($lk3TotalRecords > 0)
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    @php
+        $dashJpLabels = $lk3ByJenisPekerjaan->pluck('jenis_pekerjaan')->toArray();
+        $dashJpData   = $lk3ByJenisPekerjaan->pluck('total')->toArray();
+        $dashDeptLabels = $lk3ByDept->pluck('dari_dept')->toArray();
+        $dashDeptData   = $lk3ByDept->pluck('total')->toArray();
+    @endphp
+
+    const lk3NavyPalette = ['#1E3A8A','#1D4ED8','#2563EB','#3B82F6','#60A5FA','#93C5FD','#0F172A','#1E293B','#334155','#475569'];
+    const lk3BluePalette = ['#0284C7','#0369A1','#0EA5E9','#38BDF8','#7DD3FC','#BAE6FD','#1D4ED8','#2563EB','#3B82F6','#60A5FA'];
+
+    // Chart 1 – Jenis Pekerjaan
+    const ctxJenis = document.getElementById('dashLk3ChartJenis');
+    if (ctxJenis) {
+        new Chart(ctxJenis, {
+            type: 'bar',
+            data: {
+                labels: @json($dashJpLabels),
+                datasets: [{
+                    label: 'Jumlah Laporan',
+                    data: @json($dashJpData),
+                    backgroundColor: lk3NavyPalette.slice(0, {{ count($dashJpLabels) }}),
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        titleFont: { size: 11, weight: 'bold' },
+                        bodyFont: { size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: { label: (ctx) => ` ${ctx.parsed.y} laporan` }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' }, color: '#64748B' } },
+                    y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, color: '#94A3B8', precision: 0 } }
+                }
+            }
+        });
+    }
+
+    // Chart 2 – Departemen Pelapor
+    const ctxDept = document.getElementById('dashLk3ChartDept');
+    if (ctxDept) {
+        new Chart(ctxDept, {
+            type: 'bar',
+            data: {
+                labels: @json($dashDeptLabels),
+                datasets: [{
+                    label: 'Jumlah Laporan',
+                    data: @json($dashDeptData),
+                    backgroundColor: lk3BluePalette.slice(0, {{ count($dashDeptLabels) }}),
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        titleFont: { size: 11, weight: 'bold' },
+                        bodyFont: { size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: { label: (ctx) => ` ${ctx.parsed.y} laporan` }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' }, color: '#64748B' } },
+                    y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, color: '#94A3B8', precision: 0 } }
+                }
+            }
+        });
+    }
+})();
+</script>
+@endif
 @endsection

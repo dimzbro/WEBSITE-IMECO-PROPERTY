@@ -8,6 +8,7 @@ use App\Models\Tenant;
 use App\Models\SpaceAllocation;
 use App\Models\FurnitureRental;
 use App\Models\MaintenanceRequest;
+use App\Models\Lk3Report;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -137,6 +138,24 @@ class AdminController extends Controller
             ->orderBy('lease_end', 'asc')
             ->get();
 
+        // ── LK3 Dashboard Charts ─────────────────────────────────────────────
+        // Data sumber: hanya dari tabel lk3_reports (independen dari fitur lain)
+        $lk3ByJenisPekerjaan = Lk3Report::select('jenis_pekerjaan', DB::raw('count(*) as total'))
+            ->whereNotNull('jenis_pekerjaan')
+            ->where('jenis_pekerjaan', '!=', '')
+            ->groupBy('jenis_pekerjaan')
+            ->orderByDesc('total')
+            ->get();
+
+        $lk3ByDept = Lk3Report::select('dari_dept', DB::raw('count(*) as total'))
+            ->whereNotNull('dari_dept')
+            ->where('dari_dept', '!=', '')
+            ->groupBy('dari_dept')
+            ->orderByDesc('total')
+            ->get();
+
+        $lk3TotalRecords = Lk3Report::count();
+
         return view('admin.dashboard', compact(
             'totalUnits',
             'occupiedUnitsCount',
@@ -153,7 +172,10 @@ class AdminController extends Controller
             'monthlyUtilization',
             'contractStatusDistribution',
             'activeTenantsList',
-            'expiringContractsList'
+            'expiringContractsList',
+            'lk3ByJenisPekerjaan',
+            'lk3ByDept',
+            'lk3TotalRecords'
         ));
     }
 }

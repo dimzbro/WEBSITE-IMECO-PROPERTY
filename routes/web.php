@@ -17,6 +17,8 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\OfficeSpaceController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\Lk3ReportController;
+use App\Http\Controllers\RekapitulasiRequestController;
 use Illuminate\Support\Facades\Auth;
 
 Route::post('/login', function (Illuminate\Http\Request $request) {
@@ -42,6 +44,18 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::resource('office-spaces', OfficeSpaceController::class)->names('admin.office_spaces');
     Route::resource('gallery', GalleryController::class)->names('admin.gallery');
     Route::get('calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('admin.calendar.index');
+
+    // ── LK3 Reports ──────────────────────────────────────────────────────────
+    Route::get('lk3', [Lk3ReportController::class, 'index'])->name('admin.lk3.index');
+    Route::post('lk3/import', [Lk3ReportController::class, 'import'])->name('admin.lk3.import');
+    Route::delete('lk3/clear-all', [Lk3ReportController::class, 'destroyAll'])->name('admin.lk3.destroyAll');
+    Route::delete('lk3/{id}', [Lk3ReportController::class, 'destroy'])->name('admin.lk3.destroy');
+
+    // ── Rekapitulasi Request ──────────────────────────────────────────────────
+    Route::get('rekapitulasi', [RekapitulasiRequestController::class, 'index'])->name('admin.rekapitulasi.index');
+    Route::post('rekapitulasi/import', [RekapitulasiRequestController::class, 'import'])->name('admin.rekapitulasi.import');
+    Route::delete('rekapitulasi/clear-all', [RekapitulasiRequestController::class, 'destroyAll'])->name('admin.rekapitulasi.destroyAll');
+    Route::delete('rekapitulasi/{id}', [RekapitulasiRequestController::class, 'destroy'])->name('admin.rekapitulasi.destroy');
 });
 
 Route::post('/logout', function (Illuminate\Http\Request $request) {

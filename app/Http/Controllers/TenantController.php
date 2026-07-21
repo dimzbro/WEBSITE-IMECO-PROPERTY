@@ -153,22 +153,6 @@ class TenantController extends Controller
         
         $logs = [];
         
-        // 1. Maintenance Requests log entries
-        $maintenance = \App\Models\MaintenanceRequest::where('tenant_id', $tenant->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
-        foreach ($maintenance as $req) {
-            $logs[] = [
-                'date' => $req->created_at ? $req->created_at->format('d M Y, H:i') : ($req->requested_at ? $req->requested_at->format('d M Y, H:i') : '—'),
-                'timestamp' => $req->created_at ? $req->created_at->timestamp : ($req->requested_at ? $req->requested_at->timestamp : 0),
-                'title' => 'Maintenance: ' . $req->title . ' (' . $req->category . ')',
-                'status' => $req->status,
-                'badge' => $req->status === 'Selesai' ? 'success' : ($req->status === 'Dalam Proses' ? 'warning' : 'info'),
-                'pic' => $req->assigned_to ?: 'Belum ditugaskan'
-            ];
-        }
-        
 
         
         // 3. Registration log entry

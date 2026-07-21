@@ -21,12 +21,29 @@
                 </svg>
                 Upload CSV
             </button>
-            {{-- Tombol Hapus Semua --}}
+            {{-- Tombol Hapus Semua (jika ada data) --}}
             @if($totalRecords > 0)
+            @php
+                $selMonth = request('month');
+                $selYear  = request('year');
+                $monthName = $selMonth ? ($filterMonths[$selMonth] ?? '') : '';
+                if ($selMonth && $selYear) {
+                    $monthName .= ' ' . $selYear;
+                }
+                $confirmText = $selMonth
+                    ? "Yakin ingin menghapus semua {$totalRecords} data Rekapitulasi Request bulan {$monthName}? Tindakan ini tidak dapat dibatalkan."
+                    : "Yakin ingin menghapus SEMUA {$totalRecords} data Rekapitulasi Request? Tindakan ini tidak dapat dibatalkan.";
+            @endphp
             <form action="{{ route('admin.rekapitulasi.destroyAll') }}" method="POST"
-                  data-confirm="Yakin ingin menghapus SEMUA {{ $totalRecords }} data Rekapitulasi Request? Tindakan ini tidak dapat dibatalkan.">
+                  data-confirm="{{ $confirmText }}">
                 @csrf
                 @method('DELETE')
+                @if($selMonth)
+                    <input type="hidden" name="month" value="{{ $selMonth }}">
+                @endif
+                @if($selYear)
+                    <input type="hidden" name="year" value="{{ $selYear }}">
+                @endif
                 <button type="submit"
                     class="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,7 +57,7 @@
     </div>
 
     {{-- ── Summary Cards ─────────────────────────────────────────────────── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {{-- Total Data --}}
         <div class="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex items-center gap-4">
             <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-[#1E3A8A] flex-shrink-0">
@@ -65,7 +82,32 @@
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Status Done</p>
             </div>
         </div>
+        {{-- Jenis Pekerjaan --}}
+        <div class="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-2xl font-black text-slate-800">{{ $chartJenisPekerjaan->count() }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Jenis Pekerjaan</p>
+            </div>
+        </div>
     </div>
+
+    {{-- ── Dashboard Chart ───────────────────────────────────────────────── --}}
+    @if($totalRecords > 0)
+    <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
+        <div>
+            <h3 class="text-sm font-extrabold text-slate-800">Rekap Data Request – Jenis Pekerjaan</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Jumlah request berdasarkan jenis pekerjaan</p>
+        </div>
+        <div class="h-64 relative">
+            <canvas id="rekChartJenisPekerjaan"></canvas>
+        </div>
+    </div>
+    @endif
 
     {{-- ── Search & Filter Bar ───────────────────────────────────────────── --}}
     <form method="GET" action="{{ route('admin.rekapitulasi.index') }}" class="flex flex-wrap items-center gap-3">
@@ -318,6 +360,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
     // ── Modal Functions ─────────────────────────────────────────────────────
     function openRekImportModal() {
@@ -362,5 +405,65 @@
             }
         });
     }
+
+    // ── Chart.js Bar Chart ──────────────────────────────────────────────────
+    @if($totalRecords > 0)
+    const navyPalette = [
+        '#1E3A8A', '#1D4ED8', '#2563EB', '#3B82F6', '#60A5FA',
+        '#93C5FD', '#BFDBFE', '#0F172A', '#1E293B', '#334155'
+    ];
+
+    @php
+        $jpLabels = $chartJenisPekerjaan->pluck('jenis_pekerjaan')->toArray();
+        $jpData   = $chartJenisPekerjaan->pluck('total')->toArray();
+    @endphp
+    const jpLabels = @json($jpLabels);
+    const jpData   = @json($jpData);
+
+    const ctx = document.getElementById('rekChartJenisPekerjaan');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: jpLabels,
+                datasets: [{
+                    label: 'Jumlah Request',
+                    data: jpData,
+                    backgroundColor: navyPalette.slice(0, jpLabels.length),
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        titleFont: { size: 11, weight: 'bold' },
+                        bodyFont: { size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.parsed.y} request`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10, weight: '600' }, color: '#64748B' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: { font: { size: 10 }, color: '#94A3B8', precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+    @endif
 </script>
 @endsection

@@ -17,36 +17,6 @@
     
     $adminName = Auth::user()->name ?? 'Admin Kawasan';
     $todayDate = \Carbon\Carbon::now()->translatedFormat('l, d F Y');
-    
-    // Compile dynamic timeline events
-    $timelineEvents = [];
-    foreach ($maintenanceRequests as $req) {
-        $timelineEvents[] = [
-            'title' => 'Maintenance Dilaporkan',
-            'desc' => ($req->tenant->company_name ?? 'Tenant') . ' melapor "' . $req->title . '"',
-            'time' => $req->created_at ? $req->created_at->diffForHumans() : ($req->requested_at ? $req->requested_at->diffForHumans() : 'Baru saja'),
-            'type' => 'maintenance',
-            'badge' => $req->priority,
-            'color' => $req->priority === 'Kritis' ? 'bg-rose-500' : ($req->priority === 'Tinggi' ? 'bg-orange-500' : 'bg-indigo-500')
-        ];
-    }
-    
-    $expiringAllocations = \App\Models\SpaceAllocation::with(['tenant', 'building'])
-        ->whereNotNull('lease_end')
-        ->orderBy('lease_end', 'asc')
-        ->take(3)
-        ->get();
-        
-    foreach ($expiringAllocations as $alloc) {
-        $timelineEvents[] = [
-            'title' => 'Kontrak Segera Habis',
-            'desc' => 'Sewa ' . ($alloc->tenant->company_name ?? 'Tenant') . ' di ' . ($alloc->building->name ?? '') . ' Lt. ' . ($alloc->floor_number ?? '—') . ' ' . ($alloc->unit_number ?? ''),
-            'time' => $alloc->lease_end ? \Carbon\Carbon::parse($alloc->lease_end)->translatedFormat('d M Y') : '',
-            'type' => 'lease',
-            'badge' => 'Perlu Tindakan',
-            'color' => 'bg-amber-500'
-        ];
-    }
 @endphp
 
 <div class="space-y-8 animate-fade-in pb-12">
@@ -69,7 +39,7 @@
                 <p class="text-slate-350 text-xs font-semibold max-w-xl leading-relaxed">
                     Berikut ringkasan operasional hari ini: 
                     <span class="text-amber-400 font-extrabold">{{ $approachingEndCount }} Kontrak</span> akan habis sewa, dan
-                    <span class="text-[#93C5FD] font-extrabold">{{ $maintenanceRequests->where('status', '!=', 'Selesai')->count() }} Pekerjaan</span> pemeliharaan aktif.
+                    <span class="text-[#93C5FD] font-extrabold">{{ count($buildingStats) }} Gedung</span> terdaftar aktif.
                 </p>
             </div>
         </div>
@@ -82,12 +52,6 @@
                 </svg>
                 Tambah Tenant
             </a>
-            <button onclick="openAddModal()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/15 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5 duration-200 backdrop-blur-md">
-                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                Request Maintenance
-            </button>
             <a href="{{ route('admin.calendar.index') }}" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/15 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5 duration-200 backdrop-blur-md">
                 <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -293,306 +257,131 @@
 
     </div>
 
-    <!-- Row: Daftar Maintenance & Quick Insights -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Left: Daftar Maintenance list -->
-        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] lg:col-span-2 space-y-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Keluhan & Perawatan Properti</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Daftar maintenance request aktif</p>
+    <!-- Quick Insights Panel -->
+    <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6">
+        <div>
+            <h3 class="text-base font-extrabold text-slate-800">Quick Insights</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Analisis instan kondisi real-estate</p>
+        </div>
+
+        @php
+            $highestOccupancyBuilding = collect($buildingStats)->sortByDesc('occupancy_rate')->first();
+            $lowestOccupancyBuilding = collect($buildingStats)->sortBy('occupancy_rate')->first();
+        @endphp
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-semibold text-xs">
+            <!-- Insight 1: Highest Occupancy -->
+            <div class="p-4 bg-emerald-50/40 rounded-2xl border border-emerald-100/50 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 font-bold">
+                    ▲
                 </div>
-                <a href="{{ route('admin.maintenance.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors">
-                    Kelola Semua
-                </a>
+                <div>
+                    <h4 class="font-extrabold text-emerald-800 text-[11px] uppercase tracking-wider">Okupansi Tertinggi</h4>
+                    <p class="text-slate-700 font-bold mt-0.5">{{ $highestOccupancyBuilding['name'] }} ({{ $highestOccupancyBuilding['occupancy_rate'] }}%)</p>
+                </div>
             </div>
 
-            <div class="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
-                @forelse($maintenanceRequests as $req)
-                <div class="p-4 bg-slate-50/50 rounded-2xl flex gap-4 border border-slate-100 items-start hover:bg-slate-50 hover:border-slate-200/80 transition-all duration-200">
-                    @php
-                        $iconColor = 'bg-blue-100/80 text-blue-600';
-                        if ($req->priority === 'Kritis') {
-                            $iconColor = 'bg-rose-100/80 text-rose-600';
-                        } elseif ($req->priority === 'Tinggi') {
-                            $iconColor = 'bg-orange-100/80 text-orange-600';
-                        } elseif ($req->priority === 'Sedang') {
-                            $iconColor = 'bg-amber-100/80 text-amber-600';
-                        }
-                    @endphp
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 {{ $iconColor }} shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        </svg>
-                    </div>
-                    <div class="overflow-hidden flex-grow space-y-1">
-                        <div class="flex items-center justify-between gap-2">
-                            <h4 class="text-xs font-black text-slate-800 truncate" title="{{ $req->tenant->company_name }}">{{ $req->tenant->company_name }}</h4>
-                            <span class="text-[9px] px-1.5 py-0.5 rounded-lg font-black flex-shrink-0 {{ $req->status === 'Selesai' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : ($req->status === 'Dalam Proses' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-amber-50 text-amber-600 border border-amber-100') }}">
-                                {{ $req->status }}
-                            </span>
-                        </div>
-                        <p class="text-[11.5px] text-slate-750 font-bold leading-normal">{{ $req->title }}</p>
-                        <div class="flex items-center justify-between text-[9px] text-slate-400 font-bold pt-1.5">
-                            <span class="flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-slate-350" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                </svg>
-                                {{ $req->building->name ?? '—' }} ({{ $req->unit }})
-                            </span>
-                            <span>{{ $req->requested_at ? $req->requested_at->format('d M Y') : '—' }}</span>
-                        </div>
-                    </div>
+            <!-- Insight 2: Lowest Occupancy -->
+            <div class="p-4 bg-rose-50/40 rounded-2xl border border-rose-100/50 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0 font-bold">
+                    ▼
                 </div>
-                @empty
-                <div class="py-12 text-center text-slate-400 font-semibold italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                    Tidak ada maintenance request aktif saat ini.
+                <div>
+                    <h4 class="font-extrabold text-rose-800 text-[11px] uppercase tracking-wider">Okupansi Terendah</h4>
+                    <p class="text-slate-700 font-bold mt-0.5">{{ $lowestOccupancyBuilding['name'] }} ({{ $lowestOccupancyBuilding['occupancy_rate'] }}%)</p>
                 </div>
-                @endforelse
             </div>
         </div>
 
-        <!-- Right: Quick Insights -->
-        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-6 flex flex-col justify-between">
-            <div class="space-y-4">
-                <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Quick Insights</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Analisis instan kondisi real-estate</p>
-                </div>
-
-                @php
-                    $highestOccupancyBuilding = collect($buildingStats)->sortByDesc('occupancy_rate')->first();
-                    $lowestOccupancyBuilding = collect($buildingStats)->sortBy('occupancy_rate')->first();
-                @endphp
-
-                <div class="space-y-4 font-semibold text-xs">
-                    <!-- Insight 1: Highest Occupancy -->
-                    <div class="p-3.5 bg-emerald-50/40 rounded-2xl border border-emerald-100/50 flex items-start gap-3">
-                        <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                            ▲
-                        </div>
-                        <div>
-                            <h4 class="font-extrabold text-emerald-800 text-[11px] uppercase tracking-wider">Okupansi Tertinggi</h4>
-                            <p class="text-slate-700 font-bold mt-0.5">{{ $highestOccupancyBuilding['name'] }} ({{ $highestOccupancyBuilding['occupancy_rate'] }}%)</p>
-                        </div>
-                    </div>
-
-                    <!-- Insight 2: Lowest Occupancy -->
-                    <div class="p-3.5 bg-rose-50/40 rounded-2xl border border-rose-100/50 flex items-start gap-3">
-                        <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
-                            ▼
-                        </div>
-                        <div>
-                            <h4 class="font-extrabold text-rose-800 text-[11px] uppercase tracking-wider">Okupansi Terendah</h4>
-                            <p class="text-slate-700 font-bold mt-0.5">{{ $lowestOccupancyBuilding['name'] }} ({{ $lowestOccupancyBuilding['occupancy_rate'] }}%)</p>
-                        </div>
-                    </div>
-
-                    <!-- Insight 3: Maintenance Status -->
-                    <div class="p-3.5 bg-slate-50/60 rounded-2xl border border-slate-200/80 flex items-start gap-3">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-655 flex items-center justify-center flex-shrink-0">
-                            ⚙
-                        </div>
-                        <div>
-                            <h4 class="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">Suku Cadang & Pemeliharaan</h4>
-                            <p class="text-slate-700 font-bold mt-0.5">{{ $maintenanceRequests->where('status', 'Menunggu')->count() }} menunggu verifikasi</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Auto Insights Row -->
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-bold">
-                <span class="flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    Sistem Normal
-                </span>
-                <span>Insight: {{ count($buildingStats) }} Gedung Aktif</span>
-            </div>
+        <!-- Auto Insights Row -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-bold">
+            <span class="flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Sistem Normal
+            </span>
+            <span>Insight: {{ count($buildingStats) }} Gedung Aktif</span>
         </div>
-
     </div>
 
-    {{-- ── LK3 Dashboard Charts (additive – sumber data: tabel lk3_reports) ── --}}
-    @if($lk3TotalRecords > 0)
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {{-- ── LK3 & Rekapitulasi Dashboard Charts (sumber data realtime bulan terbaru) ── --}}
+    @if($lk3TotalRecords > 0 || $rekTotalRecords > 0)
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {{-- Bar Chart 1: LK3 per Jenis Pekerjaan --}}
-        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Rekap Data LK3 – Jenis Pekerjaan</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Jumlah laporan berdasarkan jenis pekerjaan</p>
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between space-y-4">
+            <div>
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-800">LK3 – Jenis Pekerjaan</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Bulan {{ $lk3MonthLabel ?? 'Terbaru' }}</p>
+                    </div>
+                    <a href="{{ route('admin.lk3.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors shrink-0">
+                        Lihat Detail
+                    </a>
                 </div>
-                <a href="{{ route('admin.lk3.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors">
-                    Lihat Detail
-                </a>
-            </div>
-            <div class="h-56 relative">
-                <canvas id="dashLk3ChartJenis"></canvas>
+                <div class="h-56 relative mt-4">
+                    @if($lk3ByJenisPekerjaan->count() > 0)
+                        <canvas id="dashLk3ChartJenis"></canvas>
+                    @else
+                        <div class="h-full flex items-center justify-center text-xs font-semibold text-slate-400 border border-dashed border-slate-200 rounded-2xl">
+                            Belum ada data LK3
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
 
         {{-- Bar Chart 2: LK3 per Departemen Pelapor --}}
-        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-base font-extrabold text-slate-800">Rekap Data Pelapor LK3 – Departemen</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Jumlah laporan berdasarkan departemen pelapor</p>
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between space-y-4">
+            <div>
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-800">Pelapor LK3 – Departemen</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Bulan {{ $lk3MonthLabel ?? 'Terbaru' }}</p>
+                    </div>
+                    <a href="{{ route('admin.lk3.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors shrink-0">
+                        Lihat Detail
+                    </a>
                 </div>
-                <a href="{{ route('admin.lk3.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors">
-                    Lihat Detail
-                </a>
+                <div class="h-56 relative mt-4">
+                    @if($lk3ByDept->count() > 0)
+                        <canvas id="dashLk3ChartDept"></canvas>
+                    @else
+                        <div class="h-full flex items-center justify-center text-xs font-semibold text-slate-400 border border-dashed border-slate-200 rounded-2xl">
+                            Belum ada data pelapor
+                        </div>
+                    @endif
+                </div>
             </div>
-            <div class="h-56 relative">
-                <canvas id="dashLk3ChartDept"></canvas>
+        </div>
+
+        {{-- Bar Chart 3: Rekapitulasi Request per Jenis Pekerjaan --}}
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col justify-between space-y-4">
+            <div>
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-800">Rekapitulasi Request – Jenis Pekerjaan</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Bulan {{ $rekMonthLabel ?? 'Terbaru' }}</p>
+                    </div>
+                    <a href="{{ route('admin.rekapitulasi.index') }}" class="px-3 py-1.5 rounded-xl bg-slate-50 text-xs font-bold text-[#1E3A8A] hover:bg-slate-100 transition-colors shrink-0">
+                        Lihat Detail
+                    </a>
+                </div>
+                <div class="h-56 relative mt-4">
+                    @if($rekByJenisPekerjaan->count() > 0)
+                        <canvas id="dashRekChartJenis"></canvas>
+                    @else
+                        <div class="h-full flex items-center justify-center text-xs font-semibold text-slate-400 border border-dashed border-slate-200 rounded-2xl">
+                            Belum ada data request
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
 
     </div>
     @endif
 
-</div>
-
-<!-- MODAL: ADD REQUEST (Embedded for quick action compatibility) -->
-<div id="add-request-modal" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto hidden">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 transform transition-all duration-300 scale-95 opacity-0" id="add-modal-card">
-        
-        <div class="bg-[#0F172A] text-white p-5 flex items-center justify-between">
-            <div>
-                <h3 class="text-base font-extrabold">Buat Maintenance Request Baru</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Ajukan permohonan maintenance baru untuk unit tenant</p>
-            </div>
-            <button onclick="closeAddModal()" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">✕</button>
-        </div>
-
-        <form action="{{ route('admin.maintenance.store') }}" method="POST" class="p-6 space-y-4 text-xs font-bold text-slate-655">
-            @csrf
-            
-            <!-- Tenant (Custom searchable select dropdown) -->
-            <div class="relative" id="custom-select-container">
-                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Pilih Tenant</label>
-                <input type="hidden" name="tenant_id" id="allocate-tenant-id" required>
-                
-                <button type="button" onclick="document.getElementById('tenant-dropdown-panel').classList.toggle('hidden')"
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-left font-semibold text-slate-700 flex items-center justify-between shadow-sm focus:border-[#1E3A8A] outline-none">
-                    <span id="selected-tenant-label" class="text-slate-400 font-semibold">— Pilih Tenant —</span>
-                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-
-                <!-- Dropdown panel -->
-                <div id="tenant-dropdown-panel" class="absolute left-0 right-0 mt-1.5 p-2 bg-white rounded-xl border border-slate-200 shadow-xl z-30 hidden space-y-2">
-                    <div class="relative">
-                        <input type="text" id="tenant-search-input" placeholder="Cari nama tenant..." oninput="filterTenants(this.value)"
-                               class="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-200 focus:border-[#1E3A8A] outline-none">
-                        <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                    </div>
-                    <div class="max-h-48 overflow-y-auto divide-y divide-slate-50" id="tenant-options-list" style="max-height: 200px; overflow-y: auto;">
-                        @foreach(\App\Models\Tenant::with('spaceAllocations')->get() as $t)
-                            @php
-                                $allocationsJson = $t->spaceAllocations->map(fn($a) => [
-                                    'building_id' => $a->building_id,
-                                    'building_name' => $a->building->name,
-                                    'unit_text' => ($a->floor_number ? 'Lt. ' . $a->floor_number . ' - ' : '') . $a->unit_number
-                                ])->toArray();
-                            @endphp
-                            <button type="button" 
-                                    class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg transition-colors font-semibold text-slate-700 flex items-center justify-between tenant-option"
-                                    data-id="{{ $t->id }}"
-                                    data-name="{{ $t->company_name }}"
-                                    data-allocations="{{ json_encode($allocationsJson) }}">
-                                <span>{{ $t->company_name }}</span>
-                                <span class="text-[9px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded">{{ $t->pic_name }}</span>
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gedung & Unit (Select Dropdowns filled by JS) -->
-            <div class="grid grid-cols-2 gap-3.5">
-                <div>
-                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Gedung</label>
-                    <select name="building_id" id="allocate-gedung" required
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white outline-none font-semibold">
-                        <option value="">— Pilih Gedung —</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Unit</label>
-                    <select name="unit" id="allocate-unit" required
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white outline-none font-semibold">
-                        <option value="">— Pilih Unit —</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Kategori -->
-            <div>
-                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Kategori</label>
-                <select name="category" required
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none font-semibold">
-                    <option value="AC / HVAC">AC / HVAC</option>
-                    <option value="Kelistrikan">Kelistrikan</option>
-                    <option value="Plumbing">Plumbing</option>
-                    <option value="Lift / Escalator">Lift / Escalator</option>
-                    <option value="Struktur Sipil">Struktur Sipil</option>
-                    <option value="Kebersihan / Janitorial">Kebersihan / Janitorial</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
-            </div>
-
-            <!-- Judul Keluhan -->
-            <div>
-                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Judul Keluhan</label>
-                <input type="text" name="title" required placeholder="Contoh: AC ruang meeting tidak dingin"
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
-            </div>
-
-            <!-- Deskripsi -->
-            <div>
-                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Deskripsi Keluhan</label>
-                <textarea name="description" required rows="3" placeholder="Detail deskripsi keluhan..."
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold resize-none"></textarea>
-            </div>
-
-            <!-- Priority and Assigned Team -->
-            <div class="grid grid-cols-2 gap-3.5">
-                <div>
-                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Prioritas</label>
-                    <select name="priority" required
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] bg-white outline-none font-semibold">
-                        <option value="Rendah">Rendah</option>
-                        <option value="Sedang" selected>Sedang</option>
-                        <option value="Tinggi">Tinggi</option>
-                        <option value="Kritis">Kritis</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Ditugaskan Kepada</label>
-                    <input type="text" name="assigned_to" required placeholder="Contoh: Tim Mechanical"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
-                </div>
-            </div>
-
-            <!-- Tanggal Proses -->
-            <div>
-                <label class="block text-slate-500 mb-1.5 uppercase tracking-wide text-[10px]">Tanggal Proses</label>
-                <input type="date" name="scheduled_at" required
-                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#1E3A8A] outline-none font-semibold">
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="w-full py-3 text-center bg-[#1E3A8A] text-white hover:bg-slate-900 rounded-xl font-bold text-xs transition-colors cursor-pointer mt-2">
-                Simpan Request
-            </button>
-        </form>
-    </div>
 </div>
 
 <!-- Active Tenants Modal -->
@@ -869,144 +658,32 @@
     });
 
     // ----------------------------------------------------
-    // Quick Add Modal scripts for Maintenance request creation
-    // ----------------------------------------------------
-    const addModal = document.getElementById('add-request-modal');
-    const addCard = document.getElementById('add-modal-card');
-    const gedungSelect = document.getElementById('allocate-gedung');
-    const unitSelect = document.getElementById('allocate-unit');
-    let currentAllocations = [];
-
-    function openAddModal() {
-        addModal.classList.remove('hidden');
-        setTimeout(() => {
-            addCard.classList.remove('scale-95', 'opacity-0');
-            addCard.classList.add('scale-100', 'opacity-100');
-        }, 50);
-        
-        // Reset creation form
-        document.getElementById('allocate-tenant-id').value = '';
-        document.getElementById('selected-tenant-label').textContent = '— Pilih Tenant —';
-        document.getElementById('selected-tenant-label').className = 'text-slate-400 font-semibold';
-        gedungSelect.innerHTML = '<option value="">— Pilih Gedung —</option>';
-        unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
-    }
-
-    function closeAddModal() {
-        addCard.classList.remove('scale-100', 'opacity-100');
-        addCard.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-            addModal.classList.add('hidden');
-        }, 200);
-    }
-
-    // Filter tenant dropdown
-    function filterTenants(query) {
-        const options = document.querySelectorAll('.tenant-option');
-        const lowerQuery = query.toLowerCase();
-        options.forEach(opt => {
-            const name = opt.getAttribute('data-name').toLowerCase();
-            if (name.includes(lowerQuery)) {
-                opt.classList.remove('hidden');
-            } else {
-                opt.classList.add('hidden');
-            }
-        });
-    }
-
-    document.getElementById('tenant-options-list').addEventListener('click', function(e) {
-        const button = e.target.closest('.tenant-option');
-        if (button) {
-            e.preventDefault();
-            const tenantId = button.getAttribute('data-id');
-            const tenantName = button.getAttribute('data-name');
-            const allocationsData = button.getAttribute('data-allocations');
-
-            document.getElementById('allocate-tenant-id').value = tenantId;
-            
-            const label = document.getElementById('selected-tenant-label');
-            label.textContent = tenantName;
-            label.className = "text-slate-800 font-bold";
-
-            currentAllocations = JSON.parse(allocationsData || '[]');
-            gedungSelect.innerHTML = '<option value="">— Pilih Gedung —</option>';
-            unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
-
-            const uniqueBuildings = {};
-            currentAllocations.forEach(alloc => {
-                uniqueBuildings[alloc.building_id] = alloc.building_name;
-            });
-
-            const buildingKeys = Object.keys(uniqueBuildings);
-            buildingKeys.forEach(bId => {
-                const option = document.createElement('option');
-                option.value = bId;
-                option.textContent = uniqueBuildings[bId];
-                gedungSelect.appendChild(option);
-            });
-
-            if (buildingKeys.length === 1) {
-                gedungSelect.value = buildingKeys[0];
-                populateUnits(buildingKeys[0]);
-            }
-
-            document.getElementById('tenant-dropdown-panel').classList.add('hidden');
-        }
-    });
-
-    function populateUnits(buildingId) {
-        unitSelect.innerHTML = '<option value="">— Pilih Unit —</option>';
-        if (!buildingId) return;
-
-        const filteredUnits = currentAllocations.filter(alloc => alloc.building_id == buildingId);
-        filteredUnits.forEach(alloc => {
-            const option = document.createElement('option');
-            option.value = alloc.unit_text;
-            option.textContent = alloc.unit_text;
-            unitSelect.appendChild(option);
-        });
-
-        if (filteredUnits.length === 1) {
-            unitSelect.value = filteredUnits[0].unit_text;
-        }
-    }
-
-    gedungSelect.addEventListener('change', function() {
-        populateUnits(this.value);
-    });
-
-    // Close select dropdown on click outside
-    document.addEventListener('click', (e) => {
-        const container = document.getElementById('custom-select-container');
-        if (container && !container.contains(e.target)) {
-            document.getElementById('tenant-dropdown-panel').classList.add('hidden');
-        }
-    });
-
     // Active Tenants Modal Script
     const activeModal = document.getElementById('active-tenants-modal');
     const activeCard = document.getElementById('active-tenants-card');
 
-    function openActiveTenantsModal() {
+    window.openActiveTenantsModal = function() {
+        if (!activeModal || !activeCard) return;
         activeModal.classList.remove('hidden');
         setTimeout(() => {
             activeCard.classList.remove('scale-95', 'opacity-0');
             activeCard.classList.add('scale-100', 'opacity-100');
         }, 50);
-    }
+    };
 
-    function closeActiveTenantsModal() {
+    window.closeActiveTenantsModal = function() {
+        if (!activeModal || !activeCard) return;
         activeCard.classList.remove('scale-100', 'opacity-100');
         activeCard.classList.add('scale-95', 'opacity-0');
         setTimeout(() => {
             activeModal.classList.add('hidden');
         }, 200);
-    }
+    };
 
     if (activeModal) {
         activeModal.addEventListener('click', function(e) {
             if (e.target === activeModal) {
-                closeActiveTenantsModal();
+                window.closeActiveTenantsModal();
             }
         });
     }
@@ -1015,57 +692,53 @@
     const expiringModal = document.getElementById('expiring-contracts-modal');
     const expiringCard = document.getElementById('expiring-contracts-card');
 
-    function openExpiringContractsModal() {
+    window.openExpiringContractsModal = function() {
+        if (!expiringModal || !expiringCard) return;
         expiringModal.classList.remove('hidden');
         setTimeout(() => {
             expiringCard.classList.remove('scale-95', 'opacity-0');
             expiringCard.classList.add('scale-100', 'opacity-100');
         }, 50);
-    }
+    };
 
-    function closeExpiringContractsModal() {
+    window.closeExpiringContractsModal = function() {
+        if (!expiringModal || !expiringCard) return;
         expiringCard.classList.remove('scale-100', 'opacity-100');
         expiringCard.classList.add('scale-95', 'opacity-0');
         setTimeout(() => {
             expiringModal.classList.add('hidden');
         }, 200);
-    }
+    };
 
     if (expiringModal) {
         expiringModal.addEventListener('click', function(e) {
             if (e.target === expiringModal) {
-                closeExpiringContractsModal();
+                window.closeExpiringContractsModal();
             }
         });
     }
 </script>
 
-{{-- ── LK3 Bar Charts Script (additive) ─────────────────────────────────── --}}
-@if($lk3TotalRecords > 0)
+{{-- ── LK3 & Rekapitulasi Bar Charts Script ─────────────────────────────────── --}}
+@if($lk3TotalRecords > 0 || $rekTotalRecords > 0)
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 (function () {
-    @php
-        $dashJpLabels = $lk3ByJenisPekerjaan->pluck('jenis_pekerjaan')->toArray();
-        $dashJpData   = $lk3ByJenisPekerjaan->pluck('total')->toArray();
-        $dashDeptLabels = $lk3ByDept->pluck('dari_dept')->toArray();
-        $dashDeptData   = $lk3ByDept->pluck('total')->toArray();
-    @endphp
-
     const lk3NavyPalette = ['#1E3A8A','#1D4ED8','#2563EB','#3B82F6','#60A5FA','#93C5FD','#0F172A','#1E293B','#334155','#475569'];
     const lk3BluePalette = ['#0284C7','#0369A1','#0EA5E9','#38BDF8','#7DD3FC','#BAE6FD','#1D4ED8','#2563EB','#3B82F6','#60A5FA'];
+    const rekVioletPalette = ['#4F46E5','#6366F1','#818CF8','#A5B4FC','#C7D2FE','#3730A3','#312E81','#1E1B4B','#0D9488','#14B8A6'];
 
-    // Chart 1 – Jenis Pekerjaan
+    // Chart 1 – LK3 Jenis Pekerjaan
     const ctxJenis = document.getElementById('dashLk3ChartJenis');
     if (ctxJenis) {
         new Chart(ctxJenis, {
             type: 'bar',
             data: {
-                labels: @json($dashJpLabels),
+                labels: @json($lk3ByJenisPekerjaan->pluck('jenis_pekerjaan')->toArray()),
                 datasets: [{
                     label: 'Jumlah Laporan',
-                    data: @json($dashJpData),
-                    backgroundColor: lk3NavyPalette.slice(0, {{ count($dashJpLabels) }}),
+                    data: @json($lk3ByJenisPekerjaan->pluck('total')->toArray()),
+                    backgroundColor: lk3NavyPalette.slice(0, {{ $lk3ByJenisPekerjaan->count() }}),
                     borderRadius: 6,
                     borderSkipped: false,
                 }]
@@ -1092,17 +765,17 @@
         });
     }
 
-    // Chart 2 – Departemen Pelapor
+    // Chart 2 – LK3 Departemen Pelapor
     const ctxDept = document.getElementById('dashLk3ChartDept');
     if (ctxDept) {
         new Chart(ctxDept, {
             type: 'bar',
             data: {
-                labels: @json($dashDeptLabels),
+                labels: @json($lk3ByDept->pluck('dari_dept')->toArray()),
                 datasets: [{
                     label: 'Jumlah Laporan',
-                    data: @json($dashDeptData),
-                    backgroundColor: lk3BluePalette.slice(0, {{ count($dashDeptLabels) }}),
+                    data: @json($lk3ByDept->pluck('total')->toArray()),
+                    backgroundColor: lk3BluePalette.slice(0, {{ $lk3ByDept->count() }}),
                     borderRadius: 6,
                     borderSkipped: false,
                 }]
@@ -1119,6 +792,43 @@
                         padding: 10,
                         cornerRadius: 8,
                         callbacks: { label: (ctx) => ` ${ctx.parsed.y} laporan` }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' }, color: '#64748B' } },
+                    y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, color: '#94A3B8', precision: 0 } }
+                }
+            }
+        });
+    }
+
+    // Chart 3 – Rekapitulasi Request Jenis Pekerjaan
+    const ctxRek = document.getElementById('dashRekChartJenis');
+    if (ctxRek) {
+        new Chart(ctxRek, {
+            type: 'bar',
+            data: {
+                labels: @json($rekByJenisPekerjaan->pluck('jenis_pekerjaan')->toArray()),
+                datasets: [{
+                    label: 'Jumlah Request',
+                    data: @json($rekByJenisPekerjaan->pluck('total')->toArray()),
+                    backgroundColor: rekVioletPalette.slice(0, {{ $rekByJenisPekerjaan->count() }}),
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        titleFont: { size: 11, weight: 'bold' },
+                        bodyFont: { size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: { label: (ctx) => ` ${ctx.parsed.y} request` }
                     }
                 },
                 scales: {

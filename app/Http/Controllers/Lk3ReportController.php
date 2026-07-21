@@ -380,10 +380,38 @@ class Lk3ReportController extends Controller
     }
 
     /**
-     * Delete ALL LK3 report records.
+     * Delete LK3 report records (by month if specified in filter, or all).
      */
-    public function destroyAll()
+    public function destroyAll(Request $request)
     {
+        if ($request->filled('month')) {
+            $month = $request->input('month');
+            $query = Lk3Report::whereMonth('tanggal', $month);
+
+            if ($request->filled('year')) {
+                $year = $request->input('year');
+                $query->whereYear('tanggal', $year);
+            }
+
+            $count = $query->delete();
+
+            $monthNames = [
+                '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+                '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+                '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember',
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+            $label = $monthNames[$month] ?? $month;
+            if ($request->filled('year')) {
+                $label .= ' ' . $request->input('year');
+            }
+
+            return redirect()->route('admin.lk3.index')
+                ->with('success', "Berhasil menghapus {$count} data LK3 bulan {$label}.");
+        }
+
         Lk3Report::truncate();
         return redirect()->route('admin.lk3.index')
             ->with('success', 'Semua data LK3 berhasil dihapus.');

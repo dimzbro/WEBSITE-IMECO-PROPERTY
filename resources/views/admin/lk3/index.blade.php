@@ -23,10 +23,27 @@
             </button>
             {{-- Tombol Hapus Semua (jika ada data) --}}
             @if($totalRecords > 0)
+            @php
+                $selMonth = request('month');
+                $selYear  = request('year');
+                $monthName = $selMonth ? ($filterMonths[$selMonth] ?? '') : '';
+                if ($selMonth && $selYear) {
+                    $monthName .= ' ' . $selYear;
+                }
+                $confirmText = $selMonth
+                    ? "Yakin ingin menghapus semua {$totalRecords} data LK3 bulan {$monthName}? Tindakan ini tidak dapat dibatalkan."
+                    : "Yakin ingin menghapus SEMUA {$totalRecords} data LK3? Tindakan ini tidak dapat dibatalkan.";
+            @endphp
             <form action="{{ route('admin.lk3.destroyAll') }}" method="POST"
-                  data-confirm="Yakin ingin menghapus SEMUA {{ $totalRecords }} data LK3? Tindakan ini tidak dapat dibatalkan.">
+                  data-confirm="{{ $confirmText }}">
                 @csrf
                 @method('DELETE')
+                @if($selMonth)
+                    <input type="hidden" name="month" value="{{ $selMonth }}">
+                @endif
+                @if($selYear)
+                    <input type="hidden" name="year" value="{{ $selYear }}">
+                @endif
                 <button type="submit"
                     class="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

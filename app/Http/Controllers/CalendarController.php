@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Tenant;
 use App\Models\SpaceAllocation;
-use App\Models\MaintenanceRequest;
 use Carbon\Carbon;
 
 class CalendarController extends Controller
@@ -28,13 +27,6 @@ class CalendarController extends Controller
                 $q->whereMonth('lease_start', $month)->whereYear('lease_start', $year)
                   ->orWhereMonth('lease_end', $month)->whereYear('lease_end', $year);
             })
-            ->get();
-
-        // Fetch maintenance requests
-        $maintenances = MaintenanceRequest::with(['tenant', 'building'])
-            ->whereNotNull('scheduled_at')
-            ->whereMonth('scheduled_at', $month)
-            ->whereYear('scheduled_at', $year)
             ->get();
 
         // Parse events into array grouped by day
@@ -64,16 +56,6 @@ class CalendarController extends Controller
                     ];
                 }
             }
-        }
-
-        foreach ($maintenances as $m) {
-            $schedDate = Carbon::parse($m->scheduled_at);
-            $day = $schedDate->day;
-            $eventsByDay[$day][] = [
-                'type' => 'Maintenance', // Maintenance (Purple style)
-                'title' => 'Maintenance: ' . $m->title,
-                'detail' => ($m->tenant->company_name ?? '') . ' (' . ($m->building->name ?? '') . ' ' . $m->unit . ')'
-            ];
         }
 
         // Generate calendar grid

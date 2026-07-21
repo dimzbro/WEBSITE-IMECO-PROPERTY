@@ -51,6 +51,10 @@ class RekapitulasiRequestController extends Controller
         $totalRecords = (clone $query)->count();
         $doneCount    = (clone $query)->where('status', 'Done')->count();
 
+        $chartJenisPekerjaan = (clone $query)->select('jenis_pekerjaan', DB::raw('count(*) as total'))
+            ->whereNotNull('jenis_pekerjaan')->where('jenis_pekerjaan', '!=', '')
+            ->groupBy('jenis_pekerjaan')->orderByDesc('total')->get();
+
         // 2. Apply order and pagination to main query
         $requests = $query->orderBy('date', 'desc')
                           ->orderBy('id', 'desc')
@@ -92,7 +96,7 @@ class RekapitulasiRequestController extends Controller
         $filterYears = range($maxYear, $minYear);
 
         return view('admin.rekapitulasi.index', compact(
-            'requests', 'totalRecords', 'doneCount',
+            'requests', 'totalRecords', 'doneCount', 'chartJenisPekerjaan',
             'filterJenisPekerjaan', 'filterStatus', 'filterMonths', 'filterYears'
         ));
     }
@@ -389,12 +393,40 @@ class RekapitulasiRequestController extends Controller
     }
 
     /**
-     * Delete ALL records.
+     * Delete Rekapitulasi Request records (by month if specified in filter, or all).
      */
-    public function destroyAll()
+    public function destroyAll(Request $request)
     {
+        if ($request->filled('month')) {
+            $month = $request->input('month');
+            $query = RekapitulasiRequest::whereMonth('date', $month);
+
+            if ($request->filled('year')) {
+                $year = $request->input('year');
+                $query->whereYear('date', $year);
+            }
+
+            $count = $query->delete();
+
+            $monthNames = [
+                '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+                '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+                '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember',
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+            $label = $monthNames[$month] ?? $month;
+            if ($request->filled('year')) {
+                $label .= ' ' . $request->input('year');
+            }
+
+            return redirect()->route('admin.rekapitulasi.index')
+                ->with('success', "Berhasil menghapus {$count} data Rekapitulasi Request bulan {$label}.");
+        }
+
         RekapitulasiRequest::truncate();
         return redirect()->route('admin.rekapitulasi.index')
-            ->with('success', 'Semua data berhasil dihapus.');
+            ->with('success', 'Semua data Rekapitulasi Request berhasil dihapus.');
     }
 }

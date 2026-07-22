@@ -17,11 +17,14 @@ class OfficeSpace extends Model
     ];
 
     /**
-     * Get the price attribute formatted with /month instead of /sqm/mo.
+     * Get the price attribute formatted with /sqm/month.
      */
     public function getPriceAttribute($value)
     {
-        $value = str_replace('/sqm/mo', '/month', $value);
-        return str_replace('/sqm', '/month', $value);
+        if (empty($value)) return $value;
+
+        // Strip any existing suffix starting with '/' to prevent duplication
+        $base = preg_replace('#/.*$#', '', trim($value));
+        return $base . '/sqm/month';
     }
 }

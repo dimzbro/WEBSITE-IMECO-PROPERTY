@@ -75,23 +75,15 @@
                         <label for="price" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Harga Sewa *</label>
                         <input type="text" id="price" name="price" value="{{ old('price') }}" required placeholder="Contoh: IDR 185,000"
                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 outline-none transition-all">
-                        <span class="text-[10px] text-slate-400 mt-1 block">Sufiks "/sqm/mo" akan ditambahkan otomatis.</span>
+                        <span class="text-[10px] text-slate-400 mt-1 block">Sufiks "/sqm/month" akan ditambahkan otomatis.</span>
                     </div>
 
                     <!-- Upload Gambar -->
                     <div>
-                        <label for="image_file" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Upload File Gambar</label>
-                        <input type="file" id="image_file" name="image_file" accept="image/*"
+                        <label for="image_file" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Upload File Gambar *</label>
+                        <input type="file" id="image_file" name="image_file" accept="image/*" required
                                class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-[#1E3A8A] file:cursor-pointer hover:file:bg-blue-100 transition-all border border-slate-200 rounded-xl p-1 bg-slate-50/50">
                         <span class="text-[10px] text-slate-400 mt-1 block">Format: JPG, JPEG, PNG, WEBP. Maks: 2MB.</span>
-                    </div>
-
-                    <!-- Atau URL Gambar -->
-                    <div>
-                        <label for="image_url" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Atau URL Gambar Eksternal</label>
-                        <input type="url" id="image_url" name="image_url" value="{{ old('image_url') }}" placeholder="https://images.unsplash.com/..."
-                               class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 outline-none transition-all">
-                        <span class="text-[10px] text-slate-400 mt-1 block">Tempel link gambar jika tidak ingin mengupload.</span>
                     </div>
 
                     <!-- Submit Button -->

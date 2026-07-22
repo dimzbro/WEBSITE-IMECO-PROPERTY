@@ -82,14 +82,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- Scroll Indicator --}}
-        <div class="scroll-indicator">
-            <span class="text-xs font-semibold tracking-widest uppercase">Scroll</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-        </div>
     </section>
 
 
@@ -304,7 +296,7 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-10">
                 @foreach($facilities as $i => $facility)
                     <div class="facility-card fade-up delay-{{ min(($i + 1) * 100, 500) }}" id="facility-{{ $i }}">
                         <div class="facility-icon-wrap">
@@ -315,6 +307,70 @@
                 @endforeach
             </div>
 
+            {{-- Office Safety Induction Video Showcase (Clean Without Dark Container) --}}
+            <div class="w-full mt-6 fade-up">
+                <div class="max-w-4xl mx-auto text-center mb-8">
+                    {{-- Badge --}}
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-blue-900/20 bg-blue-50 text-[#1E3A8A]">
+                        <svg class="w-4 h-4 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        Safety First Protocol
+                    </div>
+
+                    {{-- Title --}}
+                    <h3 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 leading-tight mb-3">
+                        Office Safety <span style="color: #1E3A8A;">Induction Video</span>
+                    </h3>
+
+                    {{-- Subtitle --}}
+                    <p class="text-slate-600 text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-6">
+                        As part of Beltway Office Park's commitment to health & safety, please review our essential building safety procedures and emergency induction protocols.
+                    </p>
+
+                    {{-- Highlights Pills Row --}}
+                    <div class="flex flex-wrap justify-center gap-3 text-xs">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold bg-white border border-slate-200 text-slate-700 shadow-sm">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Emergency Evacuation & Assembly Point
+                        </div>
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold bg-white border border-slate-200 text-slate-700 shadow-sm">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Fire Safety & Emergency Response
+                        </div>
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold bg-white border border-slate-200 text-slate-700 shadow-sm">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Visitor Security & Registration
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Standalone Online Video Player --}}
+                <div id="safety-video-container" class="relative z-10 w-full max-w-4xl mx-auto rounded-2xl overflow-hidden bg-black border border-slate-200 shadow-2xl group">
+                    <div class="relative w-full bg-black overflow-hidden" style="aspect-ratio: 16 / 10.2; min-height: 320px;">
+                        <iframe src="https://drive.google.com/file/d/1MXkloww2Ahcar-LL4usvnFfuzQ35fQ4F/preview" 
+                            class="w-full h-full border-none"
+                            allow="autoplay; fullscreen"
+                            allowfullscreen="true"
+                            title="Office Safety Induction Video"></iframe>
+
+                        {{-- Floating Fullscreen Button --}}
+                        <button type="button" onclick="toggleSafetyVideoFullscreen()" 
+                            class="absolute bottom-4 right-4 z-30 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 shadow-xl flex items-center gap-2 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
+                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                            </svg>
+                            <span>Full Screen</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </section>
@@ -712,7 +768,7 @@
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 text-sm">Phone Number</div>
-                                <div class="text-gray-500 text-sm mt-0.5">+62 812 9559 059</div>
+                                <div class="text-gray-500 text-sm mt-0.5">-</div>
                             </div>
                         </div>
                         <div class="contact-info-item">
@@ -725,8 +781,7 @@
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 text-sm">Email Address</div>
-                                <div class="text-gray-500 text-sm mt-0.5">Fauzan.abadi@imeco.co.id</div>
-                                <div class="text-gray-500 text-sm">Heru.wiistono@imeco.co.id</div>
+                                <div class="text-gray-500 text-sm mt-0.5">-</div>
                             </div>
                         </div>
                         <div class="contact-info-item">
@@ -743,23 +798,6 @@
                                 <div class="text-gray-500 text-sm">Saturday: 08:00 – 13:00 WIB</div>
                             </div>
                         </div>
-                    </div>
-
-                    {{-- Office Safety Induction Video --}}
-                    <div class="mt-8 mb-4">
-                        <h4 class="text-base font-bold text-gray-900 flex items-center gap-2">
-                            <svg class="w-5 h-5" style="color: #dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                            Office Safety Induction
-                        </h4>
-                        <p class="text-xs text-gray-500 mt-1">Please review our safety guidelines before visiting the office.</p>
-                    </div>
-
-                    <div class="relative rounded-2xl overflow-hidden" style="width: 100%; aspect-ratio: 16 / 9;">
-                        <iframe src="https://drive.google.com/file/d/1MXkloww2Ahcar-LL4usvnFfuzQ35fQ4F/preview" 
-                            class="w-full h-full border-none"
-                            allow="autoplay"></iframe>
                     </div>
                 </div>
 
@@ -1126,5 +1164,29 @@
                 hideNewsModal();
             }
         });
+
+        // Toggle Safety Induction Video Fullscreen Mode
+        window.toggleSafetyVideoFullscreen = function() {
+            const container = document.getElementById('safety-video-container');
+            if (!container) return;
+
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        };
     </script>
 @endsection

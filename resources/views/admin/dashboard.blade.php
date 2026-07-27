@@ -301,7 +301,84 @@
             </span>
             <span>Insight: {{ count($buildingStats) }} Gedung Aktif</span>
         </div>
+    {{-- ── Utility Usage Comparison Charts (Electricity & Water) ── --}}
+    @if($hasElectricityData || $hasWaterData)
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {{-- Grafik Perbandingan Penggunaan Daya Listrik --}}
+        @if($hasElectricityData)
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        Perbandingan Penggunaan Daya Listrik
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Tahun <span class="font-bold text-[#1E3A8A]">{{ $elecSelectedYear }}</span> vs <span class="font-bold text-amber-600">{{ $elecPreviousYear }}</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-[#1E3A8A] text-[11px] font-extrabold border border-blue-100">
+                        {{ $elecSelectedYear }}
+                    </span>
+                    <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-[11px] font-extrabold border border-amber-100">
+                        {{ $elecPreviousYear }}
+                    </span>
+                    <a href="{{ route('admin.electricity.index') }}" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors" title="Buka Detail">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="relative w-full h-[450px]">
+                <canvas id="dashElecChart"></canvas>
+            </div>
+        </div>
+        @endif
+
+        {{-- Grafik Perbandingan Penggunaan Air Bersih --}}
+        @if($hasWaterData)
+        <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 14c0 3.866-3.582 7-8 7s-8-3.134-8-7c0-2.83 2.128-5.28 5.25-6.38L12 3l2.75 4.62C17.872 8.72 20 11.17 20 14z"/>
+                        </svg>
+                        Perbandingan Penggunaan Air Bersih
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Tahun <span class="font-bold text-[#1E3A8A]">{{ $waterSelectedYear }}</span> vs <span class="font-bold text-amber-600">{{ $waterPreviousYear }}</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-[#1E3A8A] text-[11px] font-extrabold border border-blue-100">
+                        {{ $waterSelectedYear }}
+                    </span>
+                    <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-[11px] font-extrabold border border-amber-100">
+                        {{ $waterPreviousYear }}
+                    </span>
+                    <a href="{{ route('admin.water.index') }}" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors" title="Buka Detail">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="relative w-full h-[450px]">
+                <canvas id="dashWaterChart"></canvas>
+            </div>
+        </div>
+        @endif
+
     </div>
+    @endif
 
     {{-- ── LK3 & Rekapitulasi Dashboard Charts (sumber data realtime bulan terbaru) ── --}}
     @if($lk3TotalRecords > 0 || $rekTotalRecords > 0)
@@ -839,6 +916,200 @@
         });
     }
 })();
+</script>
+@endif
+
+{{-- ── Utility Usage (Electricity & Water) Charts Script ────────────────────── --}}
+@if($hasElectricityData || $hasWaterData)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    @if($hasElectricityData)
+    const ctxElec = document.getElementById('dashElecChart');
+    if (ctxElec) {
+        new Chart(ctxElec, {
+            type: 'line',
+            data: {
+                labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                datasets: [
+                    {
+                        label: 'Penggunaan Tahun {{ $elecSelectedYear }}',
+                        data: @json(array_values($elecChartDataSelected)),
+                        borderColor: '#1E3A8A',
+                        backgroundColor: 'rgba(30, 58, 138, 0.08)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#1E3A8A',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Penggunaan Tahun {{ $elecPreviousYear }}',
+                        data: @json(array_values($elecChartDataPrev)),
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.04)',
+                        borderWidth: 2.5,
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#F59E0B',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 85,
+                        top: 15,
+                        bottom: 5
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
+                        bodyFont: { family: 'Plus Jakarta Sans', size: 12 },
+                        padding: 12,
+                        cornerRadius: 12,
+                        callbacks: {
+                            label: function (context) {
+                                let value = context.parsed.y;
+                                let formatted = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(value);
+                                return ' ' + context.dataset.label + ': ' + formatted + ' KWH';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: '700' }, color: '#475569' }
+                    },
+                    y: {
+                        min: 0,
+                        max: 500000,
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: {
+                            stepSize: 100000,
+                            font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' },
+                            color: '#475569',
+                            padding: 8,
+                            callback: function(value) {
+                                return new Intl.NumberFormat('id-ID').format(value) + ' KWH';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    @endif
+
+    @if($hasWaterData)
+    const ctxWater = document.getElementById('dashWaterChart');
+    if (ctxWater) {
+        new Chart(ctxWater, {
+            type: 'line',
+            data: {
+                labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                datasets: [
+                    {
+                        label: 'Penggunaan Tahun {{ $waterSelectedYear }}',
+                        data: @json(array_values($waterChartDataSelected)),
+                        borderColor: '#1E3A8A',
+                        backgroundColor: 'rgba(30, 58, 138, 0.08)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#1E3A8A',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Penggunaan Tahun {{ $waterPreviousYear }}',
+                        data: @json(array_values($waterChartDataPrev)),
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.04)',
+                        borderWidth: 2.5,
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#F59E0B',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 65,
+                        top: 15,
+                        bottom: 5
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0F172A',
+                        titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
+                        bodyFont: { family: 'Plus Jakarta Sans', size: 12 },
+                        padding: 12,
+                        cornerRadius: 12,
+                        callbacks: {
+                            label: function (context) {
+                                let value = context.parsed.y;
+                                let formatted = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(value);
+                                return ' ' + context.dataset.label + ': ' + formatted + ' m³';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: '700' }, color: '#475569' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: {
+                            font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' },
+                            color: '#475569',
+                            padding: 8,
+                            callback: function(value) {
+                                return new Intl.NumberFormat('id-ID').format(value) + ' m³';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    @endif
+});
 </script>
 @endif
 @endsection

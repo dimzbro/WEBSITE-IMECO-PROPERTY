@@ -794,8 +794,8 @@
                             </div>
                             <div>
                                 <div class="font-bold text-gray-900 text-sm">Business Hours</div>
-                                <div class="text-gray-500 text-sm mt-0.5">Monday – Friday: 08:00 – 17:00 WIB</div>
-                                <div class="text-gray-500 text-sm">Saturday: 08:00 – 13:00 WIB</div>
+                                <div class="text-gray-500 text-sm mt-0.5">Monday – Friday: 07:00 – 17:00 WIB</div>
+                                <div class="text-gray-500 text-sm">Saturday: 07:00 – 13:00 WIB</div>
                             </div>
                         </div>
                     </div>

@@ -131,6 +131,22 @@
                         </svg>
                         Rekapitulasi Request
                     </a>
+
+                    <a href="{{ route('admin.electricity.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/electricity*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        Penggunaan Daya Listrik
+                    </a>
+
+                    <a href="{{ route('admin.water.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/water*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 14c0 3.866-3.582 7-8 7s-8-3.134-8-7c0-2.83 2.128-5.28 5.25-6.38L12 3l2.75 4.62C17.872 8.72 20 11.17 20 14z"/>
+                        </svg>
+                        Penggunaan Air Bersih
+                    </a>
                 </div>
             </div>
         </nav>

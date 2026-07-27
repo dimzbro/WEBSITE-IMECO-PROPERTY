@@ -277,6 +277,61 @@ class AdminController extends Controller
                 ->get();
         }
 
+        // 7. Penggunaan Daya Listrik & Air Bersih Dashboard Charts (Kondisional Data)
+        $hasElectricityData = \App\Models\ElectricityUsage::count() > 0;
+        $elecSelectedYear   = null;
+        $elecPreviousYear   = null;
+        $elecChartDataSelected = array_fill(1, 12, 0);
+        $elecChartDataPrev     = array_fill(1, 12, 0);
+
+        if ($hasElectricityData) {
+            $elecSelectedYear   = (int) (\App\Models\ElectricityUsage::max('tahun') ?? date('Y'));
+            $elecPreviousYear   = $elecSelectedYear - 1;
+
+            $elecSelMonthly = \App\Models\ElectricityUsage::where('tahun', $elecSelectedYear)
+                ->selectRaw('bulan, SUM(kwh) as total')
+                ->groupBy('bulan')
+                ->pluck('total', 'bulan');
+            foreach ($elecSelMonthly as $b => $val) {
+                $elecChartDataSelected[(int)$b] = round((float)$val, 2);
+            }
+
+            $elecPrevMonthly = \App\Models\ElectricityUsage::where('tahun', $elecPreviousYear)
+                ->selectRaw('bulan, SUM(kwh) as total')
+                ->groupBy('bulan')
+                ->pluck('total', 'bulan');
+            foreach ($elecPrevMonthly as $b => $val) {
+                $elecChartDataPrev[(int)$b] = round((float)$val, 2);
+            }
+        }
+
+        $hasWaterData = \App\Models\WaterUsage::count() > 0;
+        $waterSelectedYear   = null;
+        $waterPreviousYear   = null;
+        $waterChartDataSelected = array_fill(1, 12, 0);
+        $waterChartDataPrev     = array_fill(1, 12, 0);
+
+        if ($hasWaterData) {
+            $waterSelectedYear   = (int) (\App\Models\WaterUsage::max('tahun') ?? date('Y'));
+            $waterPreviousYear   = $waterSelectedYear - 1;
+
+            $waterSelMonthly = \App\Models\WaterUsage::where('tahun', $waterSelectedYear)
+                ->selectRaw('bulan, SUM(debet_air) as total')
+                ->groupBy('bulan')
+                ->pluck('total', 'bulan');
+            foreach ($waterSelMonthly as $b => $val) {
+                $waterChartDataSelected[(int)$b] = round((float)$val, 2);
+            }
+
+            $waterPrevMonthly = \App\Models\WaterUsage::where('tahun', $waterPreviousYear)
+                ->selectRaw('bulan, SUM(debet_air) as total')
+                ->groupBy('bulan')
+                ->pluck('total', 'bulan');
+            foreach ($waterPrevMonthly as $b => $val) {
+                $waterChartDataPrev[(int)$b] = round((float)$val, 2);
+            }
+        }
+
         return view('admin.dashboard', compact(
             'totalUnits',
             'occupiedUnitsCount',
@@ -300,7 +355,17 @@ class AdminController extends Controller
             'lk3MonthLabel',
             'rekByJenisPekerjaan',
             'rekTotalRecords',
-            'rekMonthLabel'
+            'rekMonthLabel',
+            'hasElectricityData',
+            'elecSelectedYear',
+            'elecPreviousYear',
+            'elecChartDataSelected',
+            'elecChartDataPrev',
+            'hasWaterData',
+            'waterSelectedYear',
+            'waterPreviousYear',
+            'waterChartDataSelected',
+            'waterChartDataPrev'
         ));
     }
 }

@@ -18,6 +18,8 @@ use App\Http\Controllers\OfficeSpaceController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\Lk3ReportController;
 use App\Http\Controllers\RekapitulasiRequestController;
+use App\Http\Controllers\ElectricityUsageController;
+use App\Http\Controllers\WaterUsageController;
 use Illuminate\Support\Facades\Auth;
 
 Route::post('/login', function (Illuminate\Http\Request $request) {
@@ -54,6 +56,20 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::post('rekapitulasi/import', [RekapitulasiRequestController::class, 'import'])->name('admin.rekapitulasi.import');
     Route::delete('rekapitulasi/clear-all', [RekapitulasiRequestController::class, 'destroyAll'])->name('admin.rekapitulasi.destroyAll');
     Route::delete('rekapitulasi/{id}', [RekapitulasiRequestController::class, 'destroy'])->name('admin.rekapitulasi.destroy');
+
+    // ── Penggunaan Daya Listrik ───────────────────────────────────────────────
+    Route::get('electricity', [ElectricityUsageController::class, 'index'])->name('admin.electricity.index');
+    Route::post('electricity', [ElectricityUsageController::class, 'store'])->name('admin.electricity.store');
+    Route::put('electricity/{id}', [ElectricityUsageController::class, 'update'])->name('admin.electricity.update');
+    Route::delete('electricity/clear-all', [ElectricityUsageController::class, 'destroyAll'])->name('admin.electricity.destroyAll');
+    Route::delete('electricity/{id}', [ElectricityUsageController::class, 'destroy'])->name('admin.electricity.destroy');
+
+    // ── Penggunaan Air Bersih ─────────────────────────────────────────────────
+    Route::get('water', [WaterUsageController::class, 'index'])->name('admin.water.index');
+    Route::post('water', [WaterUsageController::class, 'store'])->name('admin.water.store');
+    Route::put('water/{id}', [WaterUsageController::class, 'update'])->name('admin.water.update');
+    Route::delete('water/clear-all', [WaterUsageController::class, 'destroyAll'])->name('admin.water.destroyAll');
+    Route::delete('water/{id}', [WaterUsageController::class, 'destroy'])->name('admin.water.destroy');
 });
 
 Route::post('/logout', function (Illuminate\Http\Request $request) {

@@ -196,8 +196,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <div>
-                                <div>Mon – Fri: 08:00 – 17:00</div>
-                                <div>Sat: 08:00 – 13:00</div>
+                                <div>Mon – Fri: 07:00 – 17:00</div>
+                                <div>Sat: 07:00 – 13:00</div>
                             </div>
                         </div>
                     </div>

@@ -632,7 +632,7 @@
                     <div class="marquee-group">
                         @foreach($tenants as $i => $tenant)
                             @php
-                                $isZoomed = in_array($tenant['logo'], ['kopken.png', 'kapal api.jpg', 'spklu.jpeg', 'mp.png', 'ck.png']);
+                                $isZoomed = in_array($tenant['logo'], ['kopken.png', 'kapal api.jpg', 'spklu.jpeg', 'mp.png', 'ck.png', 'highland.webp']);
                                 $cardClass = $isZoomed ? 'tenant-logo-card p-2' : 'tenant-logo-card p-4';
                                 $imgClass = $isZoomed ? 'h-14 w-auto object-contain max-w-full' : 'h-10 w-auto object-contain max-w-full';
                             @endphp
@@ -646,7 +646,7 @@
                     <div class="marquee-group" aria-hidden="true">
                         @foreach($tenants as $i => $tenant)
                             @php
-                                $isZoomed = in_array($tenant['logo'], ['kopken.png', 'kapal api.jpg', 'spklu.jpeg', 'mp.png', 'ck.png']);
+                                $isZoomed = in_array($tenant['logo'], ['kopken.png', 'kapal api.jpg', 'spklu.jpeg', 'mp.png', 'ck.png', 'highland.webp']);
                                 $cardClass = $isZoomed ? 'tenant-logo-card p-2' : 'tenant-logo-card p-4';
                                 $imgClass = $isZoomed ? 'h-14 w-auto object-contain max-w-full' : 'h-10 w-auto object-contain max-w-full';
                             @endphp

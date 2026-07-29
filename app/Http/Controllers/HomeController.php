@@ -91,6 +91,7 @@ class HomeController extends Controller
             ['name' => 'Kapal Api Coffee Corner', 'logo' => 'kapal api.jpg'],
             ['name' => 'SPKLU', 'logo' => 'spklu.jpeg'],
             ['name' => 'MP', 'logo' => 'mp.png'],
+            ['name' => 'Highland', 'logo' => 'highland.webp'],
         ];
 
         $news = News::orderBy('published_at', 'desc')->get();

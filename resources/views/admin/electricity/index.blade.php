@@ -514,6 +514,11 @@
                             class="border border-blue-900 px-4 py-2 text-center font-black text-xs uppercase tracking-wider">
                             BULAN
                         </th>
+                        <th rowspan="2" 
+                            style="background-color: #1E3A8A !important; color: #ffffff !important;"
+                            class="border border-blue-900 px-4 py-3 text-center align-middle font-black text-xs uppercase tracking-wider min-w-[120px]">
+                            TOTAL KWH
+                        </th>
                     </tr>
                     {{-- Row 2 Month Headers --}}
                     <tr>
@@ -564,6 +569,15 @@
                                     @endif
                                 </td>
                             @endfor
+
+                            {{-- Total KWH Per Gedung --}}
+                            @php
+                                $bTotal = $buildingTotals[$gedungName] ?? 0;
+                            @endphp
+                            <td class="border border-slate-300 px-3 py-2.5 text-right font-black text-[#1E3A8A] bg-slate-100/80 whitespace-nowrap"
+                                title="Total Penggunaan Listrik {{ $gedungName }} (Tahun {{ $selectedYear }}): {{ number_format($bTotal, 2, ',', '.') }} KWH">
+                                {{ $bTotal > 0 ? number_format($bTotal, 0, ',', '.') : '-' }}
+                            </td>
                         </tr>
                         @endif
                     @endforeach
@@ -580,6 +594,10 @@
                                 {{ $monthlyTotals[$m] > 0 ? number_format($monthlyTotals[$m], 0, ',', '.') : '-' }}
                             </td>
                         @endfor
+                        <td class="border border-slate-300 px-3 py-3 text-right text-[#1E3A8A] bg-slate-300/80 font-black"
+                            title="Grand Total KWH Seluruh Gedung (Tahun {{ $selectedYear }}): {{ number_format($grandTotal, 2, ',', '.') }} KWH">
+                            {{ $grandTotal > 0 ? number_format($grandTotal, 0, ',', '.') : '-' }}
+                        </td>
                     </tr>
                 </tfoot>
             </table>

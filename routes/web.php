@@ -20,6 +20,7 @@ use App\Http\Controllers\Lk3ReportController;
 use App\Http\Controllers\RekapitulasiRequestController;
 use App\Http\Controllers\ElectricityUsageController;
 use App\Http\Controllers\WaterUsageController;
+use App\Http\Controllers\OfficeBopLeadController;
 use Illuminate\Support\Facades\Auth;
 
 Route::post('/login', function (Illuminate\Http\Request $request) {
@@ -70,6 +71,15 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::put('water/{id}', [WaterUsageController::class, 'update'])->name('admin.water.update');
     Route::delete('water/clear-all', [WaterUsageController::class, 'destroyAll'])->name('admin.water.destroyAll');
     Route::delete('water/{id}', [WaterUsageController::class, 'destroy'])->name('admin.water.destroy');
+
+    // ── Daftar Peminat Office BOP ─────────────────────────────────────────────
+    Route::get('bop-leads', [OfficeBopLeadController::class, 'index'])->name('admin.bop-leads.index');
+    Route::post('bop-leads', [OfficeBopLeadController::class, 'store'])->name('admin.bop-leads.store');
+    Route::get('bop-leads/{id}', [OfficeBopLeadController::class, 'show'])->name('admin.bop-leads.show');
+    Route::put('bop-leads/{id}', [OfficeBopLeadController::class, 'update'])->name('admin.bop-leads.update');
+    Route::post('bop-leads/{id}/follow-up', [OfficeBopLeadController::class, 'updateFollowUp'])->name('admin.bop-leads.updateFollowUp');
+    Route::delete('bop-leads/clear-all', [OfficeBopLeadController::class, 'destroyAll'])->name('admin.bop-leads.destroyAll');
+    Route::delete('bop-leads/{id}', [OfficeBopLeadController::class, 'destroy'])->name('admin.bop-leads.destroy');
 });
 
 Route::post('/logout', function (Illuminate\Http\Request $request) {

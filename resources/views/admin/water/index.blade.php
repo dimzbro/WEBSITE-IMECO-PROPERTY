@@ -4,6 +4,23 @@
 @section('breadcrumb', 'Penggunaan Air Bersih')
 
 @section('content')
+<style>
+    .gold-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+    .gold-scrollbar::-webkit-scrollbar-track {
+        background: #F8FAFC;
+        border-radius: 9999px;
+    }
+    .gold-scrollbar::-webkit-scrollbar-thumb {
+        background: #D97706;
+        border-radius: 9999px;
+    }
+    .gold-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #B45309;
+    }
+</style>
+
 <div class="space-y-8 animate-fade-in pb-16">
 
     {{-- ── Page Header ────────────────────────────────────────────────────── --}}
@@ -357,7 +374,7 @@
                             <input type="text" id="matrix_tahun" name="tahun" readonly
                                    value="{{ $selectedYear }}"
                                    placeholder="-- Pilih Tahun --"
-                                   class="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-extrabold text-[#1E3A8A] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] shadow-sm cursor-pointer">
+                                   class="w-full px-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-extrabold text-[#1E3A8A] text-center focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] shadow-sm cursor-pointer">
                             
                             {{-- Calendar Icon (Left) --}}
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#1E3A8A] pointer-events-none">
@@ -988,27 +1005,23 @@ function renderYearGrid(type) {
     
     const title = document.getElementById(`decadeTitle_${type}`);
     if (title) {
-        title.textContent = `${startYear} - ${endYear}`;
+        title.textContent = `${startYear} – ${endYear}`;
     }
 
     const grid = document.getElementById(`yearGrid_${type}`);
     if (!grid) return;
 
     const inputVal = parseInt(document.getElementById(`${type}_tahun`).value) || 0;
-    const currentYear = new Date().getFullYear();
 
     let html = '';
     for (let y = startYear; y <= endYear; y++) {
         const isSelected = inputVal === y;
-        const isCurrent = currentYear === y;
         
-        let btnClasses = "py-2 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ";
+        let btnClasses = "w-full py-2 px-3 text-center text-sm font-extrabold rounded-full transition-all cursor-pointer ";
         if (isSelected) {
-            btnClasses += "bg-[#1E3A8A] text-white shadow-md font-black";
-        } else if (isCurrent) {
-            btnClasses += "bg-blue-50 text-[#1E3A8A] border border-blue-200 hover:bg-blue-100";
+            btnClasses += "bg-[#1E3A8A] text-white border-2 border-[#1E3A8A] shadow-sm font-black";
         } else {
-            btnClasses += "bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-100";
+            btnClasses += "bg-white text-[#1E3A8A] hover:bg-blue-50 border border-[#1E3A8A]/90 font-extrabold";
         }
 
         html += `<button type="button" onclick="selectYear('${type}', ${y})" class="${btnClasses}">${y}</button>`;

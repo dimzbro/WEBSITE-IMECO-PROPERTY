@@ -353,10 +353,10 @@
 
                 {{-- Standalone Online Video Player --}}
                 <div id="safety-video-container" class="relative z-10 w-full max-w-4xl mx-auto rounded-2xl overflow-hidden bg-black border border-slate-200 shadow-2xl group">
-                    <div class="relative w-full bg-black overflow-hidden" style="aspect-ratio: 16 / 10.2; min-height: 320px;">
-                        <iframe src="https://drive.google.com/file/d/1MXkloww2Ahcar-LL4usvnFfuzQ35fQ4F/preview" 
+                    <div class="relative w-full bg-black overflow-hidden" style="aspect-ratio: 16 / 9; min-height: 320px;">
+                        <iframe src="https://www.youtube.com/embed/4Ij3DM4TVP4" 
                             class="w-full h-full border-none"
-                            allow="autoplay; fullscreen"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                             allowfullscreen="true"
                             title="Office Safety Induction Video"></iframe>
 

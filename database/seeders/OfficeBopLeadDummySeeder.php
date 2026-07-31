@@ -98,15 +98,17 @@ class OfficeBopLeadDummySeeder extends Seeder
                     $tanggalEntry = sprintf('%04d-%02d-%02d', $tahun, $bulan, $day);
 
                     $hasLoo = rand(0, 1) === 1;
-                    $hasLoi = $hasLoo && rand(0, 1) === 1;
-                    $hasDp  = $hasLoi && rand(0, 1) === 1;
+                    $hasNomletDikirim = $hasLoo && rand(0, 1) === 1;
+                    $hasNomletDisetujui = $hasNomletDikirim && rand(0, 1) === 1;
+                    $hasDp  = $hasNomletDisetujui && rand(0, 1) === 1;
                     $hasSerah = $hasDp && rand(0, 1) === 1;
                     $hasFit = $hasSerah && rand(0, 1) === 1;
 
                     $looDate = $hasLoo ? date('Y-m-d', strtotime($tanggalEntry . ' +' . rand(3, 7) . ' days')) : null;
                     $nomorSuratLoo = $hasLoo ? sprintf('%03d/LOO/IMECO-BOP/%s/%d', $suratCount++, $romawiMap[$bulan], $tahun) : null;
-                    $loiDate = $hasLoi ? date('Y-m-d', strtotime($looDate . ' +' . rand(5, 10) . ' days')) : null;
-                    $dpDate = $hasDp ? date('Y-m-d', strtotime($loiDate . ' +' . rand(4, 8) . ' days')) : null;
+                    $nomletDikirimDate = $hasNomletDikirim ? date('Y-m-d', strtotime($looDate . ' +' . rand(5, 10) . ' days')) : null;
+                    $nomletDisetujuiDate = $hasNomletDisetujui ? date('Y-m-d', strtotime($nomletDikirimDate . ' +' . rand(3, 7) . ' days')) : null;
+                    $dpDate = $hasDp ? date('Y-m-d', strtotime($nomletDisetujuiDate . ' +' . rand(4, 8) . ' days')) : null;
                     $serahDate = $hasSerah ? date('Y-m-d', strtotime($dpDate . ' +' . rand(7, 14) . ' days')) : null;
                     $fitDate = $hasFit ? date('Y-m-d', strtotime($serahDate . ' +' . rand(5, 12) . ' days')) : null;
 
@@ -123,7 +125,8 @@ class OfficeBopLeadDummySeeder extends Seeder
                         'kit_marketing' => $tanggalEntry,
                         'loo' => $looDate,
                         'nomor_surat_loo' => $nomorSuratLoo,
-                        'loi' => $loiDate,
+                        'nomlet_dikirim' => $nomletDikirimDate,
+                        'nomlet_disetujui' => $nomletDisetujuiDate,
                         'dp' => $dpDate,
                         'serah_terima' => $serahDate,
                         'fitting_out' => $fitDate,

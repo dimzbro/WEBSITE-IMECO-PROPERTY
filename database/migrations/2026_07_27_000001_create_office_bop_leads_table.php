@@ -24,7 +24,8 @@ return new class extends Migration
             $table->text('kategori_diminati')->nullable();
             $table->string('kit_marketing')->nullable();
             $table->string('loo')->nullable();
-            $table->string('loi')->nullable();
+            $table->string('nomlet_dikirim')->nullable();
+            $table->string('nomlet_disetujui')->nullable();
             $table->string('dp')->nullable();
             $table->string('serah_terima')->nullable();
             $table->string('fitting_out')->nullable();

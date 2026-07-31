@@ -207,7 +207,7 @@
 
         <form action="{{ route('admin.water.store') }}" method="POST" class="space-y-6">
             @csrf
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {{-- Field Gedung --}}
                 <div class="space-y-1.5">
                     <label for="form_gedung" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -223,16 +223,6 @@
                     @error('gedung')
                         <p class="text-[11px] font-bold text-rose-500">{{ $message }}</p>
                     @enderror
-                </div>
-
-                {{-- Field Nomor ID (Automatic Read-only) --}}
-                <div class="space-y-1.5">
-                    <label for="form_nomor_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Nomor ID <span class="text-slate-400 font-normal">(Otomatis)</span>
-                    </label>
-                    <input type="text" id="form_nomor_id" name="nomor_id" readonly
-                           placeholder="Otomatis terisi..."
-                           class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-600 cursor-not-allowed select-none focus:outline-none">
                 </div>
 
                 {{-- Field Tahun (Kalender Year Picker Widget) --}}
@@ -887,22 +877,14 @@
             @csrf
             @method('PUT')
             
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1.5">
-                    <label for="edit_gedung" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Gedung</label>
-                    <select id="edit_gedung" name="gedung" required
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]">
-                        @foreach($listGedung as $g)
-                            <option value="{{ $g }}">{{ $g }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="space-y-1.5">
-                    <label for="edit_nomor_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Nomor ID</label>
-                    <input type="text" id="edit_nomor_id" name="nomor_id" readonly
-                           class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-600 cursor-not-allowed select-none focus:outline-none">
-                </div>
+            <div class="space-y-1.5">
+                <label for="edit_gedung" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Gedung</label>
+                <select id="edit_gedung" name="gedung" required
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]">
+                    @foreach($listGedung as $g)
+                        <option value="{{ $g }}">{{ $g }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="grid grid-cols-2 gap-4">

@@ -18,7 +18,8 @@ class WaterUsageController extends Controller
         $formYears = range($currentYear + 4, 2020);
 
         // Get list of distinct years in database for dropdown filter
-        $availableYears = WaterUsage::select('tahun')
+        $availableYears = WaterUsage::whereIn('gedung', $listGedung)
+            ->select('tahun')
             ->distinct()
             ->pluck('tahun')
             ->toArray();
@@ -51,8 +52,8 @@ class WaterUsageController extends Controller
 
         $monthlyTotals = array_fill(1, 12, 0);
 
-        $selectedYearRecords = WaterUsage::where('tahun', $selectedYear)->get();
-        $prevYearRecords = WaterUsage::where('tahun', $previousYear)->get()->keyBy(function ($item) {
+        $selectedYearRecords = WaterUsage::whereIn('gedung', $listGedung)->where('tahun', $selectedYear)->get();
+        $prevYearRecords = WaterUsage::whereIn('gedung', $listGedung)->where('tahun', $previousYear)->get()->keyBy(function ($item) {
             return $item->gedung . '_' . $item->bulan;
         });
 
@@ -92,7 +93,7 @@ class WaterUsageController extends Controller
         $grandTotal = array_sum($buildingTotals);
 
         // ── 2. Detailed List View Data Table Query ─────────────────────────────
-        $query = WaterUsage::query();
+        $query = WaterUsage::whereIn('gedung', $listGedung);
 
         if ($selectedYear) {
             $query->where('tahun', $selectedYear);
@@ -152,7 +153,8 @@ class WaterUsageController extends Controller
         });
 
         // ── 3. Summary Statistics Cards ─────────────────────────────────────────
-        $statsCurrentQuery = WaterUsage::where('tahun', $selectedYear)
+        $statsCurrentQuery = WaterUsage::whereIn('gedung', $listGedung)
+            ->where('tahun', $selectedYear)
             ->when($selectedGedung, function ($q) use ($selectedGedung) {
                 $q->where('gedung', $selectedGedung);
             });
@@ -162,7 +164,8 @@ class WaterUsageController extends Controller
         $avgDebetAirPerMonth       = $recordedMonthsCount > 0 ? ($totalDebetAirSelectedYear / $recordedMonthsCount) : 0;
 
         // Aggregation per bulan untuk kartu Tertinggi dan Terendah
-        $monthlyAggregates = WaterUsage::where('tahun', $selectedYear)
+        $monthlyAggregates = WaterUsage::whereIn('gedung', $listGedung)
+            ->where('tahun', $selectedYear)
             ->when($selectedGedung, function ($q) use ($selectedGedung) {
                 $q->where('gedung', $selectedGedung);
             })
@@ -190,7 +193,8 @@ class WaterUsageController extends Controller
             ];
         }
 
-        $statsPrevQuery = WaterUsage::where('tahun', $previousYear)
+        $statsPrevQuery = WaterUsage::whereIn('gedung', $listGedung)
+            ->where('tahun', $previousYear)
             ->when($selectedGedung, function ($q) use ($selectedGedung) {
                 $q->where('gedung', $selectedGedung);
             });
@@ -205,7 +209,8 @@ class WaterUsageController extends Controller
         $chartDataSelectedYear = array_fill(1, 12, 0);
         $chartDataPrevYear     = array_fill(1, 12, 0);
 
-        $selectedYearMonthly = WaterUsage::where('tahun', $selectedYear)
+        $selectedYearMonthly = WaterUsage::whereIn('gedung', $listGedung)
+            ->where('tahun', $selectedYear)
             ->when($selectedGedung, function ($q) use ($selectedGedung) {
                 $q->where('gedung', $selectedGedung);
             })
@@ -217,7 +222,8 @@ class WaterUsageController extends Controller
             $chartDataSelectedYear[(int)$b] = round((float)$val, 2);
         }
 
-        $prevYearMonthly = WaterUsage::where('tahun', $previousYear)
+        $prevYearMonthly = WaterUsage::whereIn('gedung', $listGedung)
+            ->where('tahun', $previousYear)
             ->when($selectedGedung, function ($q) use ($selectedGedung) {
                 $q->where('gedung', $selectedGedung);
             })

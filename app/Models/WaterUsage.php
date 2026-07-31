@@ -31,27 +31,17 @@ class WaterUsage extends Model
             'Gedung A',
             'Gedung B',
             'Gedung C',
-            'Gedung Annex Baru',
             'Gedung Annex Lama',
-            'KWH Meter PJU Gedung B',
-            'Kantin',
-            'KWH Meter PJU Annex Lama',
-            'KWH Meter Kontener',
         ];
     }
 
     public static function getNomorIdMapping(): array
     {
         return [
-            'Gedung A'                 => '543103461270',
-            'Gedung B'                 => '548400528238',
-            'Gedung C'                 => '543800111438',
-            'Gedung Annex Baru'        => '543800027370',
-            'Gedung Annex Lama'        => '543800153055',
-            'KWH Meter PJU Gedung B'   => '543800028244',
-            'Kantin'                   => '547101731789',
-            'KWH Meter PJU Annex Lama' => '547400024082',
-            'KWH Meter Kontener'       => '543800027504',
+            'Gedung A'          => '543103461270',
+            'Gedung B'          => '548400528238',
+            'Gedung C'          => '543800111438',
+            'Gedung Annex Lama' => '543800153055',
         ];
     }
 

@@ -305,17 +305,19 @@ class AdminController extends Controller
             }
         }
 
-        $hasWaterData = \App\Models\WaterUsage::count() > 0;
+        $waterListGedung = \App\Models\WaterUsage::listGedung();
+        $hasWaterData = \App\Models\WaterUsage::whereIn('gedung', $waterListGedung)->count() > 0;
         $waterSelectedYear   = null;
         $waterPreviousYear   = null;
         $waterChartDataSelected = array_fill(1, 12, 0);
         $waterChartDataPrev     = array_fill(1, 12, 0);
 
         if ($hasWaterData) {
-            $waterSelectedYear   = (int) (\App\Models\WaterUsage::max('tahun') ?? date('Y'));
+            $waterSelectedYear   = (int) (\App\Models\WaterUsage::whereIn('gedung', $waterListGedung)->max('tahun') ?? date('Y'));
             $waterPreviousYear   = $waterSelectedYear - 1;
 
-            $waterSelMonthly = \App\Models\WaterUsage::where('tahun', $waterSelectedYear)
+            $waterSelMonthly = \App\Models\WaterUsage::whereIn('gedung', $waterListGedung)
+                ->where('tahun', $waterSelectedYear)
                 ->selectRaw('bulan, SUM(debet_air) as total')
                 ->groupBy('bulan')
                 ->pluck('total', 'bulan');
@@ -323,7 +325,8 @@ class AdminController extends Controller
                 $waterChartDataSelected[(int)$b] = round((float)$val, 2);
             }
 
-            $waterPrevMonthly = \App\Models\WaterUsage::where('tahun', $waterPreviousYear)
+            $waterPrevMonthly = \App\Models\WaterUsage::whereIn('gedung', $waterListGedung)
+                ->where('tahun', $waterPreviousYear)
                 ->selectRaw('bulan, SUM(debet_air) as total')
                 ->groupBy('bulan')
                 ->pluck('total', 'bulan');

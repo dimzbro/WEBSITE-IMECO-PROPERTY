@@ -126,94 +126,164 @@
     @endif
 
     {{-- ── 1. Summary Dashboard Cards (Top) ────────────────────────────────── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {{-- Card 1: Total Peminat --}}
-        <div class="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Peminat</span>
-                <div class="w-9 h-9 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @php
+            $periodText = $selectedMonth ? 'Bulan ' . $listBulan[$selectedMonth] . ' ' . $selectedYear : 'Tahun ' . $selectedYear;
+        @endphp
+
+        {{-- Card 1: Total Peminat (Biru - #2563EB) --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span style="color: #2563eb;" class="text-xs font-extrabold uppercase tracking-wider block">Total Peminat</span>
+                    <span class="text-[11px] font-semibold text-slate-400 mt-0.5 block">{{ $periodText }}</span>
+                </div>
+                <div style="background-color: rgba(37, 99, 235, 0.1); color: #2563eb;" class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                 </div>
             </div>
+
             <div class="mt-4">
-                <p class="text-3xl font-black text-slate-900 tracking-tight">{{ number_format($totalPeminat) }}</p>
-                <p class="text-[11px] font-semibold text-slate-500 mt-0.5">
-                    {{ $selectedMonth ? 'Bulan ' . $listBulan[$selectedMonth] . ' ' . $selectedYear : 'Tahun ' . $selectedYear }}
-                </p>
+                <span style="color: #2563eb;" class="text-4xl sm:text-5xl font-black tracking-tight block">{{ number_format($totalPeminat) }}</span>
+
+                @if($totalPeminat === 0)
+                    <p style="color: #2563eb;" class="text-xs font-medium italic mt-2 flex items-center gap-1.5 opacity-80">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Belum ada data pada periode ini
+                    </p>
+                @endif
             </div>
         </div>
 
-        {{-- Card 2: Sudah Dikirim LOO --}}
-        <div class="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-600">Dikirim LOO</span>
-                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {{-- Card 2: Kirim LOO (Oranye - #F97316) --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span style="color: #f97316;" class="text-xs font-extrabold uppercase tracking-wider block">Kirim LOO</span>
+                    <span class="text-[11px] font-semibold text-slate-400 mt-0.5 block">{{ $periodText }}</span>
+                </div>
+                <div style="background-color: rgba(249, 115, 22, 0.1); color: #f97316;" class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
                 </div>
             </div>
+
             <div class="mt-4">
-                <p class="text-3xl font-black text-amber-600 tracking-tight">{{ number_format($totalLoo) }}</p>
-                <p class="text-[11px] font-semibold text-slate-500 mt-0.5">
-                    {{ $selectedMonth ? 'Bulan ' . $listBulan[$selectedMonth] . ' ' . $selectedYear : 'Tahun ' . $selectedYear }}
-                </p>
+                <span style="color: #f97316;" class="text-4xl sm:text-5xl font-black tracking-tight block">{{ number_format($totalLoo) }}</span>
+
+                @if($totalLoo === 0)
+                    <p style="color: #f97316;" class="text-xs font-medium italic mt-2 flex items-center gap-1.5 opacity-80">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Belum ada data pada periode ini
+                    </p>
+                @endif
             </div>
         </div>
 
-        {{-- Card 3: Kirim LOI --}}
-        <div class="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600">Kirim LOI</span>
-                <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        {{-- Card 3: Nomlet Dikirim (Ungu - #7C3AED) --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span style="color: #7c3aed;" class="text-xs font-extrabold uppercase tracking-wider block">Nomlet Dikirim</span>
+                    <span class="text-[11px] font-semibold text-slate-400 mt-0.5 block">{{ $periodText }}</span>
+                </div>
+                <div style="background-color: rgba(124, 58, 237, 0.1); color: #7c3aed;" class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                     </svg>
                 </div>
             </div>
+
             <div class="mt-4">
-                <p class="text-3xl font-black text-indigo-600 tracking-tight">{{ number_format($totalLoi) }}</p>
-                <p class="text-[11px] font-semibold text-slate-500 mt-0.5">
-                    {{ $selectedMonth ? 'Bulan ' . $listBulan[$selectedMonth] . ' ' . $selectedYear : 'Tahun ' . $selectedYear }}
-                </p>
+                <span style="color: #7c3aed;" class="text-4xl sm:text-5xl font-black tracking-tight block">{{ number_format($totalNomletDikirim) }}</span>
+
+                @if($totalNomletDikirim === 0)
+                    <p style="color: #7c3aed;" class="text-xs font-medium italic mt-2 flex items-center gap-1.5 opacity-80">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Belum ada data pada periode ini
+                    </p>
+                @endif
             </div>
         </div>
 
-        {{-- Card 4: Sudah DP --}}
-        <div class="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600">Sudah DP</span>
-                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {{-- Card 4: Nomlet Disetujui (Hijau - #16A34A) --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span style="color: #16a34a;" class="text-xs font-extrabold uppercase tracking-wider block">Nomlet Disetujui</span>
+                    <span class="text-[11px] font-semibold text-slate-400 mt-0.5 block">{{ $periodText }}</span>
+                </div>
+                <div style="background-color: rgba(22, 163, 74, 0.1); color: #16a34a;" class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <span style="color: #16a34a;" class="text-4xl sm:text-5xl font-black tracking-tight block">{{ number_format($totalNomletDisetujui) }}</span>
+
+                @if($totalNomletDisetujui === 0)
+                    <p style="color: #16a34a;" class="text-xs font-medium italic mt-2 flex items-center gap-1.5 opacity-80">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Belum ada data pada periode ini
+                    </p>
+                @endif
+            </div>
+        </div>
+
+        {{-- Card 5: Sudah DP (Emerald - #059669) --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span style="color: #059669;" class="text-xs font-extrabold uppercase tracking-wider block">Sudah DP</span>
+                    <span class="text-[11px] font-semibold text-slate-400 mt-0.5 block">{{ $periodText }}</span>
+                </div>
+                <div style="background-color: rgba(5, 150, 105, 0.1); color: #059669;" class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                 </div>
             </div>
+
             <div class="mt-4">
-                <p class="text-3xl font-black text-emerald-600 tracking-tight">{{ number_format($totalDp) }}</p>
-                <p class="text-[11px] font-semibold text-slate-500 mt-0.5">
-                    {{ $selectedMonth ? 'Bulan ' . $listBulan[$selectedMonth] . ' ' . $selectedYear : 'Tahun ' . $selectedYear }}
-                </p>
+                <span style="color: #059669;" class="text-4xl sm:text-5xl font-black tracking-tight block">{{ number_format($totalDp) }}</span>
+
+                @if($totalDp === 0)
+                    <p style="color: #059669;" class="text-xs font-medium italic mt-2 flex items-center gap-1.5 opacity-80">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Belum ada data pada periode ini
+                    </p>
+                @endif
             </div>
         </div>
 
-        {{-- Card 5: Serah Terima / Fitting --}}
-        <div class="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-600">Serah Terima</span>
-                <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {{-- Card 6: Serah Terima (Indigo - #4F46E5) --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span style="color: #4f46e5;" class="text-xs font-extrabold uppercase tracking-wider block">Serah Terima</span>
+                    <span class="text-[11px] font-semibold text-slate-400 mt-0.5 block">{{ $periodText }}</span>
+                </div>
+                <div style="background-color: rgba(79, 70, 229, 0.1); color: #4f46e5;" class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
             </div>
+
             <div class="mt-4">
-                <p class="text-3xl font-black text-purple-600 tracking-tight">{{ number_format($totalSerah) }}</p>
-                <p class="text-[11px] font-semibold text-slate-500 mt-0.5">
-                    {{ $selectedMonth ? 'Bulan ' . $listBulan[$selectedMonth] . ' ' . $selectedYear : 'Tahun ' . $selectedYear }}
-                </p>
+                <span style="color: #4f46e5;" class="text-4xl sm:text-5xl font-black tracking-tight block">{{ number_format($totalSerah) }}</span>
+
+                @if($totalSerah === 0)
+                    <p style="color: #4f46e5;" class="text-xs font-medium italic mt-2 flex items-center gap-1.5 opacity-80">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Belum ada data pada periode ini
+                    </p>
+                @endif
             </div>
         </div>
     </div>
@@ -304,8 +374,12 @@
                         <input type="text" name="nomor_surat_loo" value="{{ old('nomor_surat_loo') }}" placeholder="No. Surat LOO..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#1E3A8A] outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">LOI (Letter of Intent)</label>
-                        <input type="date" name="loi" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:bg-white focus:border-[#1E3A8A] outline-none">
+                        <label class="block text-[11px] font-bold text-indigo-700 mb-1">Nomlet Dikirim</label>
+                        <input type="date" name="nomlet_dikirim" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:bg-white focus:border-[#1E3A8A] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-blue-700 mb-1">Nomlet Disetujui</label>
+                        <input type="date" name="nomlet_disetujui" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:bg-white focus:border-[#1E3A8A] outline-none">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">DP (Down Payment)</label>
@@ -590,7 +664,7 @@
                         <th rowspan="2" class="p-2.5 border border-blue-900 min-w-[200px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">NAMA & ALAMAT EMAIL</th>
                         <th colspan="3" class="p-2.5 border border-blue-900" style="background-color: #1E3A8A !important; color: #ffffff !important;">PT / PERUSAHAAN</th>
                         <th rowspan="2" class="p-2.5 border border-blue-900 min-w-[220px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">KATEGORI YG DIMINATI</th>
-                        <th colspan="6" class="p-2.5 border border-blue-900" style="background-color: #1E3A8A !important; color: #ffffff !important;">FOLLOW UP</th>
+                        <th colspan="7" class="p-2.5 border border-blue-900" style="background-color: #1E3A8A !important; color: #ffffff !important;">FOLLOW UP</th>
                         <th rowspan="2" class="p-2.5 border border-blue-900 w-24" style="background-color: #1E3A8A !important; color: #ffffff !important;">AKSI</th>
                     </tr>
                     {{-- Sub Header Row --}}
@@ -600,7 +674,8 @@
                         <th class="p-2 border border-blue-900 min-w-[120px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">TELPON & FAX</th>
                         <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">KIT MARKETING</th>
                         <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">LOO</th>
-                        <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">LOI</th>
+                        <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">NOMLET DIKIRIM</th>
+                        <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">NOMLET DISETUJUI</th>
                         <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">DP</th>
                         <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">SERAH TERIMA</th>
                         <th class="p-2 border border-blue-900 min-w-[110px]" style="background-color: #1E3A8A !important; color: #ffffff !important;">FITTING OUT</th>
@@ -657,12 +732,12 @@
                             </td>
 
                             {{-- FOLLOW UP: KIT MARKETING --}}
-                            <td class="p-2 border border-slate-300 align-top text-center bg-yellow-50/20">
+                            <td class="p-2 border border-slate-300 align-top text-center bg-blue-50/10">
                                 <div class="group relative">
                                     <button type="button" 
                                             onclick="quickEditFollowUp({{ $lead->id }}, 'kit_marketing', '{{ addslashes(formatRawDateInput($lead->kit_marketing)) }}', 'Kit Marketing')"
-                                            class="w-full py-1 px-1.5 rounded hover:bg-yellow-200/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-yellow-400 transition-all cursor-pointer">
-                                        <span class="truncate">{{ formatFollowUpDate($lead->kit_marketing) }}</span>
+                                            class="w-full py-1 px-1.5 rounded hover:bg-blue-100/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-blue-300 transition-all cursor-pointer">
+                                        <span class="truncate {{ $lead->kit_marketing ? 'font-extrabold' : '' }}" style="{{ $lead->kit_marketing ? 'color: #2563eb;' : '' }}">{{ formatFollowUpDate($lead->kit_marketing) }}</span>
                                         <svg class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                         </svg>
@@ -671,15 +746,15 @@
                             </td>
 
                             {{-- FOLLOW UP: LOO --}}
-                            <td class="p-2 border border-slate-300 align-top text-center bg-yellow-50/20">
+                            <td class="p-2 border border-slate-300 align-top text-center bg-orange-50/10">
                                 <div class="group relative">
                                     <button type="button" 
                                             onclick="quickEditFollowUp({{ $lead->id }}, 'loo', '{{ addslashes(formatRawDateInput($lead->loo)) }}', 'Letter of Offer (LOO)', '{{ addslashes($lead->nomor_surat_loo ?? '') }}')"
-                                            class="w-full py-1 px-1.5 rounded hover:bg-yellow-200/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-yellow-400 transition-all cursor-pointer">
+                                            class="w-full py-1 px-1.5 rounded hover:bg-orange-100/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-orange-300 transition-all cursor-pointer">
                                         <div class="flex flex-col text-left truncate">
-                                            <span class="truncate {{ $lead->loo ? 'text-amber-700 font-extrabold' : '' }}">{{ formatFollowUpDate($lead->loo) }}</span>
+                                            <span class="truncate {{ $lead->loo ? 'font-extrabold' : '' }}" style="{{ $lead->loo ? 'color: #f97316;' : '' }}">{{ formatFollowUpDate($lead->loo) }}</span>
                                             @if($lead->nomor_surat_loo)
-                                                <span class="text-[10px] text-slate-600 font-bold truncate" title="No. Surat LOO: {{ $lead->nomor_surat_loo }}">No: {{ $lead->nomor_surat_loo }}</span>
+                                                <span class="text-[10px] font-bold truncate" style="color: #f97316;" title="No. Surat LOO: {{ $lead->nomor_surat_loo }}">No: {{ $lead->nomor_surat_loo }}</span>
                                             @endif
                                         </div>
                                         <svg class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -689,13 +764,27 @@
                                 </div>
                             </td>
 
-                            {{-- FOLLOW UP: LOI --}}
-                            <td class="p-2 border border-slate-300 align-top text-center bg-yellow-50/20">
+                            {{-- FOLLOW UP: NOMLET DIKIRIM --}}
+                            <td class="p-2 border border-slate-300 align-top text-center bg-purple-50/10">
                                 <div class="group relative">
                                     <button type="button" 
-                                            onclick="quickEditFollowUp({{ $lead->id }}, 'loi', '{{ addslashes(formatRawDateInput($lead->loi)) }}', 'Letter of Intent (LOI)')"
-                                            class="w-full py-1 px-1.5 rounded hover:bg-yellow-200/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-yellow-400 transition-all cursor-pointer">
-                                        <span class="truncate {{ $lead->loi ? 'text-indigo-700 font-extrabold' : '' }}">{{ formatFollowUpDate($lead->loi) }}</span>
+                                            onclick="quickEditFollowUp({{ $lead->id }}, 'nomlet_dikirim', '{{ addslashes(formatRawDateInput($lead->nomlet_dikirim)) }}', 'Nomlet Dikirim')"
+                                            class="w-full py-1 px-1.5 rounded hover:bg-purple-100/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-purple-300 transition-all cursor-pointer">
+                                        <span class="truncate {{ $lead->nomlet_dikirim ? 'font-extrabold' : '' }}" style="{{ $lead->nomlet_dikirim ? 'color: #7c3aed;' : '' }}">{{ formatFollowUpDate($lead->nomlet_dikirim) }}</span>
+                                        <svg class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+
+                            {{-- FOLLOW UP: NOMLET DISETUJUI --}}
+                            <td class="p-2 border border-slate-300 align-top text-center bg-green-50/10">
+                                <div class="group relative">
+                                    <button type="button" 
+                                            onclick="quickEditFollowUp({{ $lead->id }}, 'nomlet_disetujui', '{{ addslashes(formatRawDateInput($lead->nomlet_disetujui)) }}', 'Nomlet Disetujui')"
+                                            class="w-full py-1 px-1.5 rounded hover:bg-green-100/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-green-300 transition-all cursor-pointer">
+                                        <span class="truncate {{ $lead->nomlet_disetujui ? 'font-extrabold' : '' }}" style="{{ $lead->nomlet_disetujui ? 'color: #16a34a;' : '' }}">{{ formatFollowUpDate($lead->nomlet_disetujui) }}</span>
                                         <svg class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                         </svg>
@@ -704,12 +793,12 @@
                             </td>
 
                             {{-- FOLLOW UP: DP --}}
-                            <td class="p-2 border border-slate-300 align-top text-center bg-yellow-50/20">
+                            <td class="p-2 border border-slate-300 align-top text-center bg-emerald-50/10">
                                 <div class="group relative">
                                     <button type="button" 
                                             onclick="quickEditFollowUp({{ $lead->id }}, 'dp', '{{ addslashes(formatRawDateInput($lead->dp)) }}', 'Down Payment (DP)')"
-                                            class="w-full py-1 px-1.5 rounded hover:bg-yellow-200/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-yellow-400 transition-all cursor-pointer">
-                                        <span class="truncate {{ $lead->dp ? 'text-emerald-700 font-extrabold' : '' }}">{{ formatFollowUpDate($lead->dp) }}</span>
+                                            class="w-full py-1 px-1.5 rounded hover:bg-emerald-100/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-emerald-300 transition-all cursor-pointer">
+                                        <span class="truncate {{ $lead->dp ? 'font-extrabold' : '' }}" style="{{ $lead->dp ? 'color: #059669;' : '' }}">{{ formatFollowUpDate($lead->dp) }}</span>
                                         <svg class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                         </svg>
@@ -718,12 +807,12 @@
                             </td>
 
                             {{-- FOLLOW UP: SERAH TERIMA --}}
-                            <td class="p-2 border border-slate-300 align-top text-center bg-yellow-50/20">
+                            <td class="p-2 border border-slate-300 align-top text-center bg-indigo-50/10">
                                 <div class="group relative">
                                     <button type="button" 
                                             onclick="quickEditFollowUp({{ $lead->id }}, 'serah_terima', '{{ addslashes(formatRawDateInput($lead->serah_terima)) }}', 'Serah Terima')"
-                                            class="w-full py-1 px-1.5 rounded hover:bg-yellow-200/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-yellow-400 transition-all cursor-pointer">
-                                        <span class="truncate {{ $lead->serah_terima ? 'text-purple-700 font-extrabold' : '' }}">{{ formatFollowUpDate($lead->serah_terima) }}</span>
+                                            class="w-full py-1 px-1.5 rounded hover:bg-indigo-100/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-indigo-300 transition-all cursor-pointer">
+                                        <span class="truncate {{ $lead->serah_terima ? 'font-extrabold' : '' }}" style="{{ $lead->serah_terima ? 'color: #4f46e5;' : '' }}">{{ formatFollowUpDate($lead->serah_terima) }}</span>
                                         <svg class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                         </svg>
@@ -732,12 +821,12 @@
                             </td>
 
                             {{-- FOLLOW UP: FITTING OUT --}}
-                            <td class="p-2 border border-slate-300 align-top text-center bg-yellow-50/20">
+                            <td class="p-2 border border-slate-300 align-top text-center bg-indigo-50/10">
                                 <div class="group relative">
                                     <button type="button" 
                                             onclick="quickEditFollowUp({{ $lead->id }}, 'fitting_out', '{{ addslashes(formatRawDateInput($lead->fitting_out)) }}', 'Fitting Out')"
-                                            class="w-full py-1 px-1.5 rounded hover:bg-yellow-200/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-yellow-400 transition-all cursor-pointer">
-                                        <span class="truncate {{ $lead->fitting_out ? 'text-purple-700 font-extrabold' : '' }}">{{ formatFollowUpDate($lead->fitting_out) }}</span>
+                                            class="w-full py-1 px-1.5 rounded hover:bg-indigo-100/60 font-semibold text-[11px] text-slate-800 flex items-center justify-between gap-1 border border-transparent hover:border-indigo-300 transition-all cursor-pointer">
+                                        <span class="truncate {{ $lead->fitting_out ? 'font-extrabold' : '' }}" style="{{ $lead->fitting_out ? 'color: #4f46e5;' : '' }}">{{ formatFollowUpDate($lead->fitting_out) }}</span>
                                         <svg class="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                         </svg>
@@ -843,21 +932,29 @@
                                     </div>
                                     <div class="flex flex-col gap-0.5">
                                         <div class="flex items-center gap-1.5">
-                                            <span class="font-bold text-amber-600 w-7">LOO:</span>
+                                            <span class="font-bold text-orange-500 w-7">LOO:</span>
                                             @if($r->loo)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">{{ formatFollowUpDate($r->loo) }}</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200">{{ formatFollowUpDate($r->loo) }}</span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-400">-</span>
                                             @endif
                                         </div>
                                         @if($r->nomor_surat_loo)
-                                            <div class="text-[10px] text-slate-600 font-bold pl-8">No: {{ $r->nomor_surat_loo }}</div>
+                                            <div class="text-[10px] text-orange-600 font-bold pl-8">No: {{ $r->nomor_surat_loo }}</div>
                                         @endif
                                     </div>
                                     <div class="flex items-center gap-1.5">
-                                        <span class="font-bold text-indigo-600 w-7">LOI:</span>
-                                        @if($r->loi)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">{{ formatFollowUpDate($r->loi) }}</span>
+                                        <span class="font-bold text-purple-600 w-16">Nomlet Kirim:</span>
+                                        @if($r->nomlet_dikirim)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">{{ formatFollowUpDate($r->nomlet_dikirim) }}</span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-400">-</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-green-600 w-16">Nomlet Setuju:</span>
+                                        @if($r->nomlet_disetujui)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">{{ formatFollowUpDate($r->nomlet_disetujui) }}</span>
                                         @else
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-400">-</span>
                                         @endif
@@ -928,8 +1025,8 @@
     @endif
 
     {{-- ── 6. Monthly Analytics Chart (Daftar Peminat, LOO, LOI, DP) ──────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-[0_4px_20px_rgb(0,0,0,0.04)]">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-[0_4px_20px_rgb(0,0,0,0.04)] space-y-5">
+        <div class="border-b border-slate-100 pb-4 space-y-3">
             <div>
                 <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
                     <svg class="w-5 h-5 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -938,24 +1035,32 @@
                     Grafik Analisis Tren Monthly Peminat Office BOP (Tahun {{ $selectedYear }})
                 </h3>
                 <p class="text-xs text-slate-500 mt-0.5">
-                    Perbandingan setiap bulan: Total Peminat, Sudah Dikirim LOO, Kirim LOI, dan Sudah DP
+                    Perbandingan setiap bulan berdasarkan Tanggal Follow Up: Total Peminat, Kirim LOO, Nomlet Dikirim, Nomlet Disetujui, dan Sudah DP
                 </p>
             </div>
 
-            {{-- Legend Indicators --}}
-            <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
-                <span class="flex items-center gap-1.5 text-blue-800">
-                    <span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> Peminat
-                </span>
-                <span class="flex items-center gap-1.5 text-amber-700">
-                    <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> LOO
-                </span>
-                <span class="flex items-center gap-1.5 text-indigo-700">
-                    <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span> LOI
-                </span>
-                <span class="flex items-center gap-1.5 text-emerald-700">
-                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Sudah DP
-                </span>
+            {{-- Legend Indicators (Di bawah teks judul & deskripsi) --}}
+            <div style="display: flex; flex-wrap: wrap; align-items: center; padding-top: 6px;">
+                <div style="display: inline-flex; align-items: center; margin-right: 28px; margin-bottom: 8px; white-space: nowrap; height: 24px;">
+                    <span style="width: 11px; height: 11px; min-width: 11px; min-height: 11px; background-color: #2563eb; display: inline-block; border-radius: 9999px; margin-right: 8px; flex-shrink: 0;"></span>
+                    <span style="font-size: 14px; font-weight: 600; color: #334155;">Peminat</span>
+                </div>
+                <div style="display: inline-flex; align-items: center; margin-right: 28px; margin-bottom: 8px; white-space: nowrap; height: 24px;">
+                    <span style="width: 11px; height: 11px; min-width: 11px; min-height: 11px; background-color: #f97316; display: inline-block; border-radius: 9999px; margin-right: 8px; flex-shrink: 0;"></span>
+                    <span style="font-size: 14px; font-weight: 600; color: #334155;">Kirim LOO</span>
+                </div>
+                <div style="display: inline-flex; align-items: center; margin-right: 28px; margin-bottom: 8px; white-space: nowrap; height: 24px;">
+                    <span style="width: 11px; height: 11px; min-width: 11px; min-height: 11px; background-color: #7c3aed; display: inline-block; border-radius: 9999px; margin-right: 8px; flex-shrink: 0;"></span>
+                    <span style="font-size: 14px; font-weight: 600; color: #334155;">Nomlet Dikirim</span>
+                </div>
+                <div style="display: inline-flex; align-items: center; margin-right: 28px; margin-bottom: 8px; white-space: nowrap; height: 24px;">
+                    <span style="width: 11px; height: 11px; min-width: 11px; min-height: 11px; background-color: #16a34a; display: inline-block; border-radius: 9999px; margin-right: 8px; flex-shrink: 0;"></span>
+                    <span style="font-size: 14px; font-weight: 600; color: #334155;">Nomlet Disetujui</span>
+                </div>
+                <div style="display: inline-flex; align-items: center; margin-bottom: 8px; white-space: nowrap; height: 24px;">
+                    <span style="width: 11px; height: 11px; min-width: 11px; min-height: 11px; background-color: #059669; display: inline-block; border-radius: 9999px; margin-right: 8px; flex-shrink: 0;"></span>
+                    <span style="font-size: 14px; font-weight: 600; color: #334155;">Sudah DP</span>
+                </div>
             </div>
         </div>
 
@@ -1024,31 +1129,35 @@
                 <p class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Follow Up Status (Tanggal)</p>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Kit Marketing</label>
+                        <label class="block text-[11px] font-bold text-blue-600 mb-1">Kit Marketing</label>
                         <input type="date" name="kit_marketing" id="edit_kit_marketing" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">LOO (Tanggal)</label>
+                        <label class="block text-[11px] font-bold text-orange-500 mb-1">LOO (Tanggal)</label>
                         <input type="date" name="loo" id="edit_loo" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-amber-700 mb-1">Nomor Surat LOO</label>
+                        <label class="block text-[11px] font-bold text-orange-500 mb-1">Nomor Surat LOO</label>
                         <input type="text" name="nomor_surat_loo" id="edit_nomor_surat_loo" placeholder="No. Surat LOO..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-[#1E3A8A]">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">LOI</label>
-                        <input type="date" name="loi" id="edit_loi" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
+                        <label class="block text-[11px] font-bold text-purple-600 mb-1">Nomlet Dikirim</label>
+                        <input type="date" name="nomlet_dikirim" id="edit_nomlet_dikirim" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">DP</label>
+                        <label class="block text-[11px] font-bold text-green-600 mb-1">Nomlet Disetujui</label>
+                        <input type="date" name="nomlet_disetujui" id="edit_nomlet_disetujui" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-emerald-600 mb-1">DP</label>
                         <input type="date" name="dp" id="edit_dp" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Serah Terima</label>
+                        <label class="block text-[11px] font-bold text-indigo-600 mb-1">Serah Terima</label>
                         <input type="date" name="serah_terima" id="edit_serah_terima" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Fitting Out</label>
+                        <label class="block text-[11px] font-bold text-indigo-600 mb-1">Fitting Out</label>
                         <input type="date" name="fitting_out" id="edit_fitting_out" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1E3A8A]">
                     </div>
                 </div>
@@ -1111,10 +1220,11 @@
         if (!ctx) return;
 
         const chartMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agus', 'Sep', 'Okt', 'Nov', 'Des'];
-        const chartDataPeminat = Object.values(@json($chartData['peminat']));
-        const chartDataLoo     = Object.values(@json($chartData['loo']));
-        const chartDataLoi     = Object.values(@json($chartData['loi']));
-        const chartDataDp      = Object.values(@json($chartData['dp']));
+        const chartDataPeminat        = Object.values(@json($chartData['peminat']));
+        const chartDataLoo            = Object.values(@json($chartData['loo']));
+        const chartDataNomletDikirim  = Object.values(@json($chartData['nomlet_dikirim']));
+        const chartDataNomletDisetujui = Object.values(@json($chartData['nomlet_disetujui']));
+        const chartDataDp             = Object.values(@json($chartData['dp']));
 
         new Chart(ctx, {
             type: 'bar',
@@ -1130,17 +1240,25 @@
                         categoryPercentage: 0.7,
                     },
                     {
-                        label: 'Dikirim LOO',
+                        label: 'Kirim LOO',
                         data: chartDataLoo,
-                        backgroundColor: '#f59e0b',
+                        backgroundColor: '#f97316',
                         borderRadius: 6,
                         barPercentage: 0.7,
                         categoryPercentage: 0.7,
                     },
                     {
-                        label: 'Kirim LOI',
-                        data: chartDataLoi,
-                        backgroundColor: '#4f46e5',
+                        label: 'Nomlet Dikirim',
+                        data: chartDataNomletDikirim,
+                        backgroundColor: '#7c3aed',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    },
+                    {
+                        label: 'Nomlet Disetujui',
+                        data: chartDataNomletDisetujui,
+                        backgroundColor: '#16a34a',
                         borderRadius: 6,
                         barPercentage: 0.7,
                         categoryPercentage: 0.7,
@@ -1148,7 +1266,7 @@
                     {
                         label: 'Sudah DP',
                         data: chartDataDp,
-                        backgroundColor: '#10b981',
+                        backgroundColor: '#059669',
                         borderRadius: 6,
                         barPercentage: 0.7,
                         categoryPercentage: 0.7,
@@ -1214,7 +1332,8 @@
         document.getElementById('edit_kit_marketing').value = formatDateForInput(lead.kit_marketing);
         document.getElementById('edit_loo').value = formatDateForInput(lead.loo);
         document.getElementById('edit_nomor_surat_loo').value = lead.nomor_surat_loo || '';
-        document.getElementById('edit_loi').value = formatDateForInput(lead.loi);
+        document.getElementById('edit_nomlet_dikirim').value = formatDateForInput(lead.nomlet_dikirim);
+        document.getElementById('edit_nomlet_disetujui').value = formatDateForInput(lead.nomlet_disetujui);
         document.getElementById('edit_dp').value = formatDateForInput(lead.dp);
         document.getElementById('edit_serah_terima').value = formatDateForInput(lead.serah_terima);
         document.getElementById('edit_fitting_out').value = formatDateForInput(lead.fitting_out);

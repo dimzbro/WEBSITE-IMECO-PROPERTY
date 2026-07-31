@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OfficeBopLead;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class OfficeBopLeadController extends Controller
 {
@@ -59,32 +60,147 @@ class OfficeBopLeadController extends Controller
             ? $allYearRecords->filter(fn($item) => $item->bulan == $selectedMonth)
             : $allYearRecords;
 
-        $totalPeminat = $statsRecords->count();
-        $totalLoo     = $statsRecords->filter(fn($item) => !empty(trim($item->loo ?? '')))->count();
-        $totalLoi     = $statsRecords->filter(fn($item) => !empty(trim($item->loi ?? '')))->count();
-        $totalDp      = $statsRecords->filter(fn($item) => !empty(trim($item->dp ?? '')))->count();
-        $totalSerah   = $statsRecords->filter(fn($item) => !empty(trim($item->serah_terima ?? '')))->count();
+        $totalPeminat        = $statsRecords->count();
+        $totalLoo            = $statsRecords->filter(fn($item) => !empty(trim($item->loo ?? '')))->count();
+        $totalNomletDikirim  = $statsRecords->filter(fn($item) => !empty(trim($item->nomlet_dikirim ?? '')))->count();
+        $totalNomletDisetujui = $statsRecords->filter(fn($item) => !empty(trim($item->nomlet_disetujui ?? '')))->count();
+        $totalDp             = $statsRecords->filter(fn($item) => !empty(trim($item->dp ?? '')))->count();
+        $totalSerah          = $statsRecords->filter(fn($item) => !empty(trim($item->serah_terima ?? '')))->count();
 
-        // ── 2. Chart Monthly Data (1 s.d. 12) ─────────────────────────────────
-        $chartData = [
-            'peminat' => array_fill(1, 12, 0),
-            'loo'     => array_fill(1, 12, 0),
-            'loi'     => array_fill(1, 12, 0),
-            'dp'      => array_fill(1, 12, 0),
+        // ── Previous Year Stats for YoY Growth Calculation ───────────────────
+        $prevYearBaseQuery = OfficeBopLead::where('tahun', $selectedYear - 1);
+        if ($search) {
+            $prevYearBaseQuery->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('nama_perusahaan', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%")
+                  ->orWhere('telpon_fax', 'like', "%{$search}%")
+                  ->orWhere('kategori_diminati', 'like', "%{$search}%")
+                  ->orWhere('nomor_surat_loo', 'like', "%{$search}%");
+            });
+        }
+        $prevYearRecords = $prevYearBaseQuery->get();
+        $prevStatsRecords = $selectedMonth 
+            ? $prevYearRecords->filter(fn($item) => $item->bulan == $selectedMonth)
+            : $prevYearRecords;
+
+        $prevTotalPeminat        = $prevStatsRecords->count();
+        $prevTotalLoo            = $prevStatsRecords->filter(fn($item) => !empty(trim($item->loo ?? '')))->count();
+        $prevTotalNomletDikirim  = $prevStatsRecords->filter(fn($item) => !empty(trim($item->nomlet_dikirim ?? '')))->count();
+        $prevTotalNomletDisetujui = $prevStatsRecords->filter(fn($item) => !empty(trim($item->nomlet_disetujui ?? '')))->count();
+        $prevTotalDp             = $prevStatsRecords->filter(fn($item) => !empty(trim($item->dp ?? '')))->count();
+        $prevTotalSerah          = $prevStatsRecords->filter(fn($item) => !empty(trim($item->serah_terima ?? '')))->count();
+
+        $calcGrowth = function ($curr, $prev) {
+            if ($prev > 0) {
+                $diff = (($curr - $prev) / $prev) * 100;
+                $val = round($diff, 1);
+                return [
+                    'percent'   => abs($val),
+                    'formatted' => ($val >= 0 ? '+' : '') . $val . '%',
+                    'status'    => $val > 0 ? 'up' : ($val < 0 ? 'down' : 'same'),
+                ];
+            } elseif ($curr > 0) {
+                return [
+                    'percent'   => 100,
+                    'formatted' => '+100%',
+                    'status'    => 'up',
+                ];
+            } else {
+                return [
+                    'percent'   => 0,
+                    'formatted' => '0%',
+                    'status'    => 'same',
+                ];
+            }
+        };
+
+        $growthData = [
+            'peminat'          => $calcGrowth($totalPeminat, $prevTotalPeminat),
+            'loo'              => $calcGrowth($totalLoo, $prevTotalLoo),
+            'nomlet_dikirim'   => $calcGrowth($totalNomletDikirim, $prevTotalNomletDikirim),
+            'nomlet_disetujui' => $calcGrowth($totalNomletDisetujui, $prevTotalNomletDisetujui),
+            'dp'               => $calcGrowth($totalDp, $prevTotalDp),
+            'serah_terima'     => $calcGrowth($totalSerah, $prevTotalSerah),
         ];
 
-        foreach ($allYearRecords as $record) {
-            $m = (int) $record->bulan;
-            if ($m >= 1 && $m <= 12) {
-                $chartData['peminat'][$m]++;
-                if (!empty(trim($record->loo ?? ''))) {
-                    $chartData['loo'][$m]++;
+        // Progress percentage relative to Total Peminat
+        $calcProgress = function ($curr, $total) {
+            if ($total <= 0) return 0;
+            return min(100, round(($curr / $total) * 100, 1));
+        };
+
+        $progressData = [
+            'peminat'          => 100,
+            'loo'              => $calcProgress($totalLoo, $totalPeminat),
+            'nomlet_dikirim'   => $calcProgress($totalNomletDikirim, $totalPeminat),
+            'nomlet_disetujui' => $calcProgress($totalNomletDisetujui, $totalPeminat),
+            'dp'               => $calcProgress($totalDp, $totalPeminat),
+            'serah_terima'     => $calcProgress($totalSerah, $totalPeminat),
+        ];
+
+        // ── 2. Chart Monthly Data (Agregasi berbasis Tanggal Follow Up) ───────
+        $chartData = [
+            'peminat'          => array_fill(1, 12, 0),
+            'loo'              => array_fill(1, 12, 0),
+            'nomlet_dikirim'   => array_fill(1, 12, 0),
+            'nomlet_disetujui' => array_fill(1, 12, 0),
+            'dp'               => array_fill(1, 12, 0),
+        ];
+
+        $parseYearMonth = function ($dateVal) {
+            if (empty($dateVal) || trim($dateVal) === '-') return null;
+            try {
+                $c = \Carbon\Carbon::parse($dateVal);
+                return [$c->year, $c->month];
+            } catch (\Exception $e) {
+                return null;
+            }
+        };
+
+        $allLeads = OfficeBopLead::all();
+
+        foreach ($allLeads as $record) {
+            // 1. Peminat (Berdasarkan Tanggal Berminat / Form Entry)
+            if ($record->tanggal_entry) {
+                $ym = $parseYearMonth($record->tanggal_entry);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['peminat'][$ym[1]]++;
                 }
-                if (!empty(trim($record->loi ?? ''))) {
-                    $chartData['loi'][$m]++;
+            } elseif ($record->tahun == $selectedYear && $record->bulan >= 1 && $record->bulan <= 12) {
+                $chartData['peminat'][$record->bulan]++;
+            }
+
+            // 2. LOO (Berdasarkan Tanggal LOO)
+            if (!empty(trim($record->loo ?? ''))) {
+                $ym = $parseYearMonth($record->loo);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['loo'][$ym[1]]++;
                 }
-                if (!empty(trim($record->dp ?? ''))) {
-                    $chartData['dp'][$m]++;
+            }
+
+            // 3. Nomlet Dikirim (Berdasarkan Tanggal Nomlet Dikirim)
+            if (!empty(trim($record->nomlet_dikirim ?? ''))) {
+                $ym = $parseYearMonth($record->nomlet_dikirim);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['nomlet_dikirim'][$ym[1]]++;
+                }
+            }
+
+            // 4. Nomlet Disetujui (Berdasarkan Tanggal Nomlet Disetujui)
+            if (!empty(trim($record->nomlet_disetujui ?? ''))) {
+                $ym = $parseYearMonth($record->nomlet_disetujui);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['nomlet_disetujui'][$ym[1]]++;
+                }
+            }
+
+            // 5. DP (Berdasarkan Tanggal DP)
+            if (!empty(trim($record->dp ?? ''))) {
+                $ym = $parseYearMonth($record->dp);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['dp'][$ym[1]]++;
                 }
             }
         }
@@ -126,9 +242,12 @@ class OfficeBopLeadController extends Controller
             'viewMode',
             'totalPeminat',
             'totalLoo',
-            'totalLoi',
+            'totalNomletDikirim',
+            'totalNomletDisetujui',
             'totalDp',
             'totalSerah',
+            'growthData',
+            'progressData',
             'chartData',
             'matrixData',
             'records'
@@ -147,14 +266,16 @@ class OfficeBopLeadController extends Controller
             'kategori_diminati' => 'required|string',
             'kit_marketing'     => 'nullable|string|max:255',
             'loo'               => 'nullable|string|max:255|required_with:nomor_surat_loo',
-            'nomor_surat_loo'   => 'nullable|string|max:255|required_with:loo',
-            'loi'               => 'nullable|string|max:255',
+            'nomor_surat_loo'   => 'nullable|string|max:255|required_with:loo|unique:office_bop_leads,nomor_surat_loo',
+            'nomlet_dikirim'    => 'nullable|string|max:255',
+            'nomlet_disetujui'  => 'nullable|string|max:255',
             'dp'                => 'nullable|string|max:255',
             'serah_terima'      => 'nullable|string|max:255',
             'fitting_out'       => 'nullable|string|max:255',
         ], [
             'loo.required_with'             => 'Jika Nomor Surat LOO diisi, maka Tanggal LOO wajib diisi.',
             'nomor_surat_loo.required_with' => 'Jika Tanggal LOO diisi, maka Nomor Surat LOO wajib diisi.',
+            'nomor_surat_loo.unique'        => 'Nomor Surat LOO sudah digunakan. Harap gunakan Nomor Surat LOO yang berbeda.',
         ]);
 
         $date = \Carbon\Carbon::parse($validated['tanggal_entry']);
@@ -205,14 +326,22 @@ class OfficeBopLeadController extends Controller
             'kategori_diminati' => 'required|string',
             'kit_marketing'     => 'nullable|string|max:255',
             'loo'               => 'nullable|string|max:255|required_with:nomor_surat_loo',
-            'nomor_surat_loo'   => 'nullable|string|max:255|required_with:loo',
-            'loi'               => 'nullable|string|max:255',
+            'nomor_surat_loo'   => [
+                'nullable',
+                'string',
+                'max:255',
+                'required_with:loo',
+                Rule::unique('office_bop_leads', 'nomor_surat_loo')->ignore($id),
+            ],
+            'nomlet_dikirim'    => 'nullable|string|max:255',
+            'nomlet_disetujui'  => 'nullable|string|max:255',
             'dp'                => 'nullable|string|max:255',
             'serah_terima'      => 'nullable|string|max:255',
             'fitting_out'       => 'nullable|string|max:255',
         ], [
             'loo.required_with'             => 'Jika Nomor Surat LOO diisi, maka Tanggal LOO wajib diisi.',
             'nomor_surat_loo.required_with' => 'Jika Tanggal LOO diisi, maka Nomor Surat LOO wajib diisi.',
+            'nomor_surat_loo.unique'        => 'Nomor Surat LOO sudah digunakan. Harap gunakan Nomor Surat LOO yang berbeda.',
         ]);
 
         $date = \Carbon\Carbon::parse($validated['tanggal_entry']);
@@ -233,9 +362,17 @@ class OfficeBopLeadController extends Controller
         $lead = OfficeBopLead::findOrFail($id);
 
         $validated = $request->validate([
-            'field' => 'required|string|in:kit_marketing,loo,nomor_surat_loo,loi,dp,serah_terima,fitting_out',
+            'field' => 'required|string|in:kit_marketing,loo,nomor_surat_loo,nomlet_dikirim,nomlet_disetujui,dp,serah_terima,fitting_out',
             'value' => 'nullable|string|max:255',
         ]);
+
+        if ($validated['field'] === 'nomor_surat_loo' && !empty($validated['value'])) {
+            $request->validate([
+                'value' => Rule::unique('office_bop_leads', 'nomor_surat_loo')->ignore($lead->id),
+            ], [
+                'value.unique' => 'Nomor Surat LOO sudah digunakan. Harap gunakan Nomor Surat LOO yang berbeda.',
+            ]);
+        }
 
         $lead->update([
             $validated['field'] => $validated['value'],

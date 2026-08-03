@@ -27,15 +27,24 @@
                 @foreach($cell['events'] as $event)
                     @php
                         $colorClasses = [
-                            'Masuk' => 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100/50',
-                            'Renewal' => 'bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100/50',
-                            'Maintenance' => 'bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100/50',
+                            'Masuk'       => 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100/50',
+                            'Renewal'     => 'bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100/50',
+                            'Meeting'     => 'bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100/50',
+                            'Inspeksi'    => 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100/50',
+                            'Maintenance' => 'bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100/50',
+                            'Acara'       => 'bg-purple-50 text-purple-700 border-purple-100 hover:bg-purple-100/50',
                         ][$event['type']] ?? 'bg-slate-50 text-slate-700 border-slate-100';
                     @endphp
                     <div class="px-2 py-0.5 rounded text-[9px] font-black border truncate transition-all duration-200 {{ $colorClasses }} event-pill cursor-pointer"
+                         data-id="{{ $event['id'] ?? '' }}"
+                         data-is-custom="{{ !empty($event['is_custom']) ? '1' : '0' }}"
                          data-type="{{ $event['type'] }}"
                          data-title="{{ $event['title'] }}"
                          data-detail="{{ $event['detail'] }}"
+                         data-event-date="{{ $event['event_date'] ?? '' }}"
+                         data-reminder="{{ $event['reminder_time'] ?? 'same_time' }}"
+                         data-location="{{ $event['location'] ?? '' }}"
+                         data-notes="{{ $event['notes'] ?? '' }}"
                          data-date="{{ $cell['day'] }} {{ \Carbon\Carbon::createFromDate($year, $month, 1)->translatedFormat('F Y') }}"
                          title="{{ $event['title'] }} – {{ $event['detail'] }}">
                         {{ $event['title'] }}

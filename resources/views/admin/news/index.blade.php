@@ -7,14 +7,6 @@
 <div class="space-y-6">
 
     <!-- Top Action Bar & Success Message -->
-    @if(session('success'))
-    <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl flex items-center gap-3 text-sm shadow-sm" id="success-alert">
-        <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div class="font-semibold">{{ session('success') }}</div>
-    </div>
-    @endif
 
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <!-- Dashboard Header Info -->

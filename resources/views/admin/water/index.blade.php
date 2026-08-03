@@ -93,9 +93,7 @@
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Tahun {{ $selectedYear }}</span>
                 <div class="w-9 h-9 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 14c0 3.866-3.582 7-8 7s-8-3.134-8-7c0-2.83 2.128-5.28 5.25-6.38L12 3l2.75 4.62C17.872 8.72 20 11.17 20 14z"/>
-                    </svg>
+                    <iconify-icon icon="lucide:droplets" class="text-xl"></iconify-icon>
                 </div>
             </div>
             <div class="mt-4">
@@ -797,14 +795,10 @@
         </div>
 
         <div class="p-6 space-y-4">
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-2 gap-3">
                 <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Gedung</span>
                     <span class="text-xs font-extrabold text-slate-900 mt-1 block truncate" id="detail_gedung">-</span>
-                </div>
-                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Nomor ID</span>
-                    <span class="text-xs font-extrabold font-mono text-slate-800 mt-1 block truncate" id="detail_nomor_id">-</span>
                 </div>
                 <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Periode</span>
@@ -963,7 +957,7 @@
 
 @section('scripts')
 {{-- Chart.js CDN --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
 <script>
 const nomorIdMapping = @json($nomorIdMapping);
@@ -1203,8 +1197,6 @@ function prefillForm(gedung, tahun, bulan) {
 
 function openDetailModal(item) {
     document.getElementById('detail_gedung').textContent = item.gedung;
-    const nomorIdVal = item.nomor_id || nomorIdMapping[item.gedung] || '-';
-    document.getElementById('detail_nomor_id').textContent = nomorIdVal;
     document.getElementById('detail_periode').textContent = (item.nama_bulan || 'Bulan ' + item.bulan) + ' ' + item.tahun;
     
     let debetFormat = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.debet_air);

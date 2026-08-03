@@ -335,6 +335,88 @@ class AdminController extends Controller
             }
         }
 
+        // 8. Monthly BOP Office Leads Analytics Chart (Kondisional Data)
+        $hasBopLeadData = \App\Models\OfficeBopLead::count() > 0;
+        $bopSelectedYear = null;
+        $bopChartData = [
+            'peminat'          => array_fill(1, 12, 0),
+            'nomlet_dikirim'   => array_fill(1, 12, 0),
+            'nomlet_disetujui' => array_fill(1, 12, 0),
+            'loo'              => array_fill(1, 12, 0),
+            'dp'               => array_fill(1, 12, 0),
+            'serah_terima'     => array_fill(1, 12, 0),
+            'fitting_out'      => array_fill(1, 12, 0),
+        ];
+
+        if ($hasBopLeadData) {
+            $bopSelectedYear = (int) (\App\Models\OfficeBopLead::max('tahun') ?? date('Y'));
+
+            $parseYearMonth = function ($dateVal) {
+                if (empty($dateVal) || trim($dateVal) === '-') return null;
+                try {
+                    $c = \Carbon\Carbon::parse($dateVal);
+                    return [$c->year, $c->month];
+                } catch (\Exception $e) {
+                    return null;
+                }
+            };
+
+            $allLeads = \App\Models\OfficeBopLead::all();
+
+            foreach ($allLeads as $record) {
+                if ($record->tanggal_entry) {
+                    $ym = $parseYearMonth($record->tanggal_entry);
+                    if ($ym && $ym[0] == $bopSelectedYear) {
+                        $bopChartData['peminat'][$ym[1]]++;
+                    }
+                } elseif ($record->tahun == $bopSelectedYear && $record->bulan >= 1 && $record->bulan <= 12) {
+                    $bopChartData['peminat'][$record->bulan]++;
+                }
+
+                if ($record->nomlet_dikirim) {
+                    $ym = $parseYearMonth($record->nomlet_dikirim);
+                    if ($ym && $ym[0] == $bopSelectedYear) {
+                        $bopChartData['nomlet_dikirim'][$ym[1]]++;
+                    }
+                }
+
+                if ($record->nomlet_disetujui) {
+                    $ym = $parseYearMonth($record->nomlet_disetujui);
+                    if ($ym && $ym[0] == $bopSelectedYear) {
+                        $bopChartData['nomlet_disetujui'][$ym[1]]++;
+                    }
+                }
+
+                if ($record->loo) {
+                    $ym = $parseYearMonth($record->loo);
+                    if ($ym && $ym[0] == $bopSelectedYear) {
+                        $bopChartData['loo'][$ym[1]]++;
+                    }
+                }
+
+                if ($record->dp) {
+                    $ym = $parseYearMonth($record->dp);
+                    if ($ym && $ym[0] == $bopSelectedYear) {
+                        $bopChartData['dp'][$ym[1]]++;
+                    }
+                }
+
+                if ($record->serah_terima) {
+                    $ym = $parseYearMonth($record->serah_terima);
+                    if ($ym && $ym[0] == $bopSelectedYear) {
+                        $bopChartData['serah_terima'][$ym[1]]++;
+                    }
+                }
+
+                if ($record->fitting_out) {
+                    $ym = $parseYearMonth($record->fitting_out);
+                    if ($ym && $ym[0] == $bopSelectedYear) {
+                        $bopChartData['fitting_out'][$ym[1]]++;
+                    }
+                }
+            }
+        }
+
         return view('admin.dashboard', compact(
             'totalUnits',
             'occupiedUnitsCount',
@@ -368,7 +450,10 @@ class AdminController extends Controller
             'waterSelectedYear',
             'waterPreviousYear',
             'waterChartDataSelected',
-            'waterChartDataPrev'
+            'waterChartDataPrev',
+            'hasBopLeadData',
+            'bopSelectedYear',
+            'bopChartData'
         ));
     }
 }

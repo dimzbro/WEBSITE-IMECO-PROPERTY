@@ -14,6 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Iconify CDN -->
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
 
     <style>
         body {
@@ -23,6 +25,9 @@
     @yield('styles')
 </head>
 <body class="h-full text-slate-800 antialiased flex flex-col lg:flex-row">
+    @php
+        $headerUnreadCount = \App\Models\Notification::where('is_read', false)->count();
+    @endphp
 
     <!-- Mobile Sidebar Header Toggle -->
     <div class="lg:hidden w-full bg-[#0F172A] text-white px-4 py-3 flex items-center justify-between border-b border-white/10 z-50">
@@ -30,11 +35,23 @@
             <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-8 h-8 object-contain brightness-0 invert">
             <div class="font-extrabold text-sm tracking-wide">BELTWAY</div>
         </a>
-        <button id="mobile-sidebar-toggle" class="p-2 text-white hover:bg-slate-800 rounded-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
-            </svg>
-        </button>
+        <div class="flex items-center gap-2">
+            {{-- Notification Bell Mobile --}}
+            <a href="{{ route('admin.notifications.index') }}" class="relative p-2 text-white hover:bg-slate-800 rounded-lg flex items-center justify-center" title="Pusat Notifikasi">
+                <svg class="w-6 h-6 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                <span class="unread-count-badge-mobile absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full text-white text-[10px] font-black {{ $headerUnreadCount > 0 ? '' : 'hidden' }}"
+                      style="background-color: #EF4444 !important; color: #ffffff !important; display: {{ $headerUnreadCount > 0 ? 'flex' : 'none' }} !important;">
+                    {{ $headerUnreadCount > 99 ? '99+' : $headerUnreadCount }}
+                </span>
+            </a>
+            <button id="mobile-sidebar-toggle" class="p-2 text-white hover:bg-slate-800 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                </svg>
+            </button>
+        </div>
     </div>
 
     <!-- Sidebar -->
@@ -134,26 +151,39 @@
 
                     <a href="{{ route('admin.electricity.index') }}" 
                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/electricity*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
+                        <iconify-icon icon="lucide:zap" class="w-5 h-5 flex-shrink-0 text-lg"></iconify-icon>
                         Penggunaan Daya Listrik
                     </a>
 
                     <a href="{{ route('admin.water.index') }}" 
                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/water*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 14c0 3.866-3.582 7-8 7s-8-3.134-8-7c0-2.83 2.128-5.28 5.25-6.38L12 3l2.75 4.62C17.872 8.72 20 11.17 20 14z"/>
-                        </svg>
+                        <iconify-icon icon="lucide:droplets" class="w-5 h-5 flex-shrink-0 text-lg"></iconify-icon>
                         Penggunaan Air Bersih
                     </a>
 
                     <a href="{{ route('admin.bop-leads.index') }}" 
                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/bop-leads*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
+                        <iconify-icon icon="lucide:building-2" class="w-5 h-5 flex-shrink-0 text-lg"></iconify-icon>
                         Daftar Peminat Office BOP
+                    </a>
+
+                    <a href="{{ route('admin.notifications.index') }}" 
+                       class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/notifications*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                        <div class="flex items-center gap-3">
+                            <iconify-icon icon="lucide:bell" class="w-5 h-5 flex-shrink-0 text-lg"></iconify-icon>
+                            <span>Pusat Notifikasi</span>
+                        </div>
+                        @if($headerUnreadCount > 0)
+                            <span class="px-2 py-0.5 text-[10px] font-black rounded-full bg-rose-500 text-white">
+                                {{ $headerUnreadCount }}
+                            </span>
+                        @endif
+                    </a>
+
+                    <a href="{{ route('admin.profile.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ Request::is('admin/profile*') ? 'bg-[#1E3A8A] text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                        <iconify-icon icon="lucide:settings" class="w-5 h-5 flex-shrink-0 text-lg"></iconify-icon>
+                        Pengaturan Akun
                     </a>
                 </div>
             </div>
@@ -194,18 +224,72 @@
                 <span class="text-slate-800 font-bold">@yield('breadcrumb', 'Dashboard')</span>
             </div>
 
-            <!-- Profile / Actions -->
-            <div class="flex items-center gap-4">
-                <!-- Dropdown profile -->
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white font-extrabold text-xs">
+            <!-- Profile & Notifications -->
+            <div class="flex items-center gap-3">
+                
+                {{-- Notification Center Bell --}}
+                <div class="relative" id="notification-center-wrapper">
+                    <button type="button" id="notification-bell-btn" onclick="toggleNotificationDropdown()"
+                            class="relative w-10 h-10 rounded-xl bg-slate-100/90 hover:bg-slate-200/90 text-slate-700 hover:text-slate-900 transition-all flex items-center justify-center cursor-pointer focus:outline-none shadow-sm"
+                            title="Pusat Notifikasi">
+                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span id="unread-count-badge" 
+                              style="background-color: #EF4444 !important; color: #ffffff !important; display: {{ $headerUnreadCount > 0 ? 'flex' : 'none' }} !important;"
+                              class="absolute top-0 right-0 transform translate-x-1/3 -translate-y-1/3 flex items-center justify-center w-5 h-5 rounded-full text-white text-[11px] font-black leading-none shadow-md pointer-events-none {{ $headerUnreadCount > 0 ? '' : 'hidden' }} z-30">
+                            {{ $headerUnreadCount > 99 ? '99+' : $headerUnreadCount }}
+                        </span>
+                    </button>
+
+                    {{-- Notification Center Dropdown --}}
+                    <div id="notification-dropdown" 
+                         class="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-3xl border border-slate-200/80 shadow-[0_10px_30px_rgb(0,0,0,0.12)] z-50 hidden overflow-hidden animate-fade-in">
+                        
+                        {{-- Dropdown Header --}}
+                        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <iconify-icon icon="lucide:bell" class="text-base text-blue-400"></iconify-icon>
+                                <span class="font-extrabold text-xs">Notifikasi Terbaru</span>
+                                <span id="dropdown-unread-label" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-600/40 text-blue-200 border border-blue-400/20">
+                                    0 Belum Dibaca
+                                </span>
+                            </div>
+                            <button type="button" onclick="markAllNotificationsAsRead()" class="text-[11px] font-bold text-slate-300 hover:text-white transition-colors cursor-pointer" title="Tandai Semua Dibaca">
+                                Tandai Semua Dibaca
+                            </button>
+                        </div>
+
+                        {{-- Dropdown List Body --}}
+                        <div id="notification-dropdown-list" class="max-h-[360px] overflow-y-auto divide-y divide-slate-100">
+                            <div class="p-6 text-center text-xs font-semibold text-slate-400">
+                                Memuat notifikasi...
+                            </div>
+                        </div>
+
+                        {{-- Dropdown Footer --}}
+                        <div class="p-3 bg-slate-50 border-t border-slate-100 text-center">
+                            <a href="{{ route('admin.notifications.index') }}" class="text-xs font-extrabold text-[#1E3A8A] hover:text-slate-900 transition-colors flex items-center justify-center gap-1.5 py-1">
+                                <span>Lihat Semua Notifikasi</span>
+                                <iconify-icon icon="lucide:arrow-right" class="text-xs"></iconify-icon>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropdown profile / Link Pengaturan Akun -->
+                <a href="{{ route('admin.profile.index') }}" class="flex items-center gap-3 pl-2 border-l border-slate-200 hover:opacity-80 transition-opacity" title="Pengaturan Akun">
+                    <div class="w-9 h-9 rounded-full bg-[#1E3A8A] flex items-center justify-center text-white font-extrabold text-xs shadow-sm">
                         AK
                     </div>
                     <div class="hidden md:block text-left">
-                        <div class="text-xs font-bold text-slate-800">Admin Kawasan</div>
+                        <div class="text-xs font-bold text-slate-800 flex items-center gap-1">
+                            <span>Admin Kawasan</span>
+                            <iconify-icon icon="lucide:settings" class="text-[11px] text-slate-400"></iconify-icon>
+                        </div>
                         <div class="text-[10px] text-slate-500">Property Manager</div>
                     </div>
-                </div>
+                </a>
             </div>
         </header>
 
@@ -266,7 +350,7 @@
     </script>
 
     <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Function to convert native confirm to data-confirm
@@ -345,8 +429,335 @@
                 }
             });
         });
+
+        // ── Notification Center Scripts ──────────────────────────────────────────
+        let isNotificationDropdownOpen = false;
+
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notification-dropdown');
+            if (!dropdown) return;
+            
+            isNotificationDropdownOpen = !isNotificationDropdownOpen;
+            if (isNotificationDropdownOpen) {
+                dropdown.classList.remove('hidden');
+                fetchRecentNotifications();
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            const wrapper = document.getElementById('notification-center-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                const dropdown = document.getElementById('notification-dropdown');
+                if (dropdown) {
+                    dropdown.classList.add('hidden');
+                    isNotificationDropdownOpen = false;
+                }
+            }
+        });
+
+        function updateUnreadBadge() {
+            fetch("{{ route('admin.notifications.unread_count') }}", {
+                headers: { 
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network response not OK');
+                return res.json();
+            })
+            .then(data => {
+                if (data && typeof data.unread_count !== 'undefined') {
+                    const count = parseInt(data.unread_count);
+                    const badges = document.querySelectorAll('#unread-count-badge, .unread-count-badge-mobile');
+                    const label = document.getElementById('dropdown-unread-label');
+                    
+                    badges.forEach(badge => {
+                        if (badge) {
+                            if (count > 0) {
+                                badge.textContent = count > 99 ? '99+' : count;
+                                badge.classList.remove('hidden');
+                                badge.style.setProperty('display', 'flex', 'important');
+                            } else {
+                                badge.textContent = '0';
+                                badge.classList.add('hidden');
+                                badge.style.setProperty('display', 'none', 'important');
+                            }
+                        }
+                    });
+
+                    if (label) {
+                        label.textContent = `${count} Belum Dibaca`;
+                    }
+                }
+            })
+            .catch(err => {
+                console.log('Unread badge status:', err);
+            });
+        }
+
+        function fetchRecentNotifications() {
+            const listContainer = document.getElementById('notification-dropdown-list');
+            if (!listContainer) return;
+
+            fetch("{{ route('admin.notifications.recent') }}", {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('unread-count-badge');
+                const label = document.getElementById('dropdown-unread-label');
+                if (badge) {
+                    if (data.unread_count > 0) {
+                        badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                }
+                if (label) {
+                    label.textContent = `${data.unread_count} Belum Dibaca`;
+                }
+
+                if (!data.notifications || data.notifications.length === 0) {
+                    listContainer.innerHTML = `
+                        <div class="p-8 text-center space-y-2">
+                            <iconify-icon icon="lucide:bell-off" class="text-2xl text-slate-300"></iconify-icon>
+                            <p class="text-xs font-extrabold text-slate-700">Belum ada notifikasi</p>
+                            <p class="text-[11px] text-slate-400">Notifikasi aktivitas akan muncul di sini</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.notifications.forEach(item => {
+                    const isUnread = !item.is_read;
+                    const bgClass = isUnread ? 'bg-blue-50/60' : 'hover:bg-slate-50/80';
+                    const titleColor = isUnread ? 'font-black text-slate-900' : 'font-bold text-slate-700';
+
+                    html += `
+                        <div onclick="handleNotificationClick(${item.id})" class="p-3.5 flex items-start gap-3 cursor-pointer transition-all ${bgClass} relative group">
+                            <div class="p-2 rounded-xl border flex-shrink-0 text-base ${item.type_badge_color}">
+                                <iconify-icon icon="${item.type_icon}"></iconify-icon>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-1">
+                                    <h4 class="text-xs truncate ${titleColor}">${escapeHtml(item.title)}</h4>
+                                    ${isUnread ? '<span class="w-2 h-2 rounded-full bg-[#1E3A8A] flex-shrink-0"></span>' : ''}
+                                </div>
+                                ${item.description ? `<p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5">${escapeHtml(item.description)}</p>` : ''}
+                                <span class="text-[10px] font-semibold text-slate-400 mt-1 block">${item.relative_time}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = html;
+            })
+            .catch(err => console.error('Error fetching recent notifications:', err));
+        }
+
+        function handleNotificationClick(id) {
+            const token = "{{ csrf_token() }}";
+            fetch(`{{ url('admin/notifications') }}/${id}/read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.action_url) {
+                    window.location.href = data.action_url;
+                } else {
+                    fetchRecentNotifications();
+                }
+            })
+            .catch(() => {
+                window.location.href = "{{ route('admin.notifications.index') }}";
+            });
+        }
+
+        function markAllNotificationsAsRead() {
+            const token = "{{ csrf_token() }}";
+            fetch("{{ route('admin.notifications.read_all') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(() => {
+                fetchRecentNotifications();
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Modern In-Web Alert & Confirm Modal (SweetAlert Style)
+        window.showWebAlert = function(message, title = 'Peringatan', type = 'warning') {
+            const modal = document.getElementById('web-alert-modal');
+            const container = document.getElementById('web-alert-container');
+            const msgEl = document.getElementById('web-alert-message');
+            const titleEl = document.getElementById('web-alert-title');
+            const iconText = document.getElementById('web-alert-icon-text');
+            const iconContainer = document.getElementById('web-alert-icon-container');
+            const confirmBtn = document.getElementById('web-alert-confirm-btn');
+            const cancelBtn = document.getElementById('web-alert-cancel-btn');
+
+            if (!modal || !msgEl) {
+                alert(message);
+                return;
+            }
+
+            if (titleEl) titleEl.textContent = title;
+            msgEl.textContent = message;
+
+            if (type === 'danger' || type === 'error') {
+                iconContainer.className = 'w-20 h-20 rounded-full border-4 border-rose-300/80 bg-rose-50/40 flex items-center justify-center flex-shrink-0';
+                iconText.className = 'text-rose-500 text-4xl font-light leading-none';
+                iconText.textContent = '!';
+            } else if (type === 'success') {
+                iconContainer.className = 'w-20 h-20 rounded-full border-4 border-emerald-300/80 bg-emerald-50/40 flex items-center justify-center flex-shrink-0';
+                iconText.className = 'text-emerald-500 text-4xl font-light leading-none';
+                iconText.textContent = '✓';
+            } else {
+                iconContainer.className = 'w-20 h-20 rounded-full border-4 border-amber-300/80 bg-amber-50/40 flex items-center justify-center flex-shrink-0';
+                iconText.className = 'text-amber-500 text-4xl font-light leading-none';
+                iconText.textContent = '!';
+            }
+
+            confirmBtn.textContent = 'Mengerti';
+            confirmBtn.className = 'px-6 py-2.5 bg-[#1E3A8A] hover:bg-slate-900 text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer';
+            confirmBtn.onclick = function() { closeWebAlert(); };
+            cancelBtn.classList.add('hidden');
+
+            modal.style.setProperty('z-index', '99999', 'important');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                if (container) {
+                    container.classList.remove('scale-95');
+                    container.classList.add('scale-100');
+                }
+            }, 10);
+        };
+
+        window.showWebConfirm = function(message, title = 'Konfirmasi Tindakan', onConfirm = null, confirmText = 'Ya, Lanjutkan', cancelText = 'Batal') {
+            const modal = document.getElementById('web-alert-modal');
+            const container = document.getElementById('web-alert-container');
+            const msgEl = document.getElementById('web-alert-message');
+            const titleEl = document.getElementById('web-alert-title');
+            const iconText = document.getElementById('web-alert-icon-text');
+            const iconContainer = document.getElementById('web-alert-icon-container');
+            const confirmBtn = document.getElementById('web-alert-confirm-btn');
+            const cancelBtn = document.getElementById('web-alert-cancel-btn');
+
+            if (!modal || !msgEl) {
+                if (confirm(message) && onConfirm) onConfirm();
+                return;
+            }
+
+            if (titleEl) titleEl.textContent = title;
+            msgEl.textContent = message;
+
+            iconContainer.className = 'w-20 h-20 rounded-full border-4 border-amber-300/80 bg-amber-50/40 flex items-center justify-center flex-shrink-0';
+            iconText.className = 'text-amber-500 text-4xl font-light leading-none';
+            iconText.textContent = '!';
+
+            confirmBtn.textContent = confirmText;
+            confirmBtn.className = 'px-6 py-2.5 bg-[#1E3A8A] hover:bg-slate-900 text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer';
+            confirmBtn.onclick = function() {
+                closeWebAlert();
+                if (typeof onConfirm === 'function') onConfirm();
+            };
+
+            cancelBtn.textContent = cancelText;
+            cancelBtn.className = 'px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer';
+            cancelBtn.classList.remove('hidden');
+            cancelBtn.onclick = function() { closeWebAlert(); };
+
+            modal.style.setProperty('z-index', '99999', 'important');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                if (container) {
+                    container.classList.remove('scale-95');
+                    container.classList.add('scale-100');
+                }
+            }, 10);
+        };
+
+        window.closeWebAlert = function() {
+            const modal = document.getElementById('web-alert-modal');
+            const container = document.getElementById('web-alert-container');
+            if (!modal) return;
+
+            if (container) {
+                container.classList.remove('scale-100');
+                container.classList.add('scale-95');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.setProperty('display', 'none', 'important');
+            }, 150);
+        };
+
+        // Auto poll unread count every 12 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUnreadBadge();
+            setInterval(updateUnreadBadge, 12000);
+        });
     </script>
     
+    {{-- Global Web Alert & Confirm Modal (SweetAlert Style) --}}
+    <div id="web-alert-modal" 
+         style="z-index: 99999 !important;"
+         class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden p-4 transition-all duration-300">
+        <div id="web-alert-container" 
+             class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-100 flex flex-col items-center text-center space-y-4 transform transition-all duration-300 scale-95">
+            
+            {{-- Large Center Circular Icon --}}
+            <div id="web-alert-icon-container" class="w-20 h-20 rounded-full border-4 border-amber-300/80 bg-amber-50/40 flex items-center justify-center flex-shrink-0 transition-transform duration-300">
+                <span id="web-alert-icon-text" class="text-amber-500 text-4xl font-light leading-none">!</span>
+            </div>
+
+            {{-- Title --}}
+            <h3 id="web-alert-title" class="text-2xl font-bold text-slate-800 tracking-tight">
+                Peringatan
+            </h3>
+
+            {{-- Message --}}
+            <p id="web-alert-message" class="text-sm font-medium text-slate-500 leading-relaxed max-w-xs">
+                Pesan notifikasi
+            </p>
+
+            {{-- Buttons Area --}}
+            <div id="web-alert-buttons-area" class="pt-2 flex items-center justify-center gap-3 w-full">
+                <button type="button" id="web-alert-confirm-btn" onclick="closeWebAlert()" 
+                        class="px-6 py-2.5 bg-[#1E3A8A] hover:bg-slate-900 text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer">
+                    Mengerti
+                </button>
+                <button type="button" id="web-alert-cancel-btn" onclick="closeWebAlert()" 
+                        class="px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer hidden">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
     @yield('scripts')
 </body>
 </html>

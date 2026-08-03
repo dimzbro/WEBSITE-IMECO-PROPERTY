@@ -92,9 +92,7 @@
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Tahun {{ $selectedYear }}</span>
                 <div class="w-9 h-9 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
+                    <iconify-icon icon="lucide:zap" class="text-xl"></iconify-icon>
                 </div>
             </div>
             <div class="mt-4">
@@ -989,7 +987,7 @@
 
 @section('scripts')
 {{-- Chart.js CDN --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
 <script>
 const nomorIdMapping = @json($nomorIdMapping);

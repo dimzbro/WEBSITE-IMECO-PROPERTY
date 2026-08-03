@@ -61,11 +61,12 @@ class OfficeBopLeadController extends Controller
             : $allYearRecords;
 
         $totalPeminat        = $statsRecords->count();
-        $totalLoo            = $statsRecords->filter(fn($item) => !empty(trim($item->loo ?? '')))->count();
         $totalNomletDikirim  = $statsRecords->filter(fn($item) => !empty(trim($item->nomlet_dikirim ?? '')))->count();
         $totalNomletDisetujui = $statsRecords->filter(fn($item) => !empty(trim($item->nomlet_disetujui ?? '')))->count();
+        $totalLoo            = $statsRecords->filter(fn($item) => !empty(trim($item->loo ?? '')))->count();
         $totalDp             = $statsRecords->filter(fn($item) => !empty(trim($item->dp ?? '')))->count();
         $totalSerah          = $statsRecords->filter(fn($item) => !empty(trim($item->serah_terima ?? '')))->count();
+        $totalFitting        = $statsRecords->filter(fn($item) => !empty(trim($item->fitting_out ?? '')))->count();
 
         // ── Previous Year Stats for YoY Growth Calculation ───────────────────
         $prevYearBaseQuery = OfficeBopLead::where('tahun', $selectedYear - 1);
@@ -86,11 +87,12 @@ class OfficeBopLeadController extends Controller
             : $prevYearRecords;
 
         $prevTotalPeminat        = $prevStatsRecords->count();
-        $prevTotalLoo            = $prevStatsRecords->filter(fn($item) => !empty(trim($item->loo ?? '')))->count();
         $prevTotalNomletDikirim  = $prevStatsRecords->filter(fn($item) => !empty(trim($item->nomlet_dikirim ?? '')))->count();
         $prevTotalNomletDisetujui = $prevStatsRecords->filter(fn($item) => !empty(trim($item->nomlet_disetujui ?? '')))->count();
+        $prevTotalLoo            = $prevStatsRecords->filter(fn($item) => !empty(trim($item->loo ?? '')))->count();
         $prevTotalDp             = $prevStatsRecords->filter(fn($item) => !empty(trim($item->dp ?? '')))->count();
         $prevTotalSerah          = $prevStatsRecords->filter(fn($item) => !empty(trim($item->serah_terima ?? '')))->count();
+        $prevTotalFitting        = $prevStatsRecords->filter(fn($item) => !empty(trim($item->fitting_out ?? '')))->count();
 
         $calcGrowth = function ($curr, $prev) {
             if ($prev > 0) {
@@ -118,11 +120,12 @@ class OfficeBopLeadController extends Controller
 
         $growthData = [
             'peminat'          => $calcGrowth($totalPeminat, $prevTotalPeminat),
-            'loo'              => $calcGrowth($totalLoo, $prevTotalLoo),
             'nomlet_dikirim'   => $calcGrowth($totalNomletDikirim, $prevTotalNomletDikirim),
             'nomlet_disetujui' => $calcGrowth($totalNomletDisetujui, $prevTotalNomletDisetujui),
+            'loo'              => $calcGrowth($totalLoo, $prevTotalLoo),
             'dp'               => $calcGrowth($totalDp, $prevTotalDp),
             'serah_terima'     => $calcGrowth($totalSerah, $prevTotalSerah),
+            'fitting_out'      => $calcGrowth($totalFitting, $prevTotalFitting),
         ];
 
         // Progress percentage relative to Total Peminat
@@ -133,20 +136,23 @@ class OfficeBopLeadController extends Controller
 
         $progressData = [
             'peminat'          => 100,
-            'loo'              => $calcProgress($totalLoo, $totalPeminat),
             'nomlet_dikirim'   => $calcProgress($totalNomletDikirim, $totalPeminat),
             'nomlet_disetujui' => $calcProgress($totalNomletDisetujui, $totalPeminat),
+            'loo'              => $calcProgress($totalLoo, $totalPeminat),
             'dp'               => $calcProgress($totalDp, $totalPeminat),
             'serah_terima'     => $calcProgress($totalSerah, $totalPeminat),
+            'fitting_out'      => $calcProgress($totalFitting, $totalPeminat),
         ];
 
         // ── 2. Chart Monthly Data (Agregasi berbasis Tanggal Follow Up) ───────
         $chartData = [
             'peminat'          => array_fill(1, 12, 0),
-            'loo'              => array_fill(1, 12, 0),
             'nomlet_dikirim'   => array_fill(1, 12, 0),
             'nomlet_disetujui' => array_fill(1, 12, 0),
+            'loo'              => array_fill(1, 12, 0),
             'dp'               => array_fill(1, 12, 0),
+            'serah_terima'     => array_fill(1, 12, 0),
+            'fitting_out'      => array_fill(1, 12, 0),
         ];
 
         $parseYearMonth = function ($dateVal) {
@@ -172,15 +178,7 @@ class OfficeBopLeadController extends Controller
                 $chartData['peminat'][$record->bulan]++;
             }
 
-            // 2. LOO (Berdasarkan Tanggal LOO)
-            if (!empty(trim($record->loo ?? ''))) {
-                $ym = $parseYearMonth($record->loo);
-                if ($ym && $ym[0] == $selectedYear) {
-                    $chartData['loo'][$ym[1]]++;
-                }
-            }
-
-            // 3. Nomlet Dikirim (Berdasarkan Tanggal Nomlet Dikirim)
+            // 2. Nomlet Dikirim (Berdasarkan Tanggal Nomlet Dikirim)
             if (!empty(trim($record->nomlet_dikirim ?? ''))) {
                 $ym = $parseYearMonth($record->nomlet_dikirim);
                 if ($ym && $ym[0] == $selectedYear) {
@@ -188,11 +186,19 @@ class OfficeBopLeadController extends Controller
                 }
             }
 
-            // 4. Nomlet Disetujui (Berdasarkan Tanggal Nomlet Disetujui)
+            // 3. Nomlet Disetujui (Berdasarkan Tanggal Nomlet Disetujui)
             if (!empty(trim($record->nomlet_disetujui ?? ''))) {
                 $ym = $parseYearMonth($record->nomlet_disetujui);
                 if ($ym && $ym[0] == $selectedYear) {
                     $chartData['nomlet_disetujui'][$ym[1]]++;
+                }
+            }
+
+            // 4. Kirim LOO (Berdasarkan Tanggal LOO)
+            if (!empty(trim($record->loo ?? ''))) {
+                $ym = $parseYearMonth($record->loo);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['loo'][$ym[1]]++;
                 }
             }
 
@@ -201,6 +207,22 @@ class OfficeBopLeadController extends Controller
                 $ym = $parseYearMonth($record->dp);
                 if ($ym && $ym[0] == $selectedYear) {
                     $chartData['dp'][$ym[1]]++;
+                }
+            }
+
+            // 6. Serah Terima (Berdasarkan Tanggal Serah Terima)
+            if (!empty(trim($record->serah_terima ?? ''))) {
+                $ym = $parseYearMonth($record->serah_terima);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['serah_terima'][$ym[1]]++;
+                }
+            }
+
+            // 7. Fitting Out (Berdasarkan Tanggal Fitting Out)
+            if (!empty(trim($record->fitting_out ?? ''))) {
+                $ym = $parseYearMonth($record->fitting_out);
+                if ($ym && $ym[0] == $selectedYear) {
+                    $chartData['fitting_out'][$ym[1]]++;
                 }
             }
         }
@@ -241,11 +263,12 @@ class OfficeBopLeadController extends Controller
             'search',
             'viewMode',
             'totalPeminat',
-            'totalLoo',
             'totalNomletDikirim',
             'totalNomletDisetujui',
+            'totalLoo',
             'totalDp',
             'totalSerah',
+            'totalFitting',
             'growthData',
             'progressData',
             'chartData',

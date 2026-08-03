@@ -45,6 +45,18 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::resource('office-spaces', OfficeSpaceController::class)->names('admin.office_spaces');
     Route::resource('gallery', GalleryController::class)->names('admin.gallery');
     Route::get('calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('admin.calendar.index');
+    Route::post('calendar/events', [\App\Http\Controllers\CalendarController::class, 'storeEvent'])->name('admin.calendar.events.store');
+    Route::put('calendar/events/{id}', [\App\Http\Controllers\CalendarController::class, 'updateEvent'])->name('admin.calendar.events.update');
+    Route::delete('calendar/events/{id}', [\App\Http\Controllers\CalendarController::class, 'destroyEvent'])->name('admin.calendar.events.destroy');
+
+    // ── Notifications Routes ───────────────────────────────────────────────
+    Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::get('notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('admin.notifications.unread_count');
+    Route::get('notifications/recent', [\App\Http\Controllers\NotificationController::class, 'recent'])->name('admin.notifications.recent');
+    Route::post('notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('admin.notifications.read_all');
+    Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+    Route::delete('notifications/clear-all', [\App\Http\Controllers\NotificationController::class, 'destroyAll'])->name('admin.notifications.destroy_all');
+    Route::delete('notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('admin.notifications.destroy');
 
     // ── LK3 Reports ──────────────────────────────────────────────────────────
     Route::get('lk3', [Lk3ReportController::class, 'index'])->name('admin.lk3.index');
@@ -80,12 +92,16 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::post('bop-leads/{id}/follow-up', [OfficeBopLeadController::class, 'updateFollowUp'])->name('admin.bop-leads.updateFollowUp');
     Route::delete('bop-leads/clear-all', [OfficeBopLeadController::class, 'destroyAll'])->name('admin.bop-leads.destroyAll');
     Route::delete('bop-leads/{id}', [OfficeBopLeadController::class, 'destroy'])->name('admin.bop-leads.destroy');
+
+    // ── Pengaturan Akun & Profile ─────────────────────────────────────────────
+    Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('admin.profile.index');
+    Route::put('profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('admin.profile.password.update');
 });
 
-Route::post('/logout', function (Illuminate\Http\Request $request) {
+Route::match(['get', 'post'], '/logout', function (Illuminate\Http\Request $request) {
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     session()->forget('admin_logged_in');
-    return redirect()->route('home');
+    return redirect()->route('login')->with('success', 'Anda telah berhasil log out.');
 })->name('logout');

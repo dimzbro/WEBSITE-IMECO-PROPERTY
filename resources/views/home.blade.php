@@ -359,15 +359,6 @@
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                             allowfullscreen="true"
                             title="Office Safety Induction Video"></iframe>
-
-                        {{-- Floating Fullscreen Button --}}
-                        <button type="button" onclick="toggleSafetyVideoFullscreen()" 
-                            class="absolute bottom-4 right-4 z-30 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 shadow-xl flex items-center gap-2 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
-                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                            </svg>
-                            <span>Full Screen</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -763,19 +754,6 @@
                                 <svg class="w-5 h-5" style="color: #1E3A8A;" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="font-bold text-gray-900 text-sm">Phone Number</div>
-                                <div class="text-gray-500 text-sm mt-0.5">-</div>
-                            </div>
-                        </div>
-                        <div class="contact-info-item">
-                            <div class="contact-icon">
-                                <svg class="w-5 h-5" style="color: #1E3A8A;" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
@@ -1060,8 +1038,8 @@
                         * No. HP: ${phone}
                         * Pesan: ${message}`;
 
-                // URL encode the message and point to the requested WhatsApp number
-                const waUrl = `https://wa.me/6281213115450?text=${encodeURIComponent(waMessage)}`;
+                // URL encode the message and point to the requested WhatsApp number (+62 812-9559-059)
+                const waUrl = `https://wa.me/628129559059?text=${encodeURIComponent(waMessage)}`;
 
                 // Open WhatsApp in a new tab
                 window.open(waUrl, '_blank');

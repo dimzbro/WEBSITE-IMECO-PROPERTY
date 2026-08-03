@@ -21,7 +21,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Iconify CDN -->
-    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
 
     <style>
         .feature-icon svg,
@@ -392,15 +392,6 @@
     });
 
     // ===== SECRET LOGIN PORTAL =====
-    // Double click the logo to go to login
-    const logoLink = document.querySelector('nav a[href="#hero"]');
-    if (logoLink) {
-        logoLink.addEventListener('dblclick', (e) => {
-            e.preventDefault();
-            window.location.href = "{{ route('login') }}";
-        });
-    }
-
     // Ctrl + Shift + L to go to login
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'l') {

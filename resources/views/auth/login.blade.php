@@ -23,9 +23,9 @@
         
         <!-- Logo/Header -->
         <div class="text-center mb-8">
-            <a href="/" class="inline-flex items-center gap-3 no-underline mb-4">
+            <div class="inline-flex items-center justify-center gap-3 mb-4">
                 <img src="{{ asset('logo_bop.png') }}" alt="BELTWAY Logo" class="w-12 h-12 object-contain brightness-0 invert">
-            </a>
+            </div>
             <h2 class="text-2xl font-black tracking-tight text-white mb-1">Welcome Back</h2>
             <p class="text-sm text-white/60">Beltway Office Park Admin Portal</p>
         </div>
@@ -57,7 +57,6 @@
                     <input type="checkbox" class="rounded border-white/10 bg-white/5 text-[#1E3A8A] focus:ring-0 focus:ring-offset-0">
                     <span>Remember me</span>
                 </label>
-                <a href="#" class="hover:text-white transition-colors">Forgot password?</a>
             </div>
 
             <button type="submit" 
@@ -68,16 +67,6 @@
                 Sign In
             </button>
         </form>
-
-        <!-- Back to site -->
-        <div class="text-center mt-6">
-            <a href="javascript:history.back()" class="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Back to main site
-            </a>
-        </div>
     </div>
 </body>
 </html>

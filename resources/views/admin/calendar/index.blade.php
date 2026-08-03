@@ -48,18 +48,22 @@
         </div>
 
         <!-- Legend Tags -->
-        <div class="flex flex-wrap items-center gap-3.5 text-xs font-bold text-slate-500">
+        <div class="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500">
+            <span class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                Meeting
+            </span>
             <span class="flex items-center gap-1.5">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                Tenant Masuk
+                Inspeksi / Masuk
             </span>
             <span class="flex items-center gap-1.5">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                Lease Berakhir
+                Maintenance / Lease
             </span>
             <span class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-                Maintenance
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                Acara
             </span>
         </div>
     </div>
@@ -118,9 +122,13 @@
             </div>
         </div>
 
+    </div>
+
+</div>
+
 <!-- Modal: Event Detail -->
-<div id="event-detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all duration-200 scale-95 opacity-0" id="event-detail-card">
+<div id="event-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all duration-200 scale-95 opacity-0" id="event-detail-card">
         <!-- Header color-coded by event type -->
         <div id="event-modal-header" class="p-5 text-white flex items-center justify-between">
             <div>
@@ -142,240 +150,86 @@
                     <span class="text-slate-800 font-extrabold text-xs mt-0.5 block" id="event-modal-date"></span>
                 </div>
             </div>
+
+            <div id="custom-event-actions" class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2 hidden">
+                <form id="form-delete-event" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl transition-colors">
+                        Hapus Agenda
+                    </button>
+                </form>
+            </div>
             
-            <button onclick="closeEventDetailModal()" class="w-full py-2.5 text-center bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors cursor-pointer mt-2">
+            <button onclick="closeEventDetailModal()" class="w-full py-2.5 text-center bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors cursor-pointer mt-1">
                 Tutup
             </button>
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const monthSelect = document.getElementById('month-select');
-        const yearSelect = document.getElementById('year-select');
-        const prevMonthBtn = document.getElementById('prev-month-btn');
-        const nextMonthBtn = document.getElementById('next-month-btn');
-        const calendarGridCells = document.getElementById('calendar-grid-cells');
-        const agendaListContainer = document.getElementById('agenda-list-container');
-        const agendaTitle = document.getElementById('agenda-title');
-        const selectedDateLabel = document.getElementById('selected-date-label');
-        const calendarLoading = document.getElementById('calendar-loading');
-        
-        let defaultAgendaHtml = agendaListContainer.innerHTML;
-        let defaultAgendaTitle = agendaTitle.textContent;
+document.addEventListener('DOMContentLoaded', function () {
+    const monthSelect = document.getElementById('month-select');
+    const yearSelect = document.getElementById('year-select');
+    const prevBtn = document.getElementById('prev-month-btn');
+    const nextBtn = document.getElementById('next-month-btn');
+    const calendarGridCells = document.getElementById('calendar-grid-cells');
+    const agendaListContainer = document.getElementById('agenda-list-container');
+    const agendaTitle = document.getElementById('agenda-title');
+    const calendarLoading = document.getElementById('calendar-loading');
 
-        // Function to bind click listeners to day cells
-        function bindDayCells() {
-            const dayCells = document.querySelectorAll('.day-cell');
-            dayCells.forEach(cell => {
-                cell.addEventListener('click', function(e) {
-                    // Remove active styling from all cells
-                    dayCells.forEach(c => c.classList.remove('ring-2', 'ring-[#1E3A8A]', 'z-10'));
-                    
-                    // Add active style to clicked cell
-                    this.classList.add('ring-2', 'ring-[#1E3A8A]', 'z-10');
+    let currentMonth = parseInt(monthSelect.value);
+    let currentYear = parseInt(yearSelect.value);
 
-                    const day = this.getAttribute('data-day');
-                    const events = JSON.parse(this.getAttribute('data-events') || '[]');
+    // Color definitions for event modal header
+    const typeHeaderColors = {
+        'Masuk': 'bg-emerald-600',
+        'Renewal': 'bg-amber-600',
+        'Meeting': 'bg-indigo-600',
+        'Inspeksi': 'bg-emerald-600',
+        'Maintenance': 'bg-amber-600',
+        'Acara': 'bg-purple-600',
+    };
 
-                    // Update selected date header label
-                    const monthText = monthSelect.options[monthSelect.selectedIndex].text;
-                    selectedDateLabel.innerHTML = `<span class="text-[#1E3A8A] font-extrabold">${day} ${monthText}</span>`;
-                    agendaTitle.textContent = `Jadwal Tanggal ${day}`;
-
-                    // Populate side panel with clicked day's events
-                    agendaListContainer.innerHTML = '';
-
-                    if (events.length === 0) {
-                        agendaListContainer.innerHTML = `
-                            <div class="py-12 text-center text-slate-400 font-semibold italic bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
-                                Tidak ada jadwal untuk tanggal ini.
-                            </div>
-                        `;
-                    } else {
-                        events.forEach(event => {
-                            let dotColor = 'bg-slate-500 text-white';
-                            if (event.type === 'Masuk') dotColor = 'bg-emerald-500 text-white';
-                            else if (event.type === 'Renewal') dotColor = 'bg-amber-500 text-white';
-                            else if (event.type === 'Maintenance') dotColor = 'bg-indigo-500 text-white';
-
-                            const eventCard = `
-                                <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50/50 border border-slate-100 transition-colors duration-200">
-                                    <div class="w-8 h-8 rounded-xl ${dotColor} flex items-center justify-center font-black text-xs flex-shrink-0 shadow-sm">
-                                        ${day}
-                                    </div>
-                                    <div class="space-y-0.5 overflow-hidden">
-                                        <h4 class="font-extrabold text-slate-800 text-xs truncate">${event.title}</h4>
-                                        <p class="text-[10px] font-semibold text-slate-450 truncate">${event.detail}</p>
-                                    </div>
-                                </div>
-                            `;
-                            agendaListContainer.insertAdjacentHTML('beforeend', eventCard);
-                        });
-                    }
-                });
-            });
-        }
-
-        // Fetch calendar data from backend
-        function loadCalendarData(month, year) {
-            // Show loading overlay
-            calendarLoading.classList.remove('opacity-0', 'pointer-events-none');
-            calendarLoading.classList.add('opacity-100');
-
-            const url = `{{ route('admin.calendar.index') }}?month=${month}&year=${year}&ajax=1`;
-
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                // Update dropdown values
-                monthSelect.value = data.month;
-                yearSelect.value = data.year;
-
-                // Update DOM containers
-                calendarGridCells.innerHTML = data.grid_html;
-                agendaListContainer.innerHTML = data.agenda_html;
-
-                // Update default agenda baseline state
-                defaultAgendaHtml = data.agenda_html;
-                defaultAgendaTitle = `Semua Jadwal ${data.monthName}`;
-
-                // Reset selection highlights and side labels
-                selectedDateLabel.textContent = 'Klik tanggal untuk melihat jadwal';
-                agendaTitle.textContent = defaultAgendaTitle;
-
-                // Re-bind click events to newly loaded day cells
-                bindDayCells();
-            })
-            .catch(err => {
-                console.error("Gagal memuat data kalender:", err);
-            })
-            .finally(() => {
-                // Hide loading overlay
-                calendarLoading.classList.remove('opacity-100');
-                calendarLoading.classList.add('opacity-0', 'pointer-events-none');
-            });
-        }
-
-        // Bind initial day cell click handlers
-        bindDayCells();
-
-        // Listen to Month dropdown selection change
-        monthSelect.addEventListener('change', function() {
-            loadCalendarData(this.value, yearSelect.value);
-        });
-
-        // Listen to Year dropdown selection change
-        yearSelect.addEventListener('change', function() {
-            loadCalendarData(monthSelect.value, this.value);
-        });
-
-        // Prev Month navigation click handler
-        prevMonthBtn.addEventListener('click', function() {
-            let currentMonth = parseInt(monthSelect.value);
-            let currentYear = parseInt(yearSelect.value);
-
-            currentMonth--;
-            if (currentMonth < 1) {
-                currentMonth = 12;
-                currentYear--;
-            }
-
-            loadCalendarData(currentMonth, currentYear);
-        });
-
-        // Next Month navigation click handler
-        nextMonthBtn.addEventListener('click', function() {
-            let currentMonth = parseInt(monthSelect.value);
-            let currentYear = parseInt(yearSelect.value);
-
-            currentMonth++;
-            if (currentMonth > 12) {
-                currentMonth = 1;
-                currentYear++;
-            }
-
-            loadCalendarData(currentMonth, currentYear);
-        });
-
-        // Reset click listener when clicking outside cells
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.day-cell') && !e.target.closest('#agenda-list-container') && !e.target.closest('.day-cell *')) {
-                const dayCells = document.querySelectorAll('.day-cell');
-                dayCells.forEach(c => c.classList.remove('ring-2', 'ring-[#1E3A8A]', 'z-10'));
-                selectedDateLabel.textContent = 'Klik tanggal untuk melihat jadwal';
-                agendaTitle.textContent = defaultAgendaTitle;
-                agendaListContainer.innerHTML = defaultAgendaHtml;
-            }
-        });
-
-        // Dynamic delegation click handler for event pills & agenda items
-        document.addEventListener('click', function(e) {
-            const eventPill = e.target.closest('.event-pill');
-            const agendaItem = e.target.closest('.agenda-item');
-            
-            if (eventPill || agendaItem) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const target = eventPill || agendaItem;
-                const type = target.getAttribute('data-type');
-                const title = target.getAttribute('data-title');
-                const detail = target.getAttribute('data-detail');
-                const date = target.getAttribute('data-date');
-                
-                openEventDetailModal(type, title, detail, date);
-            }
-        });
-
-        // Close detail modal on click outside card
-        const eventDetailModal = document.getElementById('event-detail-modal');
-        if (eventDetailModal) {
-            eventDetailModal.addEventListener('click', function(e) {
-                if (!e.target.closest('#event-detail-card')) {
-                    closeEventDetailModal();
-                }
-            });
-        }
-    });
-
-    function openEventDetailModal(type, title, detail, date) {
+    function openEventDetailModal(data) {
         const modal = document.getElementById('event-detail-modal');
         const card = document.getElementById('event-detail-card');
         const header = document.getElementById('event-modal-header');
         const badge = document.getElementById('event-modal-type-badge');
-        const titleEl = document.getElementById('event-modal-title');
-        const locationEl = document.getElementById('event-modal-location');
-        const dateEl = document.getElementById('event-modal-date');
-        
-        // Color themes
-        header.className = "p-5 text-white flex items-center justify-between " + (
-            type === 'Masuk' ? 'bg-emerald-600' :
-            type === 'Renewal' ? 'bg-amber-500' : 'bg-indigo-600'
-        );
-        
-        badge.textContent = type === 'Masuk' ? 'Tenant Masuk' :
-                            type === 'Renewal' ? 'Lease Berakhir' : 'Maintenance';
-                            
-        titleEl.textContent = title;
-        locationEl.textContent = detail;
-        dateEl.textContent = date;
-        
+        const title = document.getElementById('event-modal-title');
+        const location = document.getElementById('event-modal-location');
+        const date = document.getElementById('event-modal-date');
+        const customActions = document.getElementById('custom-event-actions');
+        const formDelete = document.getElementById('form-delete-event');
+
+        // Apply color
+        const bgClass = typeHeaderColors[data.type] || 'bg-slate-800';
+        header.className = `p-5 text-white flex items-center justify-between ${bgClass}`;
+
+        badge.textContent = data.type || 'Agenda';
+        title.textContent = data.title || '-';
+        location.textContent = data.detail || '-';
+        date.textContent = data.date || '-';
+
+        if (data.isCustom === '1' && data.id) {
+            customActions.classList.remove('hidden');
+            formDelete.action = `{{ url('admin/calendar/events') }}/${data.id}`;
+        } else {
+            customActions.classList.add('hidden');
+        }
+
         modal.classList.remove('hidden');
         setTimeout(() => {
             card.classList.remove('scale-95', 'opacity-0');
             card.classList.add('scale-100', 'opacity-100');
-        }, 50);
+        }, 10);
     }
-    
-    function closeEventDetailModal() {
+
+    window.closeEventDetailModal = function() {
         const modal = document.getElementById('event-detail-modal');
         const card = document.getElementById('event-detail-card');
         card.classList.remove('scale-100', 'opacity-100');
@@ -383,10 +237,86 @@
         setTimeout(() => {
             modal.classList.add('hidden');
         }, 200);
+    };
+
+    function attachEventHandlers() {
+        document.querySelectorAll('.event-pill, .agenda-item').forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                openEventDetailModal({
+                    id: this.getAttribute('data-id'),
+                    isCustom: this.getAttribute('data-is-custom'),
+                    type: this.getAttribute('data-type'),
+                    title: this.getAttribute('data-title'),
+                    detail: this.getAttribute('data-detail'),
+                    date: this.getAttribute('data-date'),
+                    eventDate: this.getAttribute('data-event-date'),
+                    reminder: this.getAttribute('data-reminder'),
+                    location: this.getAttribute('data-location'),
+                    notes: this.getAttribute('data-notes')
+                });
+            });
+        });
     }
-    
-    // Make them globally available
-    window.openEventDetailModal = openEventDetailModal;
-    window.closeEventDetailModal = closeEventDetailModal;
+
+    attachEventHandlers();
+
+    // Fetch calendar data from backend via AJAX
+    function loadCalendarData(month, year) {
+        calendarLoading.classList.remove('opacity-0', 'pointer-events-none');
+        calendarLoading.classList.add('opacity-100');
+
+        const url = `{{ route('admin.calendar.index') }}?month=${month}&year=${year}&ajax=1`;
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(res => res.json())
+            .then(data => {
+                calendarGridCells.innerHTML = data.grid_html;
+                agendaListContainer.innerHTML = data.agenda_html;
+                agendaTitle.textContent = `Semua Jadwal ${data.monthName}`;
+                
+                attachEventHandlers();
+
+                calendarLoading.classList.remove('opacity-100');
+                calendarLoading.classList.add('opacity-0', 'pointer-events-none');
+            })
+            .catch(err => {
+                console.error(err);
+                calendarLoading.classList.remove('opacity-100');
+                calendarLoading.classList.add('opacity-0', 'pointer-events-none');
+            });
+    }
+
+    monthSelect.addEventListener('change', function() {
+        currentMonth = parseInt(this.value);
+        loadCalendarData(currentMonth, currentYear);
+    });
+
+    yearSelect.addEventListener('change', function() {
+        currentYear = parseInt(this.value);
+        loadCalendarData(currentMonth, currentYear);
+    });
+
+    prevBtn.addEventListener('click', function() {
+        currentMonth--;
+        if (currentMonth < 1) {
+            currentMonth = 12;
+            currentYear--;
+        }
+        monthSelect.value = currentMonth;
+        yearSelect.value = currentYear;
+        loadCalendarData(currentMonth, currentYear);
+    });
+
+    nextBtn.addEventListener('click', function() {
+        currentMonth++;
+        if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear++;
+        }
+        monthSelect.value = currentMonth;
+        yearSelect.value = currentYear;
+        loadCalendarData(currentMonth, currentYear);
+    });
+});
 </script>
 @endsection

@@ -380,6 +380,65 @@
     </div>
     @endif
 
+    {{-- ── Grafik Analisis Tren Monthly Peminat Office BOP (Kondisional Data) ── --}}
+    @if($hasBopLeadData)
+    <div class="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+            <div>
+                <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                    Grafik Analisis Tren Monthly Peminat Office BOP (Tahun {{ $bopSelectedYear }})
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">
+                    Perbandingan setiap bulan berdasarkan Tanggal Follow Up: Total Peminat, Dikirim Nomlet, Nomlet Disetujui, Kirim LOO, Sudah DP, Serah Terima, dan Fitting Out
+                </p>
+            </div>
+            <a href="{{ route('admin.bop-leads.index') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-[#1E3A8A] text-xs font-extrabold rounded-xl border border-blue-200/70 transition-colors self-start sm:self-auto">
+                <span>Kelola Peminat BOP</span>
+                <iconify-icon icon="lucide:arrow-right" class="text-xs"></iconify-icon>
+            </a>
+        </div>
+
+        {{-- Legend Indicators --}}
+        <div style="display: flex; flex-wrap: wrap; align-items: center; padding-top: 4px;">
+            <div style="display: inline-flex; align-items: center; margin-right: 20px; margin-bottom: 8px; white-space: nowrap;">
+                <span style="width: 10px; height: 10px; background-color: #2563eb; display: inline-block; border-radius: 9999px; margin-right: 6px;"></span>
+                <span style="font-size: 13px; font-weight: 700; color: #334155;">Peminat</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; margin-right: 20px; margin-bottom: 8px; white-space: nowrap;">
+                <span style="width: 10px; height: 10px; background-color: #7c3aed; display: inline-block; border-radius: 9999px; margin-right: 6px;"></span>
+                <span style="font-size: 13px; font-weight: 700; color: #334155;">Dikirim Nomlet</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; margin-right: 20px; margin-bottom: 8px; white-space: nowrap;">
+                <span style="width: 10px; height: 10px; background-color: #16a34a; display: inline-block; border-radius: 9999px; margin-right: 6px;"></span>
+                <span style="font-size: 13px; font-weight: 700; color: #334155;">Nomlet Disetujui</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; margin-right: 20px; margin-bottom: 8px; white-space: nowrap;">
+                <span style="width: 10px; height: 10px; background-color: #f97316; display: inline-block; border-radius: 9999px; margin-right: 6px;"></span>
+                <span style="font-size: 13px; font-weight: 700; color: #334155;">Kirim LOO</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; margin-right: 20px; margin-bottom: 8px; white-space: nowrap;">
+                <span style="width: 10px; height: 10px; background-color: #059669; display: inline-block; border-radius: 9999px; margin-right: 6px;"></span>
+                <span style="font-size: 13px; font-weight: 700; color: #334155;">Sudah DP</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; margin-right: 20px; margin-bottom: 8px; white-space: nowrap;">
+                <span style="width: 10px; height: 10px; background-color: #4f46e5; display: inline-block; border-radius: 9999px; margin-right: 6px;"></span>
+                <span style="font-size: 13px; font-weight: 700; color: #334155;">Serah Terima</span>
+            </div>
+            <div style="display: inline-flex; align-items: center; margin-bottom: 8px; white-space: nowrap;">
+                <span style="width: 10px; height: 10px; background-color: #0d9488; display: inline-block; border-radius: 9999px; margin-right: 6px;"></span>
+                <span style="font-size: 13px; font-weight: 700; color: #334155;">Fitting Out</span>
+            </div>
+        </div>
+
+        <div class="h-80 relative w-full">
+            <canvas id="dashBopLeadsChart"></canvas>
+        </div>
+    </div>
+    @endif
+
     {{-- ── LK3 & Rekapitulasi Dashboard Charts (sumber data realtime bulan terbaru) ── --}}
     @if($lk3TotalRecords > 0 || $rekTotalRecords > 0)
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -656,7 +715,7 @@
 
 @section('scripts')
 <!-- Load ChartJS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Line Chart: Tenant Growth
@@ -798,7 +857,6 @@
 
 {{-- ── LK3 & Rekapitulasi Bar Charts Script ─────────────────────────────────── --}}
 @if($lk3TotalRecords > 0 || $rekTotalRecords > 0)
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 (function () {
     const lk3NavyPalette = ['#1E3A8A','#1D4ED8','#2563EB','#3B82F6','#60A5FA','#93C5FD','#0F172A','#1E293B','#334155','#475569'];
@@ -1109,6 +1167,105 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     @endif
+});
+</script>
+@endif
+
+{{-- ── Monthly BOP Office Leads Analytics Chart Script ────────────────── --}}
+@if($hasBopLeadData)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dashBopCtx = document.getElementById('dashBopLeadsChart');
+    if (dashBopCtx) {
+        new Chart(dashBopCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                datasets: [
+                    {
+                        label: 'Total Peminat',
+                        data: @json(array_values($bopChartData['peminat'])),
+                        backgroundColor: '#2563eb',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    },
+                    {
+                        label: 'Dikirim Nomlet',
+                        data: @json(array_values($bopChartData['nomlet_dikirim'])),
+                        backgroundColor: '#7c3aed',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    },
+                    {
+                        label: 'Nomlet Disetujui',
+                        data: @json(array_values($bopChartData['nomlet_disetujui'])),
+                        backgroundColor: '#16a34a',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    },
+                    {
+                        label: 'Kirim LOO',
+                        data: @json(array_values($bopChartData['loo'])),
+                        backgroundColor: '#f97316',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    },
+                    {
+                        label: 'Sudah DP',
+                        data: @json(array_values($bopChartData['dp'])),
+                        backgroundColor: '#059669',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    },
+                    {
+                        label: 'Serah Terima',
+                        data: @json(array_values($bopChartData['serah_terima'])),
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    },
+                    {
+                        label: 'Fitting Out',
+                        data: @json(array_values($bopChartData['fitting_out'])),
+                        backgroundColor: '#0d9488',
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.7,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        padding: 12,
+                        cornerRadius: 12,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0, font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' } },
+                        grid: { color: '#f1f5f9' }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
 });
 </script>
 @endif

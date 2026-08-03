@@ -5,15 +5,24 @@
         @foreach($cell['events'] as $event)
             @php
                 $dotColors = [
-                    'Masuk' => 'bg-emerald-500 text-white',
-                    'Renewal' => 'bg-amber-500 text-white',
-                    'Maintenance' => 'bg-indigo-500 text-white',
+                    'Masuk'       => 'bg-emerald-500 text-white',
+                    'Renewal'     => 'bg-amber-500 text-white',
+                    'Meeting'     => 'bg-indigo-500 text-white',
+                    'Inspeksi'    => 'bg-emerald-500 text-white',
+                    'Maintenance' => 'bg-amber-500 text-white',
+                    'Acara'       => 'bg-purple-500 text-white',
                 ][$event['type']] ?? 'bg-slate-500 text-white';
             @endphp
             <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 duration-200 agenda-item cursor-pointer"
+                 data-id="{{ $event['id'] ?? '' }}"
+                 data-is-custom="{{ !empty($event['is_custom']) ? '1' : '0' }}"
                  data-type="{{ $event['type'] }}"
                  data-title="{{ $event['title'] }}"
                  data-detail="{{ $event['detail'] }}"
+                 data-event-date="{{ $event['event_date'] ?? '' }}"
+                 data-reminder="{{ $event['reminder_time'] ?? 'same_time' }}"
+                 data-location="{{ $event['location'] ?? '' }}"
+                 data-notes="{{ $event['notes'] ?? '' }}"
                  data-date="{{ $cell['day'] }} {{ $monthName }}">
                 <div class="w-8 h-8 rounded-xl {{ $dotColors }} flex items-center justify-center font-black text-xs flex-shrink-0 shadow-sm">
                     {{ $cell['day'] }}
@@ -28,7 +37,7 @@
 @endforeach
 
 @if(!$hasAnyEvents)
-    <div class="py-12 text-center text-slate-400 font-semibold italic bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+    <div class="py-12 text-center text-slate-400 font-semibold italic bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-xs">
         Tidak ada jadwal kegiatan bulan ini.
     </div>
 @endif

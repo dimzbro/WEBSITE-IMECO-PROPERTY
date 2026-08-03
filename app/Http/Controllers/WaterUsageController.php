@@ -304,10 +304,15 @@ class WaterUsageController extends Controller
 
         WaterUsage::create($validated);
 
-        return redirect()->route('admin.water.index', [
+        $redirectParams = [
             'tahun' => $validated['tahun'],
-            'gedung' => $validated['gedung']
-        ])->with('success', 'Data penggunaan air bersih berhasil ditambahkan.');
+        ];
+        if ($request->filled('view')) {
+            $redirectParams['view'] = $request->input('view');
+        }
+
+        return redirect()->route('admin.water.index', $redirectParams)
+            ->with('success', 'Data penggunaan air bersih berhasil ditambahkan.');
     }
 
     public function update(Request $request, $id)

@@ -296,10 +296,15 @@ class ElectricityUsageController extends Controller
 
         ElectricityUsage::create($validated);
 
-        return redirect()->route('admin.electricity.index', [
+        $redirectParams = [
             'tahun' => $validated['tahun'],
-            'gedung' => $validated['gedung']
-        ])->with('success', 'Data penggunaan daya listrik berhasil ditambahkan.');
+        ];
+        if ($request->filled('view')) {
+            $redirectParams['view'] = $request->input('view');
+        }
+
+        return redirect()->route('admin.electricity.index', $redirectParams)
+            ->with('success', 'Data penggunaan daya listrik berhasil ditambahkan.');
     }
 
     public function update(Request $request, $id)

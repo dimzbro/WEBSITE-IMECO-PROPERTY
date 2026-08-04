@@ -328,4 +328,34 @@ class TenantController extends Controller
 
         return redirect()->route('admin.tenants.index')->with('success', 'Tenant ' . $companyName . ' dan alokasi unitnya berhasil dihapus dari sistem.');
     }
+
+    /**
+     * Remove / release a specific space allocation (contract) for a tenant.
+     */
+    public function destroyAllocation($id)
+    {
+        $space = SpaceAllocation::with(['tenant', 'building'])->findOrFail($id);
+        $tenantName = $space->tenant->company_name ?? 'Tenant';
+        $unitInfo = ($space->building->name ?? 'Gedung') . ' Unit ' . $space->unit_number;
+
+        $otherAllocationsCount = SpaceAllocation::where('building_id', $space->building_id)
+            ->where('floor_number', $space->floor_number)
+            ->where('unit_number', $space->unit_number)
+            ->where('id', '!=', $space->id)
+            ->count();
+
+        if ($otherAllocationsCount > 0) {
+            $space->delete();
+        } else {
+            $space->update([
+                'tenant_id' => null,
+                'status' => 'Kosong',
+                'lease_start' => null,
+                'lease_end' => null,
+                'payment_status' => null,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Kontrak ' . $unitInfo . ' untuk ' . $tenantName . ' berhasil dihapus/dikosongkan.');
+    }
 }

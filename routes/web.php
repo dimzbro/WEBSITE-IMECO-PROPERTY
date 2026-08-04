@@ -38,6 +38,7 @@ Route::post('/login', function (Illuminate\Http\Request $request) {
 Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin');
     Route::resource('tenants', TenantController::class)->names('admin.tenants');
+    Route::delete('tenants/allocations/{allocation}', [TenantController::class, 'destroyAllocation'])->name('admin.tenants.destroy_allocation');
     Route::get('buildings', [BuildingController::class, 'index'])->name('admin.buildings.index');
     Route::post('buildings/allocate', [BuildingController::class, 'allocate'])->name('admin.buildings.allocate');
     Route::post('buildings/release/{allocation}', [BuildingController::class, 'release'])->name('admin.buildings.release');

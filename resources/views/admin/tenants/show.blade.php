@@ -99,58 +99,77 @@
 
             <!-- Section 2: Space Allocation Details -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h3 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Alokasi Ruang & Kontrak
-                </h3>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Alokasi Ruang & Kontrak ({{ $tenant->spaceAllocations->count() }})
+                    </h3>
+                    <a href="{{ route('admin.buildings.index') }}" class="text-xs font-bold text-[#1E3A8A] hover:underline flex items-center gap-1">
+                        + Alokasi Unit Baru
+                    </a>
+                </div>
 
-                @if($alloc)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium">
-                        <div>
-                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Gedung / Menara</div>
-                            <div class="text-slate-800 mt-1 font-bold">{{ $alloc->building->name ?? 'Beltway Office Park' }}</div>
-                        </div>
-                        <div>
-                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Lantai / Nomor Unit</div>
-                            <div class="text-slate-800 mt-1 font-bold">Lantai {{ $alloc->floor_number }} — {{ $alloc->unit_number }}</div>
-                        </div>
-                        <div>
-                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Luas Area Kantor</div>
-                            <div class="text-slate-800 mt-1">{{ $alloc->area_size }} m²</div>
+                @forelse($tenant->spaceAllocations as $alloc)
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-[#1E3A8A]"></span>
+                                <span class="font-bold text-slate-800 text-sm">
+                                    {{ $alloc->building->name ?? 'Beltway Office Park' }} — Lt.{{ $alloc->floor_number }} ({{ $alloc->unit_number }})
+                                </span>
+                            </div>
+                            <!-- Form Delete Specific Contract -->
+                            <form action="{{ route('admin.tenants.destroy_allocation', $alloc->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus/mengosongkan kontrak unit {{ $alloc->building->name ?? '' }} ({{ $alloc->unit_number }}) ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-2.5 py-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition-colors flex items-center gap-1 cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    Hapus Kontrak Ini
+                                </button>
+                            </form>
                         </div>
 
-                        <div>
-                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Status Kontrak</div>
-                            <div class="mt-1 flex">
-                                @if($alloc->status === 'Kontrak Aktif')
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800">Kontrak Aktif</span>
-                                @elseif($alloc->status === 'Kontrak Mendekati Berakhir')
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800">Kontrak Mendekati Berakhir</span>
-                                @elseif($alloc->status === 'Hampir Berakhir')
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 animate-pulse">Hampir Berakhir</span>
-                                @elseif($alloc->status === 'Kontrak Habis')
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-900 text-white border border-black shadow-sm">Kontrak Habis</span>
-                                @else
-                                    <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-800">{{ $alloc->status }}</span>
-                                @endif
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium pt-2 border-t border-slate-200/60">
+                            <div>
+                                <div class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Luas Area Kantor</div>
+                                <div class="text-slate-800 mt-0.5 font-semibold">{{ $alloc->area_size }} m²</div>
+                            </div>
+
+                            <div>
+                                <div class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Status Kontrak</div>
+                                <div class="mt-0.5">
+                                    @if($alloc->status === 'Kontrak Aktif')
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">Kontrak Aktif</span>
+                                    @elseif($alloc->status === 'Kontrak Mendekati Berakhir')
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800">Kontrak Mendekati Berakhir</span>
+                                    @elseif($alloc->status === 'Hampir Berakhir')
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-800 animate-pulse">Hampir Berakhir</span>
+                                    @elseif($alloc->status === 'Kontrak Habis')
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-900 text-white border border-black shadow-sm">Kontrak Habis</span>
+                                    @else
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-800">{{ $alloc->status }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Mulai Kontrak Sewa</div>
+                                <div class="text-slate-800 mt-0.5">{{ $alloc->lease_start ?? '—' }}</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Berakhir Kontrak Sewa</div>
+                                <div class="text-slate-800 mt-0.5">{{ $alloc->lease_end ?? '—' }}</div>
                             </div>
                         </div>
-                        <div>
-                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Mulai Kontrak Sewa</div>
-                            <div class="text-slate-800 mt-1">{{ $alloc->lease_start }}</div>
-                        </div>
-                        <div>
-                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Berakhir Kontrak Sewa</div>
-                            <div class="text-slate-800 mt-1">{{ $alloc->lease_end }}</div>
-                        </div>
                     </div>
-                @else
-                    <div class="p-6 text-center text-slate-400 italic">
+                @empty
+                    <div class="p-6 text-center text-slate-400 italic text-xs">
                         Tidak ada alokasi gedung aktif untuk tenant ini.
                     </div>
-                @endif
+                @endforelse
             </div>
 
         </div>
